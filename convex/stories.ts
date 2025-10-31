@@ -12,6 +12,23 @@ export const getSessionStories = query({
   },
 });
 
+export const getActiveStory = query({
+  args: { sessionId: v.id("sessions") },
+  handler: async (ctx, args) => {
+    const activeStory = await ctx.db
+      .query("stories")
+      .filter((q) => 
+        q.and(
+          q.eq(q.field("sessionId"), args.sessionId),
+          q.eq(q.field("isActive"), true),
+          q.eq(q.field("isFinished"), false)
+        )
+      )
+      .first();
+    return activeStory ?? null;
+  },
+});
+
 export const addStory = mutation({
   args: {
     sessionId: v.id("sessions"),

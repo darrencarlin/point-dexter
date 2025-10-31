@@ -12,6 +12,18 @@ export const getStoryVotes = query({
   },
 });
 
+export const getUserVote = query({
+  args: { storyId: v.id("stories"), userId: v.string() },
+  handler: async (ctx, args) => {
+    const vote = await ctx.db
+      .query("votes")
+      .withIndex("by_story", (q) => q.eq("storyId", args.storyId))
+      .filter((q) => q.eq(q.field("userId"), args.userId))
+      .first();
+    return vote ?? null;
+  },
+});
+
 export const vote = mutation({
   args: {
     storyId: v.id("stories"),

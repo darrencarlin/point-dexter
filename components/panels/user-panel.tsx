@@ -1,11 +1,10 @@
-import { Title } from "../title";
+import { Id } from "@/convex/_generated/dataModel";
+import { VotingInstructions } from "../voting/voting-instructions";
 
 interface Props {
   id: string;
 }
 
 export const UserPanel = ({ id }: Props) => {
-  return (
-    <Title title="User Controlled Panel" subtitle="User actions will go here" />
-  );
+  return <VotingInstructions sessionId={id as Id<"sessions">} />;
 };
