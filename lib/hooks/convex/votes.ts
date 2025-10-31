@@ -1,29 +1,8 @@
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
-
-// Generate a unique anonymous user ID and store in localStorage (persists across sessions)
-function getAnonymousUserId(): string {
-  if (typeof window === "undefined") return "";
-
-  const key = "anonymous_user_id";
-  let userId = localStorage.getItem(key);
-
-  if (!userId) {
-    userId = `anon_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
-    localStorage.setItem(key, userId);
-  }
-
-  return userId;
-}
-
-// Get anonymous user name from localStorage (persists across sessions)
-function getAnonymousUserName(): string {
-  if (typeof window === "undefined") return "Anonymous";
-
-  const key = "anonymous_user_name";
-  return localStorage.getItem(key) || "Anonymous";
-}
+import { useSession } from "../../auth-client";
+import { getEffectiveUserId, getCurrentUserName } from "./session-members";
 
 export function useGetStoryVotes(storyId: Id<"stories"> | undefined) {
   return useQuery(
@@ -32,13 +11,24 @@ export function useGetStoryVotes(storyId: Id<"stories"> | undefined) {
   );
 }
 
+export function useGetUserVote(storyId: Id<"stories"> | undefined) {
+  const { data: authSession } = useSession();
+  const userId = getEffectiveUserId(authSession);
+
+  return useQuery(
+    api.votesActions.getUserVote,
+    storyId && userId ? { storyId, userId } : "skip"
+  );
+}
+
 export function useVote() {
   const mutation = useMutation(api.votesActions.vote);
+  const { data: authSession } = useSession();
 
   return async (storyId: Id<"stories">, points: number | string) => {
     // Get fresh values each time to ensure we use the latest from localStorage
-    const userId = getAnonymousUserId();
-    const userName = getAnonymousUserName();
+    const userId = getEffectiveUserId(authSession);
+    const userName = getCurrentUserName();
 
     return await mutation({
       storyId,

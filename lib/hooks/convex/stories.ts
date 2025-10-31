@@ -10,6 +10,13 @@ export function useGetSessionStories(sessionId: Id<"sessions"> | undefined) {
   );
 }
 
+export function useGetActiveStory(sessionId: Id<"sessions"> | undefined) {
+  return useQuery(
+    api.stories.getActiveStory,
+    sessionId ? { sessionId } : "skip"
+  );
+}
+
 export function useAddStory() {
   const mutation = useMutation(api.stories.addStory);
   const { data: session } = useSession();
