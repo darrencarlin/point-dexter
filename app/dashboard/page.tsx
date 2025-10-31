@@ -1,5 +1,6 @@
 "use client";
 
+import { IssuesDropdown } from "@/components/inputs/issues-dropdown";
 import { Title } from "@/components/title";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,10 +55,13 @@ export default function Dashboard() {
   return (
     <main className="max-w-md mx-auto mt-6">
       <div>
+        <IssuesDropdown />
+
         <Title
           title="Create New Session"
           subtitle="Please enter a name for your new session"
         />
+
         <form className="space-y-4">
           <Label className="mb-2">Session Name</Label>
           <Input
@@ -79,7 +83,7 @@ export default function Dashboard() {
             {sessions.map((sess) => (
               <li
                 key={sess._id}
-                className="flex items-center justify-between p-4 border rounded-lg gap-8"
+                className="flex items-center justify-between gap-8 p-4 border rounded-lg"
               >
                 <div className="flex flex-col">
                   <p className="font-semibold">{sess.name}</p>
