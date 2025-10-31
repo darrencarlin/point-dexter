@@ -1,7 +1,8 @@
 "use client";
 
-import { useSession } from "@/lib/auth-client";
+import { authClient, useSession } from "@/lib/auth-client";
 import { useLocalStorageValue } from "@/lib/hooks/use-local-storage-value";
+import { Button } from "./ui/button";
 
 export const Header = () => {
   const { data: session } = useSession();
@@ -14,11 +15,18 @@ export const Header = () => {
   const displayName = session?.user?.name || anonymousUserName;
   const status = session?.user?.name ? "Signed in as" : "Participating as";
 
+  const isSignedIn = session?.user?.name !== undefined;
+
   return (
-    <header className="flex justify-end p-4 border-b">
+    <header className="flex items-center justify-end gap-4 p-4 border-b">
       <p>
         {status} <span className="font-bold">{displayName}</span>
       </p>
+      {isSignedIn && (
+        <Button variant="outline" onClick={() => authClient.signOut()}>
+          Sign Out
+        </Button>
+      )}
     </header>
   );
 };

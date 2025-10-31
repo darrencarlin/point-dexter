@@ -19,7 +19,7 @@ export const MemberList = ({ id }: Props) => {
         {sessionMembers?.map((member) => (
           <li
             key={member._id}
-            className="flex items-center justify-between gap-8 p-4 border rounded-lg"
+            className="flex items-center justify-between p-4 border rounded-lg gap-8"
           >
             <div className="flex flex-col">
               {member.isAdmin && <span className="text-sm">Admin</span>}

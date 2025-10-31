@@ -79,7 +79,7 @@ export default function Dashboard() {
             {sessions.map((sess) => (
               <li
                 key={sess._id}
-                className="flex items-center justify-between gap-8 p-4 border rounded-lg"
+                className="flex items-center justify-between p-4 border rounded-lg gap-8"
               >
                 <div className="flex flex-col">
                   <p className="font-semibold">{sess.name}</p>

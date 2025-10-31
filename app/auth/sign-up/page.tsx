@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { Title } from "@/components/title";
+import { SignInWithAtlassianButton } from "@/components/buttons/sign-in-with-atlassian";
 
 export default function SignUp() {
   const [name, setName] = useState("");
@@ -32,7 +33,7 @@ export default function SignUp() {
         password,
         name,
       });
-      // Redirect or handle success
+
       window.location.href = "/";
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign up failed");
@@ -102,6 +103,8 @@ export default function SignUp() {
           {loading ? "Signing up..." : "Sign Up"}
         </Button>
       </form>
+
+      <SignInWithAtlassianButton setError={setError} setLoading={setLoading} />
 
       <p className="mt-4">
         Already have an account?{" "}

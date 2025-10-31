@@ -71,7 +71,7 @@ export const AdminPanel = ({ id }: Props) => {
         subtitle="Admin actions will go here"
       />
 
-      <form className="space-y-4 mb-8">
+      <form className="mb-8 space-y-4">
         <div>
           <Label htmlFor="title" className="mb-2">
             Title
@@ -104,14 +104,14 @@ export const AdminPanel = ({ id }: Props) => {
         </Button>
       </form>
       <div>
-        <p className="font-bold mb-2">Active Stories</p>
-        <ul className="space-y-2 mb-6">
+        <p className="mb-2 font-bold">Active Stories</p>
+        <ul className="mb-6 space-y-2">
           {sessionStories
             ?.filter((story) => !story.isFinished)
             .map((story) => (
               <li
                 key={story._id}
-                className="flex items-center justify-between gap-8 p-4 border rounded-lg"
+                className="flex items-center justify-between p-4 border rounded-lg gap-8"
               >
                 <div className="flex flex-col">
                   <p className="font-semibold">{story.title}</p>
@@ -137,14 +137,14 @@ export const AdminPanel = ({ id }: Props) => {
       </div>
 
       <div>
-        <p className="font-bold mb-2">Finished Stories</p>
-        <ul className="space-y-2 mb-6">
+        <p className="mb-2 font-bold">Finished Stories</p>
+        <ul className="mb-6 space-y-2">
           {sessionStories
             ?.filter((story) => !story.isActive && story.isFinished)
             .map((story) => (
               <li
                 key={story._id}
-                className="flex items-center justify-between gap-8 p-4 border rounded-lg"
+                className="flex items-center justify-between p-4 border rounded-lg gap-8"
               >
                 <div className="flex flex-col">
                   <p className="font-semibold">{story.title}</p>

@@ -9,4 +9,11 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+
+  socialProviders: {
+            atlassian: { 
+            clientId: process.env.ATLASSIAN_CLIENT_ID as string, 
+            clientSecret: process.env.ATLASSIAN_CLIENT_SECRET as string, 
+        }, 
+  }
 });
