@@ -26,6 +26,7 @@ function getAnonymousUserName(): string {
   if (typeof window === "undefined") return "Anonymous";
 
   const key = "anonymous_user_name";
+
   return localStorage.getItem(key) || "Anonymous";
 }
 
@@ -66,7 +67,7 @@ export function useJoinSession() {
     const nameToUse = customName || userName;
 
     if (customName) {
-      setAnonymousUserName(customName);
+      setAnonymousUserName(customName ?? (session?.user?.name || "Anonymous"));
       setUserName(customName);
     }
 

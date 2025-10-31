@@ -34,6 +34,7 @@ export default function ClientSessionPage({ id }: Props) {
   const session = useGetSession(id as Id<"sessions">);
   const sessionMembers = useGetSessionMembers(id as Id<"sessions">);
 
+  // Check if the user is already a member of the session
   useEffect(() => {
     if (sessionMembers) {
       const currentUserId = getEffectiveUserId(authSession);
@@ -45,16 +46,19 @@ export default function ClientSessionPage({ id }: Props) {
     }
   }, [sessionMembers, authSession]);
 
+  // Initialize name from local storage
   useEffect(() => {
     if (storedName) {
       setName(storedName);
     }
   }, [storedName]);
 
+  // Save name to local storage when it changes
   if (isAuthPending || sessionMembers === undefined) {
     return <Loading />;
   }
 
+  // Handle case where session is not found
   if (!session) {
     return <div className="max-w-md mx-auto mt-6">Session not found</div>;
   }
@@ -64,6 +68,7 @@ export default function ClientSessionPage({ id }: Props) {
     setLoading(true);
     try {
       await joinSession(id as Id<"sessions">, name);
+      window.localStorage.setItem("anonymous_user_name", name);
       setHasJoined(true);
       router.refresh();
     } catch (error) {

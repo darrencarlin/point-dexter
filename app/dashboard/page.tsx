@@ -55,8 +55,6 @@ export default function Dashboard() {
   return (
     <main className="max-w-md mx-auto mt-6">
       <div>
-        <IssuesDropdown />
-
         <Title
           title="Create New Session"
           subtitle="Please enter a name for your new session"

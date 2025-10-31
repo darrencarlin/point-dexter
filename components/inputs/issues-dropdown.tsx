@@ -8,8 +8,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "../ui/button";
 
-interface Issue {
+export interface Story {
   id: string;
   key: string;
   title: string;
@@ -17,22 +18,29 @@ interface Issue {
   status: string;
 }
 
-export const IssuesDropdown = () => {
+interface Props {
+  onAddStory?: (issue: Story | null) => void;
+}
+
+export const IssuesDropdown = ({ onAddStory }: Props) => {
   const [loading, setLoading] = React.useState(true);
-  const [issues, setIssues] = React.useState<Issue[]>([]);
+  const [stories, setStories] = React.useState<Story[]>([]);
+  const [selectedKey, setSelectedKey] = React.useState<string>("");
+  const selectedStory =
+    stories.find((story) => story.key === selectedKey) || null;
 
   React.useEffect(() => {
-    const fetchIssues = async () => {
+    const fetchStories = async () => {
       setLoading(true);
-      const res = await fetch("http://localhost:3000/api/jira/issues");
+      const res = await fetch("http://localhost:3000/api/jira/stories");
       const { issues } = await res.json();
 
-      console.log("Fetched issues:", issues);
-      setIssues(issues);
+      console.log("Fetched stories:", stories);
+      setStories(issues);
       setLoading(false);
     };
 
-    fetchIssues();
+    fetchStories();
   }, []);
 
   if (loading) {
@@ -40,21 +48,30 @@ export const IssuesDropdown = () => {
   }
 
   return (
-    <Select>
-      <SelectTrigger className="w-[300px]">
-        <SelectValue placeholder="Select an issue" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          <SelectLabel>Jira Issues</SelectLabel>
-          {issues.map((issue: Issue) => (
-            <SelectItem key={issue.id} value={issue.key}>
-              {issue.key}: {issue.title}{" "}
-              {issue.storyPoints !== null ? `(${issue.storyPoints} SP)` : ""}
-            </SelectItem>
-          ))}
-        </SelectGroup>
-      </SelectContent>
-    </Select>
+    <div className="flex">
+      <Select value={selectedKey} onValueChange={setSelectedKey}>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="Select an issue" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>Jira Issues</SelectLabel>
+            {stories.map((story: Story) => (
+              <SelectItem key={story.id} value={story.key}>
+                {story.key}: {story.title}{" "}
+                {story.storyPoints !== null ? `(${story.storyPoints} SP)` : ""}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      <Button
+        type="button"
+        className="ml-2"
+        onClick={() => onAddStory?.(selectedStory)}
+      >
+        Add Story
+      </Button>
+    </div>
   );
 };
