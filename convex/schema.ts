@@ -1,6 +1,8 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
+export const status = ["new", "voting", "pending", "completed"] as const;
+
 const sessions = defineTable({
   name: v.string(),
   isActive: v.boolean(),
@@ -22,8 +24,7 @@ const stories = defineTable({
   sessionId: v.id("sessions"),
   title: v.string(),
   description: v.optional(v.string()),
-  isActive: v.boolean(),
-  isFinished: v.boolean(),
+  status: v.union(...status.map((s) => v.literal(s))),
   createdAt: v.number(),
 });
 

@@ -2,7 +2,7 @@ import {
   useAddStory,
   useEndVoting,
   useGetSessionStories,
-  useToggleStoryActive,
+  useToggleStoryStatus,
 } from "@/lib/hooks/convex/stories";
 import { Title } from "../title";
 import { Label } from "@radix-ui/react-label";
@@ -26,7 +26,7 @@ export const AdminPanel = ({ id }: Props) => {
   const [loading, setLoading] = useState(false);
   const session = useGetSession(id as Id<"sessions">);
   const sessionStories = useGetSessionStories(id as Id<"sessions">);
-  const toggleStoryActive = useToggleStoryActive();
+  const toggleStoryStatus = useToggleStoryStatus();
   const endVoting = useEndVoting();
 
   const handleAddManualStory = () => {
@@ -88,13 +88,19 @@ export const AdminPanel = ({ id }: Props) => {
   };
 
   const handleStartVoting = (id: string) => {
-    toggleStoryActive(id as Id<"stories">, true);
+    toggleStoryStatus(id as Id<"stories">, "voting");
   };
-  const handleEndVoting = (id: string) => {
-    endVoting(id as Id<"stories">);
+  const handleStopVoting = (id: string) => {
+    toggleStoryStatus(id as Id<"stories">, "pending");
   };
 
-  const hasActiveStory = sessionStories?.some((story) => story.isActive);
+  const handleCompleteStory = (id: string) => {
+    toggleStoryStatus(id as Id<"stories">, "completed");
+  };
+
+  const hasVotingStory = sessionStories?.some(
+    (story) => story.status === "voting"
+  );
 
   return (
     <div>
@@ -145,7 +151,7 @@ export const AdminPanel = ({ id }: Props) => {
         <p className="mb-2 font-bold">Active Stories</p>
         <ul className="mb-6 space-y-2">
           {sessionStories
-            ?.filter((story) => !story.isFinished)
+            ?.filter((story) => story.status !== "completed")
             .map((story) => (
               <li
                 key={story._id}
@@ -156,18 +162,34 @@ export const AdminPanel = ({ id }: Props) => {
                   <p className="text-sm">{story.description}</p>
                 </div>
                 <div>
-                  {story.isActive ? (
-                    <Button onClick={() => handleEndVoting(story._id)}>
-                      End Voting
-                    </Button>
-                  ) : (
-                    <Button
-                      disabled={hasActiveStory}
-                      onClick={() => handleStartVoting(story._id)}
-                    >
-                      Start Voting
-                    </Button>
-                  )}
+                  <div className="mb-2 flex gap-2">
+                    {/* Show Start Voting if status is "new" or "pending" */}
+                    {(story.status === "new" || story.status === "pending") && (
+                      <Button
+                        disabled={hasVotingStory}
+                        onClick={() => handleStartVoting(story._id)}
+                      >
+                        Start Voting
+                      </Button>
+                    )}
+
+                    {/* Show Stop Voting if status is "voting" */}
+                    {story.status === "voting" && (
+                      <Button onClick={() => handleStopVoting(story._id)}>
+                        Stop Voting
+                      </Button>
+                    )}
+
+                    {/* Show Save Points and Input when status is "pending" */}
+                    {story.status === "pending" && (
+                      <>
+                        <Input placeholder="Enter points manually" />
+                        <Button onClick={() => handleCompleteStory(story._id)}>
+                          Save Points
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </li>
             ))}
@@ -178,7 +200,7 @@ export const AdminPanel = ({ id }: Props) => {
         <p className="mb-2 font-bold">Finished Stories</p>
         <ul className="mb-6 space-y-2">
           {sessionStories
-            ?.filter((story) => !story.isActive && story.isFinished)
+            ?.filter((story) => story.status === "completed")
             .map((story) => (
               <li
                 key={story._id}
@@ -187,6 +209,9 @@ export const AdminPanel = ({ id }: Props) => {
                 <div className="flex flex-col">
                   <p className="font-semibold">{story.title}</p>
                   <p className="text-sm">{story.description}</p>
+                </div>
+                <div>
+                  <p>Points</p>
                 </div>
               </li>
             ))}

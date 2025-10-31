@@ -26,8 +26,9 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
   const [loading, setLoading] = React.useState(true);
   const [stories, setStories] = React.useState<Story[]>([]);
   const [selectedKey, setSelectedKey] = React.useState<string>("");
+
   const selectedStory =
-    stories.find((story) => story.key === selectedKey) || null;
+    stories?.find((story) => story.key === selectedKey) || null;
 
   React.useEffect(() => {
     const fetchStories = async () => {
@@ -35,7 +36,6 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
       const res = await fetch("http://localhost:3000/api/jira/stories");
       const { issues } = await res.json();
 
-      console.log("Fetched stories:", stories);
       setStories(issues);
       setLoading(false);
     };
@@ -47,6 +47,10 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
     return <div>Loading...</div>;
   }
 
+  if (stories?.length === 0) {
+    return <div>No issues found.</div>;
+  }
+
   return (
     <div className="flex">
       <Select value={selectedKey} onValueChange={setSelectedKey}>
@@ -56,12 +60,15 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
         <SelectContent>
           <SelectGroup>
             <SelectLabel>Jira Issues</SelectLabel>
-            {stories.map((story: Story) => (
-              <SelectItem key={story.id} value={story.key}>
-                {story.key}: {story.title}{" "}
-                {story.storyPoints !== null ? `(${story.storyPoints} SP)` : ""}
-              </SelectItem>
-            ))}
+            {stories &&
+              stories?.map((story: Story) => (
+                <SelectItem key={story.id} value={story.key}>
+                  {story.key}: {story.title}{" "}
+                  {story.storyPoints !== null
+                    ? `(${story.storyPoints} SP)`
+                    : ""}
+                </SelectItem>
+              ))}
           </SelectGroup>
         </SelectContent>
       </Select>

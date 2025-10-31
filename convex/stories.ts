@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { status } from "./schema";
 
 export const getSessionStories = query({
   args: { sessionId: v.id("sessions") },
@@ -17,11 +18,14 @@ export const getActiveStory = query({
   handler: async (ctx, args) => {
     const activeStory = await ctx.db
       .query("stories")
-      .filter((q) => 
+      .filter((q) =>
         q.and(
           q.eq(q.field("sessionId"), args.sessionId),
-          q.eq(q.field("isActive"), true),
-          q.eq(q.field("isFinished"), false)
+          q.or(
+            q.eq(q.field("status"), "voting"),
+            q.eq(q.field("status"), "pending")
+          ),
+          q.neq(q.field("status"), "completed")
         )
       )
       .first();
@@ -52,8 +56,7 @@ export const addStory = mutation({
       sessionId: args.sessionId,
       title: args.title,
       description: args.description,
-      isActive: false,
-      isFinished: false,
+      status: "new",
       createdAt: Date.now(),
     });
 
@@ -61,10 +64,10 @@ export const addStory = mutation({
   },
 });
 
-export const toggleStoryActive = mutation({
+export const toggleStoryStatus = mutation({
   args: {
     storyId: v.id("stories"),
-    isActive: v.boolean(),
+    status: v.union(...status.map((s) => v.literal(s))),
     userId: v.string(),
   },
   handler: async (ctx, args) => {
@@ -86,7 +89,7 @@ export const toggleStoryActive = mutation({
     }
 
     await ctx.db.patch(args.storyId, {
-      isActive: args.isActive,
+      status: args.status,
     });
 
     return args.storyId;
@@ -118,8 +121,7 @@ export const endVoting = mutation({
 
     // Mark story as inactive (vote ended)
     await ctx.db.patch(args.storyId, {
-      isActive: false,
-      isFinished: true,
+      status: "completed",
     });
   },
 });

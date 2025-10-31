@@ -30,18 +30,6 @@ export function VotingInstructions({ sessionId }: Props) {
     return <Loading />;
   }
 
-  // Show message when no active story
-  if (!activeStory) {
-    return (
-      <div className="text-center py-8">
-        <Title
-          title="Voting Instructions"
-          subtitle="No story is currently active. Please wait for the admin to start a voting session."
-        />
-      </div>
-    );
-  }
-
   const handleVote = async (points: number | string) => {
     if (isVoting || !activeStory?._id) return;
 
@@ -66,8 +54,8 @@ export function VotingInstructions({ sessionId }: Props) {
 
       {/* Story Information */}
       <div className="space-y-2 p-4 bg-muted rounded-lg">
-        <h3 className="text-lg font-semibold">{activeStory.title}</h3>
-        {activeStory.description && (
+        <h3 className="text-lg font-semibold">{activeStory?.title}</h3>
+        {activeStory?.description && (
           <p className="text-sm text-muted-foreground">
             {activeStory.description}
           </p>
@@ -101,10 +89,10 @@ export function VotingInstructions({ sessionId }: Props) {
 
       {currentVote !== undefined && (
         <p className="text-sm text-muted-foreground">
-          Your current vote: <span className="font-semibold">{currentVote}</span>
+          Your current vote:{" "}
+          <span className="font-semibold">{currentVote}</span>
         </p>
       )}
     </div>
   );
 }
-

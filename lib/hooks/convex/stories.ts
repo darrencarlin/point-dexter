@@ -39,18 +39,21 @@ export function useAddStory() {
   };
 }
 
-export function useToggleStoryActive() {
-  const mutation = useMutation(api.stories.toggleStoryActive);
+export function useToggleStoryStatus() {
+  const mutation = useMutation(api.stories.toggleStoryStatus);
   const { data: session } = useSession();
 
-  return async (storyId: Id<"stories">, isActive: boolean) => {
+  return async (
+    storyId: Id<"stories">,
+    status: "new" | "voting" | "pending" | "completed"
+  ) => {
     if (!session?.user?.id) {
-      throw new Error("Must be logged in to toggle story active state");
+      throw new Error("Must be logged in to toggle story status");
     }
 
     return await mutation({
       storyId,
-      isActive,
+      status,
       userId: session.user.id,
     });
   };
