@@ -4,6 +4,7 @@ import {
   useGetSessionStories,
   useToggleStoryStatus,
 } from "@/lib/hooks/convex/stories";
+import { useEndedStory } from "@/lib/hooks/convex/use-ended-story";
 import { Title } from "../title";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "../ui/input";
@@ -12,6 +13,7 @@ import { Button } from "../ui/button";
 import { useGetSession } from "@/lib/hooks/convex/sessions";
 import { Id } from "@/convex/_generated/dataModel";
 import { IssuesDropdown, Story } from "../inputs/issues-dropdown";
+import { VotingResultsChart } from "../voting/voting-results-chart";
 
 interface Props {
   id: string;
@@ -79,7 +81,6 @@ export const AdminPanel = ({ id }: Props) => {
   };
 
   const handleAddStory = (story: Story | null) => {
-    console.log("Adding story:", story, manual);
     if (manual) {
       handleAddManualStory();
     } else {
@@ -90,8 +91,14 @@ export const AdminPanel = ({ id }: Props) => {
   const handleStartVoting = (id: string) => {
     toggleStoryStatus(id as Id<"stories">, "voting");
   };
-  const handleStopVoting = (id: string) => {
-    toggleStoryStatus(id as Id<"stories">, "pending");
+
+  const handleEndVoting = async (id: string) => {
+    try {
+      await endVoting(id as Id<"stories">);
+    } catch (error) {
+      console.error("Failed to end voting:", error);
+      setError("Failed to end voting");
+    }
   };
 
   const handleCompleteStory = (id: string) => {
@@ -101,6 +108,8 @@ export const AdminPanel = ({ id }: Props) => {
   const hasVotingStory = sessionStories?.some(
     (story) => story.status === "voting"
   );
+
+  const endedStoryForChart = useEndedStory(id as Id<"sessions">);
 
   return (
     <div>
@@ -147,6 +156,13 @@ export const AdminPanel = ({ id }: Props) => {
         </Button>
       </div>
 
+      {/* Show voting results chart above Active Stories if there's a story with votes */}
+      {endedStoryForChart && (
+        <div className="mb-8">
+          <VotingResultsChart storyId={endedStoryForChart._id} />
+        </div>
+      )}
+
       <div>
         <p className="mb-2 font-bold">Active Stories</p>
         <ul className="mb-6 space-y-2">
@@ -173,10 +189,10 @@ export const AdminPanel = ({ id }: Props) => {
                       </Button>
                     )}
 
-                    {/* Show Stop Voting if status is "voting" */}
+                    {/* Show End Voting if status is "voting" */}
                     {story.status === "voting" && (
-                      <Button onClick={() => handleStopVoting(story._id)}>
-                        Stop Voting
+                      <Button onClick={() => handleEndVoting(story._id)}>
+                        End Voting
                       </Button>
                     )}
 
@@ -211,7 +227,7 @@ export const AdminPanel = ({ id }: Props) => {
                   <p className="text-sm">{story.description}</p>
                 </div>
                 <div>
-                  <p>Points</p>
+                  <p className="text-sm text-muted-foreground">Completed</p>
                 </div>
               </li>
             ))}

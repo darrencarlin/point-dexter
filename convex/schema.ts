@@ -24,8 +24,11 @@ const stories = defineTable({
   sessionId: v.id("sessions"),
   title: v.string(),
   description: v.optional(v.string()),
-  status: v.union(...status.map((s) => v.literal(s))),
+  status: v.optional(v.union(...status.map((s) => v.literal(s)))),
   createdAt: v.number(),
+  // Legacy fields - keep temporarily to allow migration
+  isActive: v.optional(v.boolean()),
+  isFinished: v.optional(v.boolean()),
 });
 
 const votes = defineTable({

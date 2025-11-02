@@ -1,28 +1,13 @@
 import { Id } from "@/convex/_generated/dataModel";
 import { VotingInstructions } from "../voting/voting-instructions";
 import { useGetActiveStory } from "@/lib/hooks/convex/stories";
+import { useEndedStory } from "@/lib/hooks/convex/use-ended-story";
 import { Title } from "../title";
+import { VotingResultsChart } from "../voting/voting-results-chart";
 
 interface Props {
   id: string;
 }
-
-interface ChartAndVotesProps {
-  isAdmin?: boolean;
-}
-
-const ChartAndVotes = ({ isAdmin }: ChartAndVotesProps) => {
-  if (isAdmin) {
-    return (
-      <div className="flex flex-col">
-        Admin Chart and Votes Component (to be implemented)
-      </div>
-    );
-  }
-  return (
-    <div className="flex">Chart and Votes Component (to be implemented)</div>
-  );
-};
 
 const NoActiveStory = () => {
   return (
@@ -37,21 +22,30 @@ const NoActiveStory = () => {
 
 export const UserPanel = ({ id }: Props) => {
   const activeStory = useGetActiveStory(id as Id<"sessions">);
+  const endedStory = useEndedStory(id as Id<"sessions">);
 
   if (activeStory?.status === "voting") {
     return <VotingInstructions sessionId={id as Id<"sessions">} />;
   }
 
-  if (activeStory?.status === "pending") {
-    return <ChartAndVotes />;
-  }
-
-  if (activeStory?.status === "new") {
-    return <NoActiveStory />;
-  }
-
-  if (activeStory?.status === "completed") {
-    return <NoActiveStory />;
+  if (endedStory) {
+    return (
+      <div className="space-y-6">
+        <Title
+          title="Voting Results"
+          subtitle="The voting session has ended. Here are the results:"
+        />
+        <div className="space-y-2 p-4 bg-muted rounded-lg">
+          <h3 className="text-lg font-semibold">{endedStory.title}</h3>
+          {endedStory.description && (
+            <p className="text-sm text-muted-foreground">
+              {endedStory.description}
+            </p>
+          )}
+        </div>
+        <VotingResultsChart storyId={endedStory._id} />
+      </div>
+    );
   }
 
   return <NoActiveStory />;
