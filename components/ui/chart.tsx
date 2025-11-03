@@ -185,7 +185,7 @@ const ChartTooltipContent = React.forwardRef<
       >
         {!nestLabel ? tooltipLabel : null}
         <div className="grid gap-1.5">
-          {payload.map((item: { [key: string]: unknown }, index: number) => {
+          {payload.map((item, index: number) => {
             const itemName = item.name as string | undefined;
             const itemDataKey = item.dataKey as string | undefined;
             const key = `${nameKey || itemName || itemDataKey || "value"}`;
@@ -203,7 +203,13 @@ const ChartTooltipContent = React.forwardRef<
                 )}
               >
                 {formatter && item?.value !== undefined && itemName ? (
-                  formatter(item.value as number, itemName, item, index, item.payload)
+                  formatter(
+                    item.value as number,
+                    itemName,
+                    item,
+                    index,
+                    item.payload
+                  )
                 ) : (
                   <>
                     {itemConfig?.icon ? (
@@ -289,7 +295,7 @@ const ChartLegendContent = React.forwardRef<
           className
         )}
       >
-        {payload.map((item: { [key: string]: unknown }) => {
+        {payload.map((item) => {
           const itemDataKey = item.dataKey as string | undefined;
           const itemValue = item.value as string | undefined;
           const key = `${nameKey || itemDataKey || "value"}`;
@@ -330,4 +336,3 @@ export {
   ChartLegendContent,
   ChartStyle,
 };
-
