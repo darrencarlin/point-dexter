@@ -52,16 +52,16 @@ export function VotingResultsChart({ storyId }: Props) {
     return data;
   }, [votes]);
 
-  // Chart color configuration for each voting option (static, doesn't need memoization)
+  // Explicit, high-contrast palette per option (previous working version)
   const chartConfig: Record<string, { label: string; color: string }> = {
-    "1": { label: "1", color: "hsl(var(--chart-1))" },
-    "2": { label: "2", color: "hsl(var(--chart-2))" },
-    "3": { label: "3", color: "hsl(var(--chart-3))" },
-    "5": { label: "5", color: "hsl(var(--chart-4))" },
-    "8": { label: "8", color: "hsl(var(--chart-5))" },
-    "13": { label: "13", color: "#8884d8" },
-    "21": { label: "21", color: "#82ca9d" },
-    "?": { label: "?", color: "#ffc658" },
+    "1": { label: "1", color: "#6366F1" },   // indigo-500
+    "2": { label: "2", color: "#22C55E" },   // green-500
+    "3": { label: "3", color: "#EAB308" },   // yellow-500
+    "5": { label: "5", color: "#F97316" },   // orange-500
+    "8": { label: "8", color: "#EF4444" },   // red-500
+    "13": { label: "13", color: "#06B6D4" }, // cyan-500
+    "21": { label: "21", color: "#A855F7" }, // purple-500
+    "?": { label: "?", color: "#94A3B8" },   // slate-400
   };
 
   if (votes === undefined) {
@@ -91,15 +91,14 @@ export function VotingResultsChart({ storyId }: Props) {
             innerRadius={60}
             strokeWidth={5}
           >
-            {chartData.map((entry, index) => {
-              const color = chartConfig[entry.name]?.color || "hsl(var(--chart-1))";
-              return <Cell key={`cell-${index}`} fill={color} />;
-            })}
+            {chartData.map((entry, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={chartConfig[entry.name]?.color || "#8884d8"}
+              />
+            ))}
           </Pie>
-          <ChartLegend
-            content={<ChartLegendContent nameKey="name" />}
-            className="-bottom-6"
-          />
+          <ChartLegend content={<ChartLegendContent nameKey="name" />} className="-bottom-6" />
         </PieChart>
       </ChartContainer>
       <div className="space-y-2">
