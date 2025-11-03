@@ -15,6 +15,7 @@ import { Title } from "../title";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { VotingResultsChart } from "../voting/voting-results-chart";
+import { BASE_URL } from "@/lib/constants";
 
 interface Props {
   id: string;
@@ -33,6 +34,7 @@ const StoryItem = ({
     title: string;
     description?: string;
     status?: "new" | "voting" | "pending" | "completed";
+    jiraKey?: string;
   };
   hasVotingStory: boolean;
   onStartVoting: (id: string) => void;
@@ -199,7 +201,11 @@ export const AdminPanel = ({ id }: Props) => {
       return;
     }
 
-    addStory({ title: `${story.key}: ${story.title}`, sessionId: session?._id })
+    addStory({
+      title: `${story.key}: ${story.title}`,
+      sessionId: session?._id,
+      jiraKey: story.key, // Store the JIRA key
+    })
       .catch((error) => {
         console.error("Failed to add Jira story:", error);
         setError("Failed to add Jira story");
@@ -226,8 +232,42 @@ export const AdminPanel = ({ id }: Props) => {
 
   const handleCompleteStory = async (storyId: string, finalPoints: number) => {
     console.log("Completing story with points:", finalPoints);
+
+    // Find the story to get its jiraKey
+    const story = sessionStories?.find((s) => s._id === storyId);
+
     // Use endVoting mutation to save points and mark as completed
     await endVoting(storyId as Id<"stories">, finalPoints);
+
+    // If story has a jiraKey, update JIRA
+    if (story?.jiraKey) {
+      try {
+        const response = await fetch(
+          `${BASE_URL}/api/jira/stories/point/${story.jiraKey}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ points: finalPoints }),
+          }
+        );
+
+        if (!response.ok) {
+          const error = await response.json();
+          console.error("Failed to update JIRA:", error);
+        } else {
+          console.log(`Successfully updated JIRA story ${story.jiraKey}`);
+        }
+      } catch (error) {
+        console.error("Error updating JIRA:", error);
+      }
+    }
+  };
+
+  const handleEndSession = () => {
+    // Implement end session logic if needed
+    console.log("Ending session...");
   };
 
   const hasVotingStory = sessionStories?.some(
@@ -328,6 +368,12 @@ export const AdminPanel = ({ id }: Props) => {
               </li>
             ))}
         </ul>
+      </div>
+
+      <div>
+        <Button variant="destructive" onClick={handleEndSession}>
+          End Session
+        </Button>
       </div>
     </div>
   );

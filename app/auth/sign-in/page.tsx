@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { Title } from "@/components/title";
 import { SignInWithAtlassianButton } from "@/components/buttons/sign-in-with-atlassian";
+import { Separator } from "@/components/ui/separator";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -33,14 +34,9 @@ export default function SignIn() {
     }
   };
 
-
   return (
     <div className="max-w-md mx-auto mt-6">
       <div>
-        <Title
-          title="Welcome Back!"
-          subtitle="Please sign in to your account"
-        />
         <form className="space-y-4">
           <div>
             <Label htmlFor="email" className="mb-2">
@@ -72,8 +68,10 @@ export default function SignIn() {
           </Button>
         </form>
 
-        <SignInWithAtlassianButton setError={setError} setLoading={setLoading} />
-       
+        <Separator className="my-4" />
+
+        <SignInWithAtlassianButton />
+
         <p className="mt-4">
           Don&apos;t have an account?{" "}
           <Link href="/auth/sign-up" className="text-blue-500">

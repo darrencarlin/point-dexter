@@ -1,12 +1,11 @@
 import { authClient } from "@/lib/auth-client";
 import { Button } from "../ui/button";
+import { useState } from "react";
 
-interface Props {
-  setError: (error: string) => void;
-  setLoading: (loading: boolean) => void;
-}
+export const SignInWithAtlassianButton = () => {
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-export const SignInWithAtlassianButton = ({ setError, setLoading }: Props) => {
   const handleSignInWithAtlassian = async () => {
     setError("");
     setLoading(true);
@@ -31,8 +30,9 @@ export const SignInWithAtlassianButton = ({ setError, setLoading }: Props) => {
         variant="outline"
         onClick={handleSignInWithAtlassian}
       >
-        Sign in with Atlassian
+        {loading ? "Signing in..." : "Sign in with Atlassian"}
       </Button>
+      {error && <p>{error}</p>}
     </div>
   );
 };

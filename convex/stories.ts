@@ -39,6 +39,7 @@ export const addStory = mutation({
     title: v.string(),
     description: v.optional(v.string()),
     userId: v.string(),
+    jiraKey: v.optional(v.string()), // JIRA issue key
   },
   handler: async (ctx, args) => {
     // Get the session to verify ownership
@@ -59,6 +60,7 @@ export const addStory = mutation({
       status: "new",
       createdAt: Date.now(),
       points: -1,
+      jiraKey: args.jiraKey,
     });
 
     return storyId;

@@ -80,7 +80,7 @@ export default function Dashboard() {
         </form>
       </div>
 
-      <div className="mt-6">
+      <div className="my-6">
         {sessions && sessions.length > 0 ? (
           <ul className="space-y-2">
             {sessions.map((sess) => (
@@ -119,6 +119,8 @@ export default function Dashboard() {
           <p>No sessions found.</p>
         )}
       </div>
+
+      <Title title="Past Sessions" subtitle="View your past sessions" />
     </main>
   );
 }

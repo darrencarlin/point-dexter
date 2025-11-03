@@ -27,6 +27,7 @@ const stories = defineTable({
   status: v.optional(v.union(...status.map((s) => v.literal(s)))),
   createdAt: v.number(),
   points: v.number(),
+  jiraKey: v.optional(v.string()), // JIRA issue key (e.g., "PROJ-123")
 });
 
 const votes = defineTable({
