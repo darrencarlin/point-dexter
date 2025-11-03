@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "../ui/button";
+import { BASE_URL } from "@/lib/constants";
 
 export interface Story {
   id: string;
@@ -33,7 +34,7 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
   React.useEffect(() => {
     const fetchStories = async () => {
       setLoading(true);
-      const res = await fetch("http://localhost:3000/api/jira/stories");
+      const res = await fetch(`${BASE_URL}/api/jira/stories`);
       const { issues } = await res.json();
 
       setStories(issues);

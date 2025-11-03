@@ -58,6 +58,7 @@ export const addStory = mutation({
       description: args.description,
       status: "new",
       createdAt: Date.now(),
+      points: -1,
     });
 
     return storyId;
@@ -98,6 +99,7 @@ export const toggleStoryStatus = mutation({
 
 export const endVoting = mutation({
   args: {
+    points: v.number(),
     storyId: v.id("stories"),
     userId: v.string(),
   },
@@ -122,6 +124,7 @@ export const endVoting = mutation({
     // Mark story as inactive (vote ended)
     await ctx.db.patch(args.storyId, {
       status: "completed",
+      points: args.points,
     });
   },
 });

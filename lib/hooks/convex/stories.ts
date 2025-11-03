@@ -63,7 +63,7 @@ export function useEndVoting() {
   const mutation = useMutation(api.stories.endVoting);
   const { data: session } = useSession();
 
-  return async (storyId: Id<"stories">) => {
+  return async (storyId: Id<"stories">, points: number) => {
     if (!session?.user?.id) {
       throw new Error("Must be logged in to end voting");
     }
@@ -71,6 +71,7 @@ export function useEndVoting() {
     return await mutation({
       storyId,
       userId: session.user.id,
+      points,
     });
   };
 }

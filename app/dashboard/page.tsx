@@ -1,6 +1,5 @@
 "use client";
 
-import { IssuesDropdown } from "@/components/inputs/issues-dropdown";
 import { Title } from "@/components/title";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,9 +37,15 @@ export default function Dashboard() {
     }
   };
 
-  const handleCopyLink = () => {
-    if (!sessions) return;
-    const sessionLink = `${window.location.origin}/session/${sessions[0]._id}`;
+  interface Session {
+    _id: string;
+    name: string;
+    createdAt: number;
+  }
+
+  const handleCopyLink = (session: Session): void => {
+    if (!session) return;
+    const sessionLink: string = `${window.location.origin}/session/${session._id}`;
     navigator.clipboard.writeText(sessionLink);
   };
 
@@ -100,7 +105,10 @@ export default function Dashboard() {
                       Join Session
                     </Link>
                   </Button>
-                  <Button variant="secondary" onClick={handleCopyLink}>
+                  <Button
+                    variant="secondary"
+                    onClick={() => handleCopyLink(sess)}
+                  >
                     Copy Link
                   </Button>
                 </div>
