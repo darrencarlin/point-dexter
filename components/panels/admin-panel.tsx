@@ -234,35 +234,37 @@ export const AdminPanel = ({ id }: Props) => {
     console.log("Completing story with points:", finalPoints);
 
     // Find the story to get its jiraKey
-    const story = sessionStories?.find((s) => s._id === storyId);
+    // const story = sessionStories?.find((s) => s._id === storyId);
 
     // Use endVoting mutation to save points and mark as completed
     await endVoting(storyId as Id<"stories">, finalPoints);
 
+    // This is comment out for now, theres a setting in JIRA that is different for each instance
+    // which means it may not be applicable to everyone
     // If story has a jiraKey, update JIRA
-    if (story?.jiraKey) {
-      try {
-        const response = await fetch(
-          `${BASE_URL}/api/jira/stories/point/${story.jiraKey}`,
-          {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ points: finalPoints }),
-          }
-        );
+    // if (story?.jiraKey) {
+    //   try {
+    //     const response = await fetch(
+    //       `${BASE_URL}/api/jira/stories/point/${story.jiraKey}`,
+    //       {
+    //         method: "PATCH",
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //         },
+    //         body: JSON.stringify({ points: finalPoints }),
+    //       }
+    //     );
 
-        if (!response.ok) {
-          const error = await response.json();
-          console.error("Failed to update JIRA:", error);
-        } else {
-          console.log(`Successfully updated JIRA story ${story.jiraKey}`);
-        }
-      } catch (error) {
-        console.error("Error updating JIRA:", error);
-      }
-    }
+    //     if (!response.ok) {
+    //       const error = await response.json();
+    //       console.error("Failed to update JIRA:", error);
+    //     } else {
+    //       console.log(`Successfully updated JIRA story ${story.jiraKey}`);
+    //     }
+    //   } catch (error) {
+    //     console.error("Error updating JIRA:", error);
+    //   }
+    // }
   };
 
   const handleEndSession = async () => {
