@@ -265,9 +265,42 @@ export const AdminPanel = ({ id }: Props) => {
     }
   };
 
-  const handleEndSession = () => {
-    // Implement end session logic if needed
-    console.log("Ending session...");
+  const handleEndSession = async () => {
+    if (!session?._id) {
+      console.error("Session not found");
+      return;
+    }
+
+    if (
+      !confirm(
+        "Are you sure you want to end this session? This will archive all data to long-term storage."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/sessions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ sessionId: session._id }),
+      });
+
+      if (response.ok) {
+        alert("Session ended successfully and archived to long-term storage!");
+        // Redirect to dashboard
+        window.location.href = "/dashboard";
+      } else {
+        const error = await response.json();
+        console.error("Failed to end session:", error);
+        alert("Failed to end session: " + (error.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error ending session:", error);
+      alert("Error ending session. Please try again.");
+    }
   };
 
   const hasVotingStory = sessionStories?.some(

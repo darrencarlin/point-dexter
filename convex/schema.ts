@@ -5,7 +5,6 @@ export const status = ["new", "voting", "pending", "completed"] as const;
 
 const sessions = defineTable({
   name: v.string(),
-  isActive: v.boolean(),
   createdBy: v.string(),
   createdAt: v.number(),
 });
