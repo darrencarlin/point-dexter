@@ -15,7 +15,6 @@ import { Title } from "../title";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { VotingResultsChart } from "../voting/voting-results-chart";
-import { BASE_URL } from "@/lib/constants";
 
 interface Props {
   id: string;
@@ -359,7 +358,10 @@ export const AdminPanel = ({ id }: Props) => {
       {/* Show voting results chart above Active Stories if there's a story with votes */}
       {endedStoryForChart && (
         <div className="mb-8">
-          <VotingResultsChart storyId={endedStoryForChart._id} sessionId={id as Id<"sessions">} />
+          <VotingResultsChart
+            storyId={endedStoryForChart._id}
+            sessionId={id as Id<"sessions">}
+          />
         </div>
       )}
 
@@ -397,7 +399,9 @@ export const AdminPanel = ({ id }: Props) => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">
-                    {story.points > 0 ? `${story.points} points` : "Completed"}
+                    {story.points && story.points > 0
+                      ? `${story.points} points`
+                      : "Completed"}
                   </p>
                 </div>
               </li>

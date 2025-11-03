@@ -123,7 +123,7 @@ export const POST = async (req: Request) => {
           description: story.description,
           status: story.status,
           createdAt: story.createdAt,
-          points: story.points,
+          points: story.points ?? -1, // Default to -1 if not set
           jiraKey: story.jiraKey,
         }))
       );
