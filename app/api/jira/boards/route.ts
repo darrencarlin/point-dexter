@@ -1,6 +1,5 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 
 export interface Board {
   id: number;
@@ -27,7 +26,9 @@ export async function GET() {
   });
 
   if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+    });
   }
 
   const tokenData = await auth.api.getAccessToken({
@@ -41,11 +42,11 @@ export async function GET() {
   const accessToken = tokenData?.accessToken;
 
   if (!accessToken) {
-    return NextResponse.json(
-      {
+    return new Response(
+      JSON.stringify({
         error:
           "No Atlassian access token found. Please reconnect your Atlassian account.",
-      },
+      }),
       { status: 401 }
     );
   }
@@ -63,8 +64,9 @@ export async function GET() {
 
   if (!sitesRes.ok) {
     const error = await sitesRes.text();
-    return NextResponse.json(
-      { error: "Failed to fetch Jira sites", details: error },
+
+    return new Response(
+      JSON.stringify({ error: "Failed to fetch Jira sites", details: error }),
       { status: sitesRes.status }
     );
   }
@@ -72,7 +74,9 @@ export async function GET() {
   const sites = await sitesRes.json();
 
   if (!sites?.length) {
-    return NextResponse.json({ error: "No Jira sites found" }, { status: 404 });
+    return new Response(JSON.stringify({ error: "No Jira sites found" }), {
+      status: 404,
+    });
   }
 
   // Step 2: Get boards from first site
@@ -89,8 +93,9 @@ export async function GET() {
 
   if (!boardsRes.ok) {
     const error = await boardsRes.text();
-    return NextResponse.json(
-      { error: "Failed to fetch boards", details: error },
+
+    return new Response(
+      JSON.stringify({ error: "Failed to fetch boards", details: error }),
       { status: boardsRes.status }
     );
   }
@@ -105,5 +110,5 @@ export async function GET() {
     projectKey: board.location?.projectKey || null,
   }));
 
-  return NextResponse.json(data);
+  return new Response(JSON.stringify({ boards: data }));
 }

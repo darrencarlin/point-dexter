@@ -5,9 +5,9 @@ export const status = ["new", "voting", "pending", "completed"] as const;
 
 const sessions = defineTable({
   name: v.string(),
-  isActive: v.boolean(),
   createdBy: v.string(),
   createdAt: v.number(),
+  isActive: v.optional(v.boolean()), // Legacy field
 });
 
 const sessionMembers = defineTable({
@@ -26,10 +26,10 @@ const stories = defineTable({
   description: v.optional(v.string()),
   status: v.optional(v.union(...status.map((s) => v.literal(s)))),
   createdAt: v.number(),
-  // Accept legacy fields temporarily to unblock validation
-  isActive: v.optional(v.boolean()),
-  isFinished: v.optional(v.boolean()),
-  points: v.optional(v.number()),
+  points: v.optional(v.number()), // Made optional for legacy documents
+  jiraKey: v.optional(v.string()), // JIRA issue key (e.g., "PROJ-123")
+  isActive: v.optional(v.boolean()), // Legacy field
+  isFinished: v.optional(v.boolean()), // Legacy field
 });
 
 const votes = defineTable({

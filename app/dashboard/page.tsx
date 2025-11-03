@@ -7,7 +7,16 @@ import { Label } from "@/components/ui/label";
 import { useSession } from "@/lib/auth-client";
 import { useCreateSession, useGetSessions } from "@/lib/hooks/convex/sessions";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+interface ArchivedSession {
+  id: string;
+  name: string;
+  createdAt: number;
+  endedAt: number;
+  isActive: boolean;
+  createdBy: string;
+}
 
 export default function Dashboard() {
   const createSession = useCreateSession();
@@ -16,6 +25,32 @@ export default function Dashboard() {
   const [sessionName, setSessionName] = useState("");
   const { data: session } = useSession();
   const sessions = useGetSessions();
+  const [archivedSessions, setArchivedSessions] = useState<ArchivedSession[]>(
+    []
+  );
+  const [loadingArchived, setLoadingArchived] = useState(false);
+
+  // Fetch archived sessions from Neon DB
+  useEffect(() => {
+    const fetchArchivedSessions = async () => {
+      if (!session?.user?.id) return;
+
+      setLoadingArchived(true);
+      try {
+        const response = await fetch("/api/sessions/archived");
+        if (response.ok) {
+          const data = await response.json();
+          setArchivedSessions(data);
+        }
+      } catch (error) {
+        console.error("Error fetching archived sessions:", error);
+      } finally {
+        setLoadingArchived(false);
+      }
+    };
+
+    fetchArchivedSessions();
+  }, [session?.user?.id]);
 
   const handleCreateSession = async () => {
     if (!sessionName) {
@@ -49,6 +84,20 @@ export default function Dashboard() {
     navigator.clipboard.writeText(sessionLink);
   };
 
+  const handleViewArchivedSession = async (sessionId: string) => {
+    try {
+      const response = await fetch(`/api/sessions/archived/${sessionId}`);
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Archived session data:", data);
+      } else {
+        console.error("Failed to fetch archived session");
+      }
+    } catch (error) {
+      console.error("Error fetching archived session:", error);
+    }
+  };
+
   if (!session) {
     return (
       <main className="flex flex-col items-center justify-between p-24">
@@ -59,7 +108,7 @@ export default function Dashboard() {
 
   return (
     <main className="max-w-md mx-auto mt-6">
-      <div>
+      <div className="mb-12">
         <Title
           title="Create New Session"
           subtitle="Please enter a name for your new session"
@@ -80,7 +129,8 @@ export default function Dashboard() {
         </form>
       </div>
 
-      <div className="mt-6">
+      <Title title="Active Sessions" subtitle="View your active sessions" />
+      <div className="my-6">
         {sessions && sessions.length > 0 ? (
           <ul className="space-y-2">
             {sessions.map((sess) => (
@@ -117,6 +167,39 @@ export default function Dashboard() {
           </ul>
         ) : (
           <p>No sessions found.</p>
+        )}
+      </div>
+
+      <Title title="Past Sessions" subtitle="View your past sessions" />
+
+      <div className="mt-4">
+        {loadingArchived ? (
+          <p>Loading past sessions...</p>
+        ) : archivedSessions.length > 0 ? (
+          <ul className="space-y-2">
+            {archivedSessions.map((sess) => (
+              <li
+                key={sess.id}
+                className="flex items-center justify-between gap-8 p-4 border rounded-lg"
+              >
+                <div className="flex flex-col">
+                  <p className="font-semibold">{sess.name}</p>
+                  <p className="text-sm">
+                    Ended: {new Date(sess.endedAt).toDateString()}
+                  </p>
+                </div>
+
+                <Button
+                  variant="outline"
+                  onClick={() => handleViewArchivedSession(sess.id)}
+                >
+                  View Details
+                </Button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No past sessions found.</p>
         )}
       </div>
     </main>

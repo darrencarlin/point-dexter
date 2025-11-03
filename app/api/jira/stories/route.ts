@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
+import { getCloudId } from "@/lib/utils";
 import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   // Authenticate user
@@ -9,7 +9,9 @@ export async function GET(request: Request) {
   });
 
   if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+    });
   }
 
   // Get Atlassian access token
@@ -23,11 +25,11 @@ export async function GET(request: Request) {
 
   const accessToken = tokenData?.accessToken;
   if (!accessToken) {
-    return NextResponse.json(
-      {
+    return new Response(
+      JSON.stringify({
         error:
           "No Atlassian access token found. Please reconnect your Atlassian account.",
-      },
+      }),
       { status: 401 }
     );
   }
@@ -35,7 +37,14 @@ export async function GET(request: Request) {
   // Get boardId from query params or use default
   const { searchParams } = new URL(request.url);
   const boardId = searchParams.get("boardId") || "4140";
-  const cloudId = "cb4af3fd-bbec-4b10-8b28-095ba3c34218";
+  // Get cloud ID dynamically from accessible resources
+  const cloudId = await getCloudId(accessToken);
+
+  if (!cloudId) {
+    return new Response(JSON.stringify({ error: "Failed to get cloud ID" }), {
+      status: 500,
+    });
+  }
 
   // First, get the board details to find the project
   const boardRes = await fetch(
@@ -50,9 +59,15 @@ export async function GET(request: Request) {
 
   if (!boardRes.ok) {
     const error = await boardRes.text();
-    return NextResponse.json(
-      { error: "Failed to fetch board details", details: error },
-      { status: boardRes.status }
+
+    return new Response(
+      JSON.stringify({
+        error: "Failed to fetch board details",
+        details: error,
+      }),
+      {
+        status: boardRes.status,
+      }
     );
   }
 
@@ -60,9 +75,11 @@ export async function GET(request: Request) {
   const projectKey = boardData.location?.projectKey;
 
   if (!projectKey) {
-    return NextResponse.json(
-      { error: "Could not determine project from board" },
-      { status: 400 }
+    return new Response(
+      JSON.stringify({ error: "Could not determine project from board" }),
+      {
+        status: 400,
+      }
     );
   }
 
@@ -87,9 +104,15 @@ export async function GET(request: Request) {
 
   if (!res.ok) {
     const error = await res.text();
-    return NextResponse.json(
-      { error: "Failed to fetch issues", details: error },
-      { status: res.status }
+
+    return new Response(
+      JSON.stringify({
+        error: "Failed to fetch issues",
+        details: error,
+      }),
+      {
+        status: res.status,
+      }
     );
   }
 
@@ -109,10 +132,12 @@ export async function GET(request: Request) {
     status: issue.fields?.status?.name || "",
   }));
 
-  return NextResponse.json({
-    issues: allIssues,
-    projectKey,
-    boardId,
-    total: allIssues.length,
-  });
+  return new Response(
+    JSON.stringify({
+      issues: allIssues,
+      projectKey,
+      boardId,
+      total: allIssues.length,
+    })
+  );
 }

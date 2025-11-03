@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { authClient } from "@/lib/auth-client";
+import { SignInWithAtlassianButton } from "@/components/buttons/sign-in-with-atlassian";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
-import { Title } from "@/components/title";
-import { SignInWithAtlassianButton } from "@/components/buttons/sign-in-with-atlassian";
+import { useState } from "react";
 
 export default function SignUp() {
   const [name, setName] = useState("");
@@ -44,10 +44,6 @@ export default function SignUp() {
 
   return (
     <div className="max-w-md mx-auto mt-6">
-      <Title
-        title="Create Your Account"
-        subtitle="Please fill in the details below to sign up"
-      />
       <form className="space-y-4">
         <div>
           <Label htmlFor="name" className="mb-2">
@@ -104,7 +100,9 @@ export default function SignUp() {
         </Button>
       </form>
 
-      <SignInWithAtlassianButton setError={setError} setLoading={setLoading} />
+      <Separator className="my-4" />
+
+      <SignInWithAtlassianButton />
 
       <p className="mt-4">
         Already have an account?{" "}

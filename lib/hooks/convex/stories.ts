@@ -25,6 +25,7 @@ export function useAddStory() {
     sessionId: Id<"sessions">;
     title: string;
     description?: string;
+    jiraKey?: string;
   }) => {
     if (!session?.user?.id) {
       throw new Error("Must be logged in to add stories");
@@ -35,6 +36,7 @@ export function useAddStory() {
       title: args.title,
       description: args.description,
       userId: session.user.id,
+      jiraKey: args.jiraKey,
     });
   };
 }
