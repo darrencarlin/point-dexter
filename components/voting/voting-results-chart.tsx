@@ -2,28 +2,29 @@
 
 import { Id } from "@/convex/_generated/dataModel";
 import { useGetStoryVotes } from "@/lib/hooks/convex/votes";
+import { useGetSessionMembers } from "@/lib/hooks/convex/session-members";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
 } from "@/components/ui/chart";
-import { Cell, Pie, PieChart } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell } from "recharts";
 import { Loading } from "@/components/loading";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 interface Props {
   storyId: Id<"stories"> | undefined;
+  sessionId: Id<"sessions">;
 }
 
 /**
- * Voting results chart component that displays vote distribution using a pie chart
+ * Voting results chart component that displays vote distribution using a bar chart
  * @param {Props} props - Component properties
  * @returns {JSX.Element} Rendered chart component
  */
-export function VotingResultsChart({ storyId }: Props) {
+export function VotingResultsChart({ storyId, sessionId }: Props) {
   const votes = useGetStoryVotes(storyId);
+  const members = useGetSessionMembers(sessionId);
 
   // Transform votes into chart data format
   const chartData = useMemo(() => {
@@ -64,6 +65,45 @@ export function VotingResultsChart({ storyId }: Props) {
     "?": { label: "?", color: "#94A3B8" },   // slate-400
   };
 
+  // Determine participant (non-admin) count
+  const participantCount = useMemo(() => {
+    if (!members) return 0;
+    return members.filter((m) => !m.isAdmin).length;
+  }, [members]);
+
+  // Unanimous detection
+  const unanimousValue = useMemo(() => {
+    if (!votes || votes.length === 0 || participantCount === 0) return null;
+    // Only consider non-admin member votes by mapping via userId
+    // Build a map of userId -> vote value
+    const voteValues = votes.map((v) => String(v.points));
+    // Require everyone voted and all values equal the first
+    if (votes.length !== participantCount) return null;
+    return voteValues.every((v) => v === voteValues[0]) ? voteValues[0] : null;
+  }, [votes, participantCount]);
+
+  // Confetti when unanimous
+  useEffect(() => {
+    if (!unanimousValue) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const confetti = (await import("canvas-confetti")).default;
+        if (cancelled) return;
+        confetti({
+          particleCount: 120,
+          spread: 70,
+          origin: { y: 0.6 },
+        });
+      } catch {
+        // no-op if library not installed
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [unanimousValue]);
+
   if (votes === undefined) {
     return <Loading />;
   }
@@ -79,17 +119,22 @@ export function VotingResultsChart({ storyId }: Props) {
   return (
     <div className="space-y-4">
       <ChartContainer config={chartConfig} className="h-[300px] w-full">
-        <PieChart>
+        <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis
+            dataKey="name"
+            tickLine={false}
+            axisLine={false}
+            tickMargin={8}
+          />
+          <YAxis tickLine={false} axisLine={false} tickMargin={8} />
           <ChartTooltip
             cursor={false}
-            content={<ChartTooltipContent hideLabel />}
+            content={<ChartTooltipContent indicator="dot" />}
           />
-          <Pie
-            data={chartData}
+          <Bar
             dataKey="value"
-            nameKey="name"
-            innerRadius={60}
-            strokeWidth={5}
+            radius={[8, 8, 0, 0]}
           >
             {chartData.map((entry, index) => (
               <Cell
@@ -97,24 +142,35 @@ export function VotingResultsChart({ storyId }: Props) {
                 fill={chartConfig[entry.name]?.color || "#8884d8"}
               />
             ))}
-          </Pie>
-          <ChartLegend content={<ChartLegendContent nameKey="name" />} className="-bottom-6" />
-        </PieChart>
+          </Bar>
+        </BarChart>
       </ChartContainer>
       <div className="space-y-2">
         <p className="text-sm font-medium">Summary</p>
         <div className="space-y-1 text-sm">
-          {chartData.map((entry) => (
-            <div key={entry.name}>
+          {unanimousValue ? (
+            <div>
               <span className="text-muted-foreground">
-                {entry.value === 1 ? (
-                  <>1 participant voted for <span className="font-semibold text-foreground">{entry.name}</span></>
-                ) : (
-                  <>{entry.value} participants voted for <span className="font-semibold text-foreground">{entry.name}</span></>
-                )}
+                {unanimousValue === "2"
+                  ? "Everyone voted for 2"
+                  : (
+                    <>Everyone voted for <span className="font-semibold text-foreground">{unanimousValue}</span></>
+                  )}
               </span>
             </div>
-          ))}
+          ) : (
+            chartData.map((entry) => (
+              <div key={entry.name}>
+                <span className="text-muted-foreground">
+                  {entry.value === 1 ? (
+                    <>1 participant voted for <span className="font-semibold text-foreground">{entry.name}</span></>
+                  ) : (
+                    <>{entry.value} participants voted for <span className="font-semibold text-foreground">{entry.name}</span></>
+                  )}
+                </span>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

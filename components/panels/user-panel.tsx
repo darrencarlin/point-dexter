@@ -43,7 +43,7 @@ export const UserPanel = ({ id }: Props) => {
             </p>
           )}
         </div>
-        <VotingResultsChart storyId={endedStory._id} />
+        <VotingResultsChart storyId={endedStory._id} sessionId={id as Id<"sessions">} />
       </div>
     );
   }

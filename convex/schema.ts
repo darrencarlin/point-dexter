@@ -26,7 +26,10 @@ const stories = defineTable({
   description: v.optional(v.string()),
   status: v.optional(v.union(...status.map((s) => v.literal(s)))),
   createdAt: v.number(),
-  points: v.number(),
+  // Accept legacy fields temporarily to unblock validation
+  isActive: v.optional(v.boolean()),
+  isFinished: v.optional(v.boolean()),
+  points: v.optional(v.number()),
 });
 
 const votes = defineTable({

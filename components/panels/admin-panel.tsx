@@ -284,7 +284,7 @@ export const AdminPanel = ({ id }: Props) => {
       {/* Show voting results chart above Active Stories if there's a story with votes */}
       {endedStoryForChart && (
         <div className="mb-8">
-          <VotingResultsChart storyId={endedStoryForChart._id} />
+          <VotingResultsChart storyId={endedStoryForChart._id} sessionId={id as Id<"sessions">} />
         </div>
       )}
 
