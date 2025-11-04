@@ -6,6 +6,7 @@ import { useEndedStory } from "@/lib/hooks/convex/use-ended-story";
 import { Title } from "./title";
 import { useMemo } from "react";
 import { Card } from "./card";
+import { Check } from "lucide-react";
 
 interface Props {
   id: string;
@@ -15,7 +16,11 @@ export const MemberList = ({ id }: Props) => {
   const sessionMembers = useGetSessionMembers(id as Id<"sessions">);
   const activeStory = useGetActiveStory(id as Id<"sessions">);
   const endedStory = useEndedStory(id as Id<"sessions">);
-  const votes = useGetStoryVotes(endedStory?._id);
+
+  // Get votes for the active story (if voting) or ended story (if showing results)
+  const storyToCheck =
+    activeStory?.status === "voting" ? activeStory : endedStory;
+  const votes = useGetStoryVotes(storyToCheck?._id);
 
   // Create a map of userId -> vote for quick lookup
   const votesByUserId = useMemo(() => {
@@ -50,22 +55,19 @@ export const MemberList = ({ id }: Props) => {
                     )}
                     <p className="font-semibold">{member.name}</p>
                   </div>
-                  {!member.isAdmin &&
-                    activeStory &&
-                    activeStory.status === "voting" && (
-                      <div className="mt-1">
-                        <span className="text-sm italic text-muted-foreground">
-                          Voting in progress...
-                        </span>
-                      </div>
-                    )}
                 </div>
                 {!member.isAdmin &&
                   (activeStory && activeStory.status === "voting" ? (
-                    // During voting: show "?"
-                    <div className="flex items-center justify-center w-10 h-10 border-2 rounded-full bg-muted border-muted-foreground/20">
-                      <span className="text-xs text-muted-foreground">?</span>
-                    </div>
+                    // During voting: show checkmark if voted, otherwise "?"
+                    hasVoted ? (
+                      <div className="flex items-center justify-center w-10 h-10 border-2 rounded-full bg-primary/10 border-primary">
+                        <Check className="w-5 h-5 text-primary" />
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center w-10 h-10 border-2 rounded-full bg-muted border-muted-foreground/20">
+                        <span className="text-xs text-muted-foreground">?</span>
+                      </div>
+                    )
                   ) : endedStory ? (
                     // After voting ended: show vote value or "-"
                     hasVoted ? (
