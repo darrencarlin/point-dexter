@@ -21,6 +21,7 @@ interface ArchivedSession {
 export default function Dashboard() {
   const createSession = useCreateSession();
   const [error, setError] = useState("");
+  const [link, setLink] = useState("Copy Link");
   const [loading, setLoading] = useState(false);
   const [sessionName, setSessionName] = useState("");
   const { data: session, isPending } = useSession();
@@ -115,9 +116,9 @@ export default function Dashboard() {
   }
 
   return (
-    <main className="space-y-4 px-4">
+    <main className="flex-1 flex flex-col gap-4 p-4 overflow-hidden">
       {/* Create New Session Section - Full Width */}
-      <section className="bg-card border border-border rounded-lg p-6 shadow-sm">
+      <section className="bg-card border border-border rounded-lg p-6 shadow-sm shrink-0">
         <form className="space-y-4">
           <Label htmlFor="session">
             <h2 className="text-2xl font-bold">Create a new session</h2>
@@ -141,29 +142,29 @@ export default function Dashboard() {
       </section>
 
       {/* Two Column Layout for Active and Past Sessions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-0">
         {/* Active Sessions Section */}
-        <section className="bg-card border border-border rounded-lg p-6 shadow-sm">
+        <section className="bg-card border border-border rounded-lg p-6 shadow-sm flex flex-col">
           <Title title="Active Sessions" subtitle="View your active sessions" />
-          <div>
+          <div className="flex-1 overflow-y-auto">
             {sessions && sessions.length > 0 ? (
               <ul className="space-y-2">
-                {sessions.map((sess) => (
+                {sessions.map((session) => (
                   <li
-                    key={sess._id}
+                    key={session._id}
                     className="flex items-center justify-between gap-8 p-4 bg-muted/30 border border-border rounded-lg"
                   >
                     <div className="flex flex-col">
-                      <p className="font-semibold">{sess.name}</p>
+                      <p className="font-semibold">{session.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(sess.createdAt).toDateString()}
+                        {new Date(session.createdAt).toDateString()}
                       </p>
                     </div>
 
                     <div className="flex flex-col gap-2">
                       <Button type="button">
                         <Link
-                          href={`/session/${sess._id}`}
+                          href={`/session/${session._id}`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
@@ -172,9 +173,15 @@ export default function Dashboard() {
                       </Button>
                       <Button
                         variant="secondary"
-                        onClick={() => handleCopyLink(sess)}
+                        onClick={() => {
+                          setLink("Copied!");
+                          handleCopyLink(session);
+                          setTimeout(() => {
+                            setLink("Copy Link");
+                          }, 2000);
+                        }}
                       >
-                        Copy Link
+                        {link}
                       </Button>
                     </div>
                   </li>
@@ -187,9 +194,9 @@ export default function Dashboard() {
         </section>
 
         {/* Past Sessions Section */}
-        <section className="bg-card border border-border rounded-lg p-6 shadow-sm">
+        <section className="bg-card border border-border rounded-lg p-6 shadow-sm flex flex-col">
           <Title title="Past Sessions" subtitle="View your past sessions" />
-          <div className="mt-4">
+          <div className="flex-1 overflow-y-auto">
             {loadingArchived ? (
               <p className="text-muted-foreground">Loading past sessions...</p>
             ) : archivedSessions.length > 0 ? (
