@@ -98,16 +98,8 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
     fetchStories();
   }, [selectedBoardId]);
 
-  if (loadingBoards) {
-    return <div className="py-4 font-bold">Loading boards...</div>;
-  }
-
-  if (boards?.length === 0) {
-    return <div>No boards found.</div>;
-  }
-
   return (
-    <div className="mb-6 space-y-4">
+    <form className="mb-4 space-y-4">
       {/* Board Selector (ComboBox) */}
       <div>
         <Label>
@@ -122,17 +114,22 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
               role="combobox"
               aria-expanded={openBoards}
               className="justify-between w-full"
+              disabled={loadingBoards}
             >
-              {selectedBoardId
-                ? (() => {
-                    const board = boards.find(
-                      (b) => b.id.toString() === selectedBoardId
-                    );
-                    return board
-                      ? `${board.displayName} (${board.projectName})`
-                      : "Select board...";
-                  })()
-                : "Select board..."}
+              {loadingBoards
+                ? "Loading boards..."
+                : selectedBoardId
+                  ? (() => {
+                      const board = boards.find(
+                        (b) => b.id.toString() === selectedBoardId
+                      );
+                      return board
+                        ? `${board.displayName} (${board.projectName})`
+                        : "Select board...";
+                    })()
+                  : boards?.length === 0
+                    ? "No boards found"
+                    : "Select board..."}
               <ChevronsUpDownIcon className="w-4 h-4 ml-2 opacity-50 shrink-0" />
             </Button>
           </PopoverTrigger>
@@ -258,6 +255,6 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
           </Button>
         </div>
       )}
-    </div>
+    </form>
   );
 };
