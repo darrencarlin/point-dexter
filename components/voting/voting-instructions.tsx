@@ -7,6 +7,8 @@ import { useGetUserVote, useVote } from "@/lib/hooks/convex/votes";
 import { Button } from "@/components/ui/button";
 import { Title } from "@/components/title";
 import { Loading } from "@/components/loading";
+import { Card } from "../card";
+import { cn } from "@/lib/utils";
 
 interface Props {
   sessionId: Id<"sessions">;
@@ -46,37 +48,40 @@ export function VotingInstructions({ sessionId }: Props) {
   const currentVote = userVote?.points;
 
   return (
-    <div className="space-y-6">
+    <Card>
       <Title
         title="Voting Instructions"
         subtitle="Select your estimate for the current story"
       />
 
       {/* Story Information */}
-      <div className="p-4 rounded-lg space-y-2 bg-muted">
+      <Card className="mb-6">
         <h3 className="text-lg font-semibold">{activeStory?.title}</h3>
         {activeStory?.description && (
           <p className="text-sm text-muted-foreground">
             {activeStory.description}
           </p>
         )}
-      </div>
+      </Card>
 
       {/* Voting Options */}
       <div className="space-y-4">
-        <p className="text-sm font-medium">Select your vote:</p>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-3 mb-6">
           {votingOptions.map((option) => {
             const isSelected = currentVote === option;
+
+            const cardClassName = cn(
+              "text-3xl font-bold shadow rounded-lg w-28 h-28 flex items-center justify-center transition-colors",
+              {
+                "ring-2 ring-primary ring-offset-2 ": isSelected,
+              }
+            );
+
             return (
               <Button
                 key={option}
-                variant={isSelected ? "outline" : "default"}
-                className={
-                  isSelected
-                    ? "ring-2 ring-primary ring-offset-2 min-w-[60px]"
-                    : "min-w-[60px]"
-                }
+                variant={isSelected ? "default" : "outline"}
+                className={cardClassName}
                 onClick={() => handleVote(option)}
                 disabled={isVoting}
               >
@@ -86,13 +91,6 @@ export function VotingInstructions({ sessionId }: Props) {
           })}
         </div>
       </div>
-
-      {currentVote !== undefined && (
-        <p className="text-sm text-muted-foreground">
-          Your current vote:{" "}
-          <span className="font-semibold">{currentVote}</span>
-        </p>
-      )}
-    </div>
+    </Card>
   );
 }

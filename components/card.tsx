@@ -8,7 +8,7 @@ export const Card = ({
   className?: string;
 }) => {
   const classname = cn(
-    "p-4 border rounded-lg shadow-sm bg-card border-foreground/10 shadow-sm",
+    "p-4 border rounded-lg shadow-sm bg-card border-foreground/20 shadow-sm",
     className
   );
 

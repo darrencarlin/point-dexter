@@ -11,6 +11,9 @@ import {
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell } from "recharts";
 import { Loading } from "@/components/loading";
 import { useEffect, useMemo } from "react";
+import { Title } from "../title";
+import { useEndedStory } from "@/lib/hooks/convex/use-ended-story";
+import { Card } from "../card";
 
 interface Props {
   storyId: Id<"stories"> | undefined;
@@ -25,7 +28,7 @@ interface Props {
 export function VotingResultsChart({ storyId, sessionId }: Props) {
   const votes = useGetStoryVotes(storyId);
   const members = useGetSessionMembers(sessionId);
-
+  const endedStory = useEndedStory(sessionId);
   // Transform votes into chart data format
   const chartData = useMemo(() => {
     if (!votes || votes.length === 0) {
@@ -55,14 +58,14 @@ export function VotingResultsChart({ storyId, sessionId }: Props) {
 
   // Explicit, high-contrast palette per option (previous working version)
   const chartConfig: Record<string, { label: string; color: string }> = {
-    "1": { label: "1", color: "#6366F1" },   // indigo-500
-    "2": { label: "2", color: "#22C55E" },   // green-500
-    "3": { label: "3", color: "#EAB308" },   // yellow-500
-    "5": { label: "5", color: "#F97316" },   // orange-500
-    "8": { label: "8", color: "#EF4444" },   // red-500
+    "1": { label: "1", color: "#6366F1" }, // indigo-500
+    "2": { label: "2", color: "#22C55E" }, // green-500
+    "3": { label: "3", color: "#EAB308" }, // yellow-500
+    "5": { label: "5", color: "#F97316" }, // orange-500
+    "8": { label: "8", color: "#EF4444" }, // red-500
     "13": { label: "13", color: "#06B6D4" }, // cyan-500
     "21": { label: "21", color: "#A855F7" }, // purple-500
-    "?": { label: "?", color: "#94A3B8" },   // slate-400
+    "?": { label: "?", color: "#94A3B8" }, // slate-400
   };
 
   // Determine participant (non-admin) count
@@ -117,62 +120,85 @@ export function VotingResultsChart({ storyId, sessionId }: Props) {
   }
 
   return (
-    <div className="space-y-4">
-      <ChartContainer config={chartConfig} className="h-[300px] w-full">
-        <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="name"
-            tickLine={false}
-            axisLine={false}
-            tickMargin={8}
-          />
-          <YAxis tickLine={false} axisLine={false} tickMargin={8} />
-          <ChartTooltip
-            cursor={false}
-            content={<ChartTooltipContent indicator="dot" />}
-          />
-          <Bar
-            dataKey="value"
-            radius={[8, 8, 0, 0]}
+    <Card>
+      <Title title={endedStory?.title} />
+      {endedStory?.description && (
+        <p className="text-sm text-muted-foreground">
+          {endedStory?.description}
+        </p>
+      )}
+      <div className="space-y-4">
+        <ChartContainer config={chartConfig} className="h-[300px] w-full">
+          <BarChart
+            data={chartData}
+            margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
           >
-            {chartData.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={chartConfig[entry.name]?.color || "#8884d8"}
-              />
-            ))}
-          </Bar>
-        </BarChart>
-      </ChartContainer>
-      <div className="space-y-2">
-        <p className="text-sm font-medium">Summary</p>
-        <div className="text-sm space-y-1">
-          {unanimousValue ? (
-            <div>
-              <span className="text-muted-foreground">
-                {unanimousValue === "2"
-                  ? "Everyone voted for 2"
-                  : (
-                    <>Everyone voted for <span className="font-semibold text-foreground">{unanimousValue}</span></>
-                  )}
-              </span>
-            </div>
-          ) : (
-            chartData.map((entry) => (
-              <div key={entry.name}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey="name"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+            />
+            <YAxis tickLine={false} axisLine={false} tickMargin={8} />
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent indicator="dot" />}
+            />
+            <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+              {chartData.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={chartConfig[entry.name]?.color || "#8884d8"}
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ChartContainer>
+        <div className="space-y-2">
+          <Title title="Summary" />
+          <div className="space-y-1 text-sm">
+            {unanimousValue ? (
+              <div>
                 <span className="text-muted-foreground">
-                  {entry.value === 1 ? (
-                    <>1 participant voted for <span className="font-semibold text-foreground">{entry.name}</span></>
+                  {unanimousValue === "2" ? (
+                    "Everyone voted for 2"
                   ) : (
-                    <>{entry.value} participants voted for <span className="font-semibold text-foreground">{entry.name}</span></>
+                    <>
+                      Everyone voted for{" "}
+                      <span className="font-semibold text-foreground">
+                        {unanimousValue}
+                      </span>
+                    </>
                   )}
                 </span>
               </div>
-            ))
-          )}
+            ) : (
+              chartData.map((entry) => (
+                <div key={entry.name}>
+                  <span className="text-muted-foreground">
+                    {entry.value === 1 ? (
+                      <>
+                        1 participant voted for{" "}
+                        <span className="font-semibold text-foreground">
+                          {entry.name}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        {entry.value} participants voted for{" "}
+                        <span className="font-semibold text-foreground">
+                          {entry.name}
+                        </span>
+                      </>
+                    )}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

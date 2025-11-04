@@ -32,18 +32,6 @@ export const UserPanel = ({ id }: Props) => {
   if (endedStory) {
     return (
       <div className="space-y-6">
-        <Title
-          title="Voting Results"
-          subtitle="The voting session has ended. Here are the results:"
-        />
-        <div className="p-4 space-y-2 rounded-lg bg-muted">
-          <h3 className="text-lg font-semibold">{endedStory.title}</h3>
-          {endedStory.description && (
-            <p className="text-sm text-muted-foreground">
-              {endedStory.description}
-            </p>
-          )}
-        </div>
         <VotingResultsChart
           storyId={endedStory._id}
           sessionId={id as Id<"sessions">}

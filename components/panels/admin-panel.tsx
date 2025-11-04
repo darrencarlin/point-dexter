@@ -15,6 +15,7 @@ import { IssuesDropdown, Story } from "../inputs/issues-dropdown";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { VotingResultsChart } from "../voting/voting-results-chart";
+import { Title } from "../title";
 
 interface Props {
   id: string;
@@ -102,14 +103,21 @@ const StoryItem = ({
         </div>
         <div>
           <div className="flex items-center gap-2">
-            {/* Show Start Voting if status is "new" or "pending" */}
-            {(story.status === "new" || story.status === "pending") && (
+            {/* Show Start Voting if status is "new" */}
+            {story.status === "new" && (
               <Button
                 disabled={hasVotingStory}
                 onClick={() => onStartVoting(story._id)}
                 variant="start"
               >
                 Start Voting
+              </Button>
+            )}
+
+            {/* Show Resume Voting if status is "pending" (paused) */}
+            {story.status === "pending" && (
+              <Button onClick={() => onStartVoting(story._id)} variant="start">
+                Resume Voting
               </Button>
             )}
 
@@ -166,6 +174,7 @@ export const AdminPanel = ({ id }: Props) => {
   const sessionStories = useGetSessionStories(id as Id<"sessions">);
   const toggleStoryStatus = useToggleStoryStatus();
   const endVoting = useEndVoting();
+  const endedStory = useEndedStory(id as Id<"sessions">);
 
   const handleAddManualStory = () => {
     setLoading(true);
@@ -312,8 +321,10 @@ export const AdminPanel = ({ id }: Props) => {
     }
   };
 
-  const hasVotingStory = sessionStories?.some(
-    (story) => story.status === "voting"
+  // Check if there's any story currently in voting status OR any story in pending status
+  // Only allow starting one story at a time (either voting or pending should block others)
+  const hasActiveStory = sessionStories?.some(
+    (story) => story.status === "voting" || story.status === "pending"
   );
 
   const endedStoryForChart = useEndedStory(id as Id<"sessions">);
@@ -376,12 +387,10 @@ export const AdminPanel = ({ id }: Props) => {
 
       {/* Show voting results chart if there's a story with votes */}
       {endedStoryForChart && (
-        <Card className="shrink-0">
-          <VotingResultsChart
-            storyId={endedStoryForChart._id}
-            sessionId={id as Id<"sessions">}
-          />
-        </Card>
+        <VotingResultsChart
+          storyId={endedStoryForChart._id}
+          sessionId={id as Id<"sessions">}
+        />
       )}
 
       {/* Active Stories Section */}
@@ -395,11 +404,17 @@ export const AdminPanel = ({ id }: Props) => {
             {sessionStories
               ?.filter((story) => story.status !== "completed")
               .map((story) => {
+                // Check if THIS story is the active one (voting or pending)
+                const isThisStoryActive =
+                  story.status === "voting" || story.status === "pending";
+
                 return (
                   <StoryItem
                     key={story._id}
                     story={story}
-                    hasVotingStory={hasVotingStory ?? false}
+                    hasVotingStory={
+                      isThisStoryActive ? false : (hasActiveStory ?? false)
+                    }
                     onStartVoting={handleStartVoting}
                     onStopVoting={handleStopVoting}
                     onCompleteStory={handleCompleteStory}
@@ -421,21 +436,20 @@ export const AdminPanel = ({ id }: Props) => {
             {sessionStories
               ?.filter((story) => story.status === "completed")
               .map((story) => (
-                <li
-                  key={story._id}
-                  className="flex items-center justify-between gap-8 p-4 border rounded-lg bg-muted/30 border-border"
-                >
-                  <div className="flex flex-col">
-                    <p className="font-semibold">{story.title}</p>
-                    <p className="text-sm">{story.description}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      {story.points && story.points > 0
-                        ? `${story.points} points`
-                        : "Completed"}
-                    </p>
-                  </div>
+                <li key={story._id}>
+                  <Card className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                      <p className="font-semibold">{story.title}</p>
+                      <p className="text-sm">{story.description}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        {story.points && story.points > 0
+                          ? `${story.points} points`
+                          : "Completed"}
+                      </p>
+                    </div>
+                  </Card>
                 </li>
               ))}
           </ul>
