@@ -107,32 +107,31 @@ export default function Dashboard() {
   }
 
   return (
-    <main className="grid grid-cols-1 lg:grid-cols-2 gap-16 mt-6 p-4">
-      {/* Left Column */}
-      <div className="space-y-8">
-        {/* Create New Session Section */}
-        <section>
-          <Title
-            title="Create New Session"
-            subtitle="Please enter a name for your new session"
+    <main className="space-y-8 mt-6 p-8">
+      {/* Create New Session Section - Full Width */}
+      <section className="bg-card border border-border rounded-lg p-6 shadow-sm">
+        <form className="space-y-4">
+          <Label htmlFor="session">
+            <h2 className="text-2xl font-bold">Create a new session</h2>
+          </Label>
+          <Input
+            id="session"
+            type="text"
+            placeholder="Enter session name"
+            value={sessionName}
+            onChange={(e) => setSessionName(e.target.value)}
           />
-          <form className="space-y-4">
-            <Label className="mb-2">Session Name</Label>
-            <Input
-              type="text"
-              placeholder="Enter session name"
-              value={sessionName}
-              onChange={(e) => setSessionName(e.target.value)}
-            />
-            {error && <p>{error}</p>}
-            <Button type="button" onClick={handleCreateSession}>
-              {loading ? "Creating..." : "Create Session"}
-            </Button>
-          </form>
-        </section>
+          {error && <p>{error}</p>}
+          <Button type="button" onClick={handleCreateSession}>
+            {loading ? "Creating..." : "Create Session"}
+          </Button>
+        </form>
+      </section>
 
+      {/* Two Column Layout for Active and Past Sessions */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Active Sessions Section */}
-        <section>
+        <section className="bg-card border border-border rounded-lg p-6 shadow-sm">
           <Title title="Active Sessions" subtitle="View your active sessions" />
           <div>
             {sessions && sessions.length > 0 ? (
@@ -140,11 +139,11 @@ export default function Dashboard() {
                 {sessions.map((sess) => (
                   <li
                     key={sess._id}
-                    className="flex items-center justify-between gap-8 p-4 border rounded-lg"
+                    className="flex items-center justify-between gap-8 p-4 bg-muted/30 border border-border rounded-lg"
                   >
                     <div className="flex flex-col">
                       <p className="font-semibold">{sess.name}</p>
-                      <p className="text-sm">
+                      <p className="text-sm text-muted-foreground">
                         {new Date(sess.createdAt).toDateString()}
                       </p>
                     </div>
@@ -170,30 +169,27 @@ export default function Dashboard() {
                 ))}
               </ul>
             ) : (
-              <p>No sessions found.</p>
+              <p className="text-muted-foreground">No sessions found.</p>
             )}
           </div>
         </section>
-      </div>
 
-      {/* Right Column */}
-      <div>
         {/* Past Sessions Section */}
-        <section>
+        <section className="bg-card border border-border rounded-lg p-6 shadow-sm">
           <Title title="Past Sessions" subtitle="View your past sessions" />
           <div className="mt-4">
             {loadingArchived ? (
-              <p>Loading past sessions...</p>
+              <p className="text-muted-foreground">Loading past sessions...</p>
             ) : archivedSessions.length > 0 ? (
               <ul className="space-y-2">
                 {archivedSessions.map((session) => (
                   <li
                     key={session.id}
-                    className="flex items-center justify-between gap-8 p-4 border rounded-lg"
+                    className="flex items-center justify-between gap-8 p-4 bg-secondary/10 rounded-lg"
                   >
                     <div className="flex flex-col">
                       <p className="font-semibold">{session.name}</p>
-                      <p className="text-sm">
+                      <p className="text-sm text-muted-foreground">
                         {new Date(session.endedAt).toDateString()}
                       </p>
                     </div>
@@ -208,7 +204,7 @@ export default function Dashboard() {
                 ))}
               </ul>
             ) : (
-              <p>No past sessions found.</p>
+              <p className="text-muted-foreground">No past sessions found.</p>
             )}
           </div>
         </section>

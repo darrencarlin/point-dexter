@@ -24,15 +24,10 @@ export const DashboardNavigation = () => {
       <Link href="/">
         <Pointer className="hover:animate-spin transition-transform" />
       </Link>
-
       <div className="flex items-center gap-4">
         <p>
           {status} <span className="font-bold">{displayName}</span>
         </p>
-        <Button>
-          <Plus className="size-5" />
-          <span className="font-bold">New Session</span>
-        </Button>
         {session && <SignOutButton />}
         <ThemeToggle />
       </div>
