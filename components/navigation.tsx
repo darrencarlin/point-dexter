@@ -9,7 +9,7 @@ export const Navigation = () => {
   const { data: session } = useSession();
 
   return (
-    <nav className="flex justify-between items-center p-4 mb-8">
+    <nav className="flex items-center justify-between p-4 mb-8">
       <Link href="/">
         <Pointer className="hover:animate-spin transition-transform" />
       </Link>

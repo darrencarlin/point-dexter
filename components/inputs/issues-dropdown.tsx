@@ -18,6 +18,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Label } from "../ui/label";
+import { Title } from "../title";
 
 export interface Story {
   id: string;
@@ -97,7 +99,7 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
   }, [selectedBoardId]);
 
   if (loadingBoards) {
-    return <div>Loading boards...</div>;
+    return <div className="py-4 font-bold">Loading boards...</div>;
   }
 
   if (boards?.length === 0) {
@@ -105,17 +107,21 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
   }
 
   return (
-    <div className="space-y-4 mb-6">
+    <div className="mb-6 space-y-4">
       {/* Board Selector (ComboBox) */}
       <div>
-        <label className="text-sm font-medium mb-2 block">Select Board</label>
+        <Label>
+          <h2 className="mb-4 text-2xl font-bold">
+            Choose Stories for Estimation
+          </h2>
+        </Label>
         <Popover open={openBoards} onOpenChange={setOpenBoards}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
               role="combobox"
               aria-expanded={openBoards}
-              className="w-full justify-between"
+              className="justify-between w-full"
             >
               {selectedBoardId
                 ? (() => {
@@ -127,7 +133,7 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
                       : "Select board...";
                   })()
                 : "Select board..."}
-              <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              <ChevronsUpDownIcon className="w-4 h-4 ml-2 opacity-50 shrink-0" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-[600px] p-0">
@@ -172,15 +178,10 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
       {selectedBoardId && (
         <div className="flex gap-2">
           <div className="flex-1">
-            <label className="text-sm font-medium mb-2 block">
-              Select Issue
-            </label>
             {loadingStories ? (
-              <div className="text-sm text-muted-foreground">
-                Loading issues...
-              </div>
+              <div className="p-2 text-sm font-bold">Loading issues...</div>
             ) : stories?.length === 0 ? (
-              <div className="text-sm text-muted-foreground">
+              <div className="p-2 text-sm font-bold">
                 No issues found for this board.
               </div>
             ) : (
@@ -190,7 +191,7 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
                     variant="outline"
                     role="combobox"
                     aria-expanded={openIssues}
-                    className="w-full justify-between"
+                    className="justify-between w-full"
                   >
                     {selectedKey
                       ? (() => {
@@ -202,7 +203,7 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
                             : "Select issue...";
                         })()
                       : "Select issue..."}
-                    <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    <ChevronsUpDownIcon className="w-4 h-4 ml-2 opacity-50 shrink-0" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[600px] p-0">

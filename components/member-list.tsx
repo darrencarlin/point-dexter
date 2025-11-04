@@ -5,6 +5,7 @@ import { useGetActiveStory } from "@/lib/hooks/convex/stories";
 import { useEndedStory } from "@/lib/hooks/convex/use-ended-story";
 import { Title } from "./title";
 import { useMemo } from "react";
+import { Card } from "./card";
 
 interface Props {
   id: string;
@@ -38,46 +39,48 @@ export const MemberList = ({ id }: Props) => {
           const hasVoted = memberVote !== undefined;
 
           return (
-            <li
-              key={member._id}
-              className="flex items-center justify-between p-4 border rounded-lg gap-8"
-            >
-              <div className="flex flex-col flex-1">
-                <div className="flex items-center gap-2">
-                  {member.isAdmin && (
-                    <span className="text-xs text-muted-foreground">Admin</span>
-                  )}
-                  <p className="font-semibold">{member.name}</p>
-                </div>
-                {!member.isAdmin && activeStory && activeStory.status === "voting" && (
-                  <div className="mt-1">
-                    <span className="text-sm text-muted-foreground italic">
-                      Voting in progress...
-                    </span>
-                  </div>
-                )}
-              </div>
-              {!member.isAdmin && (
-                activeStory && activeStory.status === "voting" ? (
-                  // During voting: show "?"
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-muted border-2 border-muted-foreground/20">
-                    <span className="text-xs text-muted-foreground">?</span>
-                  </div>
-                ) : endedStory ? (
-                  // After voting ended: show vote value or "-"
-                  hasVoted ? (
-                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 border-2 border-primary">
-                      <span className="font-semibold text-primary">
-                        {String(memberVote)}
+            <li key={member._id}>
+              <Card className="flex items-center justify-between gap-8">
+                <div className="flex flex-col flex-1">
+                  <div className="flex items-center gap-2">
+                    {member.isAdmin && (
+                      <span className="text-xs text-muted-foreground">
+                        Admin
                       </span>
+                    )}
+                    <p className="font-semibold">{member.name}</p>
+                  </div>
+                  {!member.isAdmin &&
+                    activeStory &&
+                    activeStory.status === "voting" && (
+                      <div className="mt-1">
+                        <span className="text-sm italic text-muted-foreground">
+                          Voting in progress...
+                        </span>
+                      </div>
+                    )}
+                </div>
+                {!member.isAdmin &&
+                  (activeStory && activeStory.status === "voting" ? (
+                    // During voting: show "?"
+                    <div className="flex items-center justify-center w-10 h-10 border-2 rounded-full bg-muted border-muted-foreground/20">
+                      <span className="text-xs text-muted-foreground">?</span>
                     </div>
-                  ) : (
-                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-muted border-2 border-muted-foreground/20">
-                      <span className="text-xs text-muted-foreground">-</span>
-                    </div>
-                  )
-                ) : null
-              )}
+                  ) : endedStory ? (
+                    // After voting ended: show vote value or "-"
+                    hasVoted ? (
+                      <div className="flex items-center justify-center w-10 h-10 border-2 rounded-full bg-primary/10 border-primary">
+                        <span className="font-semibold text-primary">
+                          {String(memberVote)}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center w-10 h-10 border-2 rounded-full bg-muted border-muted-foreground/20">
+                        <span className="text-xs text-muted-foreground">-</span>
+                      </div>
+                    )
+                  ) : null)}
+              </Card>
             </li>
           );
         })}

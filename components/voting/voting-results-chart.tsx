@@ -147,7 +147,7 @@ export function VotingResultsChart({ storyId, sessionId }: Props) {
       </ChartContainer>
       <div className="space-y-2">
         <p className="text-sm font-medium">Summary</p>
-        <div className="space-y-1 text-sm">
+        <div className="text-sm space-y-1">
           {unanimousValue ? (
             <div>
               <span className="text-muted-foreground">

@@ -1,5 +1,6 @@
 "use client";
 
+import { Card } from "@/components/card";
 import { Title } from "@/components/title";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -116,9 +117,9 @@ export default function Dashboard() {
   }
 
   return (
-    <main className="flex-1 flex flex-col gap-4 p-4 overflow-hidden">
+    <main className="flex flex-col flex-1 gap-4 p-4 overflow-hidden">
       {/* Create New Session Section - Full Width */}
-      <section className="bg-card border border-border rounded-lg p-6 shadow-sm shrink-0">
+      <Card className="shrink-0">
         <form className="space-y-4">
           <Label htmlFor="session">
             <h2 className="text-2xl font-bold">Create a new session</h2>
@@ -139,12 +140,12 @@ export default function Dashboard() {
             {loading ? "Creating..." : "Create Session"}
           </Button>
         </form>
-      </section>
+      </Card>
 
       {/* Two Column Layout for Active and Past Sessions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-0">
+      <div className="grid flex-1 min-h-0 grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Active Sessions Section */}
-        <section className="bg-card border border-border rounded-lg p-6 shadow-sm flex flex-col">
+        <section className="flex flex-col p-6 border rounded-lg shadow-sm bg-card border-border">
           <Title title="Active Sessions" subtitle="View your active sessions" />
           <div className="flex-1 overflow-y-auto">
             {sessions && sessions.length > 0 ? (
@@ -152,7 +153,7 @@ export default function Dashboard() {
                 {sessions.map((session) => (
                   <li
                     key={session._id}
-                    className="flex items-center justify-between gap-8 p-4 bg-muted/30 border border-border rounded-lg"
+                    className="flex items-center justify-between gap-8 p-4 border rounded-lg bg-muted/30 border-border"
                   >
                     <div className="flex flex-col">
                       <p className="font-semibold">{session.name}</p>
@@ -194,7 +195,7 @@ export default function Dashboard() {
         </section>
 
         {/* Past Sessions Section */}
-        <section className="bg-card border border-border rounded-lg p-6 shadow-sm flex flex-col">
+        <section className="flex flex-col p-6 border rounded-lg shadow-sm bg-card border-border">
           <Title title="Past Sessions" subtitle="View your past sessions" />
           <div className="flex-1 overflow-y-auto">
             {loadingArchived ? (
@@ -204,7 +205,7 @@ export default function Dashboard() {
                 {archivedSessions.map((session) => (
                   <li
                     key={session.id}
-                    className="flex items-center justify-between gap-8 p-4 bg-secondary/10 rounded-lg"
+                    className="flex items-center justify-between gap-8 p-4 rounded-lg bg-secondary/10"
                   >
                     <div className="flex flex-col">
                       <p className="font-semibold">{session.name}</p>

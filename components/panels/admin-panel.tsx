@@ -15,6 +15,7 @@ import { Title } from "../title";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { VotingResultsChart } from "../voting/voting-results-chart";
+import { Card } from "../card";
 
 interface Props {
   id: string;
@@ -100,7 +101,7 @@ const StoryItem = ({
         <p className="text-sm">{story.description}</p>
       </div>
       <div>
-        <div className="mb-2 flex gap-2">
+        <div className="flex gap-2 mb-2">
           {/* Show Start Voting if status is "new" or "pending" */}
           {(story.status === "new" || story.status === "pending") && (
             <Button
@@ -311,109 +312,133 @@ export const AdminPanel = ({ id }: Props) => {
   const endedStoryForChart = useEndedStory(id as Id<"sessions">);
 
   return (
-    <div>
-      <Title
-        title="Admin Controlled Panel"
-        subtitle="Admin actions will go here"
-      />
-
-      {!manual && <IssuesDropdown onAddStory={handleAddStory} />}
-      {!manual && (
-        <Button type="button" className="mb-6" onClick={() => setManual(true)}>
-          Add Story Manually
-        </Button>
-      )}
-      {manual && (
-        <form className="mb-8 space-y-4">
-          <div>
-            <Label htmlFor="title" className="mb-2">
-              Title
-            </Label>
-            <Input
-              id="title"
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-          </div>
-
-          {error && <p>{error}</p>}
+    <>
+      {/* Board/Story Selection Section */}
+      <Card className="shrink-0">
+        {!manual && <IssuesDropdown onAddStory={handleAddStory} />}
+        {!manual && (
           <Button
+            variant="secondary"
             type="button"
-            disabled={loading}
-            onClick={() => handleAddStory(null)}
+            className="mb-6"
+            onClick={() => setManual(true)}
           >
-            {loading ? "Adding story..." : "Add Story"}
+            Add Story Manually
           </Button>
-        </form>
-      )}
+        )}
+        {manual && (
+          <form className="mb-4 space-y-4">
+            <div className="flex items-end gap-2">
+              <div className="w-full">
+                <Label htmlFor="title">
+                  <h2 className="mb-4 text-2xl font-bold">Story Title</h2>
+                </Label>
+                <Input
+                  className="flex-1"
+                  id="title"
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />
 
-      <div>
-        <Button className="mb-6" onClick={() => setManual(false)}>
-          Back to Issue Selector
-        </Button>
-      </div>
+                {error && <p>{error}</p>}
+              </div>
+              <Button
+                type="button"
+                disabled={loading}
+                onClick={() => handleAddStory(null)}
+              >
+                {loading ? "Adding story..." : "Add Story"}
+              </Button>
+            </div>
+          </form>
+        )}
 
-      {/* Show voting results chart above Active Stories if there's a story with votes */}
+        {manual && (
+          <Button
+            variant="secondary"
+            type="button"
+            className="mb-6"
+            onClick={() => setManual(false)}
+          >
+            Back to Issue Selector
+          </Button>
+        )}
+      </Card>
+
+      {/* Show voting results chart if there's a story with votes */}
       {endedStoryForChart && (
-        <div className="mb-8">
+        <Card className="shrink-0">
           <VotingResultsChart
             storyId={endedStoryForChart._id}
             sessionId={id as Id<"sessions">}
           />
-        </div>
+        </Card>
       )}
 
-      <div>
-        <p className="mb-2 font-bold">Active Stories</p>
-        <ul className="mb-6 space-y-2">
-          {sessionStories
-            ?.filter((story) => story.status !== "completed")
-            .map((story) => (
-              <StoryItem
-                key={story._id}
-                story={story}
-                hasVotingStory={hasVotingStory ?? false}
-                onStartVoting={handleStartVoting}
-                onStopVoting={handleStopVoting}
-                onCompleteStory={handleCompleteStory}
-              />
-            ))}
-        </ul>
-      </div>
+      {/* Active Stories Section */}
+      <Card className="shrink-0">
+        <p className="mb-4 text-lg font-bold">Active Stories</p>
+        {sessionStories?.filter((story) => story.status !== "completed")
+          .length === 0 ? (
+          <p className="text-muted-foreground">No active stories</p>
+        ) : (
+          <ul className="space-y-2">
+            {sessionStories
+              ?.filter((story) => story.status !== "completed")
+              .map((story) => (
+                <StoryItem
+                  key={story._id}
+                  story={story}
+                  hasVotingStory={hasVotingStory ?? false}
+                  onStartVoting={handleStartVoting}
+                  onStopVoting={handleStopVoting}
+                  onCompleteStory={handleCompleteStory}
+                />
+              ))}
+          </ul>
+        )}
+      </Card>
 
-      <div>
-        <p className="mb-2 font-bold">Finished Stories</p>
-        <ul className="mb-6 space-y-2">
-          {sessionStories
-            ?.filter((story) => story.status === "completed")
-            .map((story) => (
-              <li
-                key={story._id}
-                className="flex items-center justify-between gap-8 p-4 border rounded-lg"
-              >
-                <div className="flex flex-col">
-                  <p className="font-semibold">{story.title}</p>
-                  <p className="text-sm">{story.description}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    {story.points && story.points > 0
-                      ? `${story.points} points`
-                      : "Completed"}
-                  </p>
-                </div>
-              </li>
-            ))}
-        </ul>
-      </div>
+      {/* Finished Stories Section */}
+      <Card className="shrink-0">
+        <p className="mb-4 text-lg font-bold">Finished Stories</p>
+        {sessionStories?.filter((story) => story.status === "completed")
+          .length === 0 ? (
+          <p className="text-muted-foreground">No finished stories</p>
+        ) : (
+          <ul className="space-y-2">
+            {sessionStories
+              ?.filter((story) => story.status === "completed")
+              .map((story) => (
+                <li
+                  key={story._id}
+                  className="flex items-center justify-between gap-8 p-4 border rounded-lg bg-muted/30 border-border"
+                >
+                  <div className="flex flex-col">
+                    <p className="font-semibold">{story.title}</p>
+                    <p className="text-sm">{story.description}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      {story.points && story.points > 0
+                        ? `${story.points} points`
+                        : "Completed"}
+                    </p>
+                  </div>
+                </li>
+              ))}
+          </ul>
+        )}
+      </Card>
 
-      <div>
+      {/* End Session Button */}
+      <Card className="shrink-0">
         <Button variant="destructive" onClick={handleEndSession}>
           End Session
         </Button>
-      </div>
-    </div>
+      </Card>
+    </>
   );
 };

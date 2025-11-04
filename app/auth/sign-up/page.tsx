@@ -43,9 +43,9 @@ export default function SignUp() {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center">
+    <div className="flex items-center justify-center h-screen">
       <div className="min-w-xs">
-        <h3 className="text-2xl font-bold mb-6">Sign Up for Your Account</h3>
+        <h3 className="mb-6 text-2xl font-bold">Sign Up for Your Account</h3>
         <form className="space-y-4">
           <div>
             <Label htmlFor="name" className="mb-2">

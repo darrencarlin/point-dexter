@@ -4,6 +4,7 @@ import { useGetActiveStory } from "@/lib/hooks/convex/stories";
 import { useEndedStory } from "@/lib/hooks/convex/use-ended-story";
 import { Title } from "../title";
 import { VotingResultsChart } from "../voting/voting-results-chart";
+import { Card } from "../card";
 
 interface Props {
   id: string;
@@ -11,12 +12,12 @@ interface Props {
 
 const NoActiveStory = () => {
   return (
-    <div className="text-center py-8">
+    <Card className="p-6 py-8 text-center ">
       <Title
         title="Voting Instructions"
         subtitle="No story is currently active. Please wait for the admin to start a voting session."
       />
-    </div>
+    </Card>
   );
 };
 
@@ -35,7 +36,7 @@ export const UserPanel = ({ id }: Props) => {
           title="Voting Results"
           subtitle="The voting session has ended. Here are the results:"
         />
-        <div className="space-y-2 p-4 bg-muted rounded-lg">
+        <div className="p-4 space-y-2 rounded-lg bg-muted">
           <h3 className="text-lg font-semibold">{endedStory.title}</h3>
           {endedStory.description && (
             <p className="text-sm text-muted-foreground">
@@ -43,7 +44,10 @@ export const UserPanel = ({ id }: Props) => {
             </p>
           )}
         </div>
-        <VotingResultsChart storyId={endedStory._id} sessionId={id as Id<"sessions">} />
+        <VotingResultsChart
+          storyId={endedStory._id}
+          sessionId={id as Id<"sessions">}
+        />
       </div>
     );
   }

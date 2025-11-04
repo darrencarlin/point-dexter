@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { MemberList } from "@/components/member-list";
 import { Title } from "@/components/title";
 import { Panels } from "@/components/panels";
+import { Card } from "@/components/card";
 
 interface Props {
   id: string;
@@ -80,41 +81,60 @@ export default function ClientSessionPage({ id }: Props) {
 
   if (hasJoined) {
     return (
-      <div className="p-4">
-        <Title title={session.name} />
-        <div className="grid grid-cols-[4fr_2fr] gap-8 mt-4">
+      <main className="flex flex-1 gap-4 p-4 overflow-hidden">
+        {/* Left Column - Scrollable Content */}
+        <div className="flex flex-col flex-1 gap-4 overflow-y-auto">
+          {/* Title Section - Full Width */}
+          <Card className="shrink-0">
+            <h2 className="text-2xl font-bold">{session.name}</h2>
+          </Card>
+
+          {/* Panels will render sections here */}
           <Panels id={id} />
+        </div>
+
+        {/* Right Column - Session Members (Fixed) */}
+        <div className="hidden lg:block w-80 shrink-0">
+          <div className="sticky top-0 flex flex-col h-full p-6 overflow-hidden border rounded-lg shadow-sm bg-card border-border">
+            <MemberList id={id} />
+          </div>
+        </div>
+
+        {/* Mobile: Show members at bottom */}
+        <div className="fixed bottom-0 left-0 right-0 p-4 overflow-y-auto border-t shadow-lg lg:hidden bg-card border-border max-h-48">
           <MemberList id={id} />
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="max-w-md mx-auto mt-6">
-      <Title
-        title={session.name}
-        subtitle="Enter your name to join this pointing session"
-      />
+    <main className="flex items-center justify-center flex-1 p-4">
+      <div className="w-full max-w-md p-6 border rounded-lg shadow-sm bg-card border-border">
+        <Title
+          title={session.name}
+          subtitle="Enter your name to join this pointing session"
+        />
 
-      <form className="space-y-4">
-        <div>
-          <Label htmlFor="name" className="mb-2">
-            Your Name
-          </Label>
-          <Input
-            id="name"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter your name"
-            required
-          />
-        </div>
-        <Button type="button" disabled={loading} onClick={handleJoinSession}>
-          {loading ? "Joining..." : "Join Session"}
-        </Button>
-      </form>
-    </div>
+        <form className="mt-4 space-y-4">
+          <div>
+            <Label htmlFor="name" className="mb-2">
+              Your Name
+            </Label>
+            <Input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your name"
+              required
+            />
+          </div>
+          <Button type="button" disabled={loading} onClick={handleJoinSession}>
+            {loading ? "Joining..." : "Join Session"}
+          </Button>
+        </form>
+      </div>
+    </main>
   );
 }

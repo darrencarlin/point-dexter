@@ -53,7 +53,7 @@ export function VotingInstructions({ sessionId }: Props) {
       />
 
       {/* Story Information */}
-      <div className="space-y-2 p-4 bg-muted rounded-lg">
+      <div className="p-4 rounded-lg space-y-2 bg-muted">
         <h3 className="text-lg font-semibold">{activeStory?.title}</h3>
         {activeStory?.description && (
           <p className="text-sm text-muted-foreground">

@@ -34,9 +34,9 @@ export default function SignIn() {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center">
-      <div className="min-w-xs p-8 rounded-lg shadow-lg">
-        <h3 className="text-2xl font-bold mb-6">Sign In to Your Account</h3>
+    <div className="flex items-center justify-center h-screen">
+      <div className="p-8 rounded-lg shadow-lg min-w-xs">
+        <h3 className="mb-6 text-2xl font-bold">Sign In to Your Account</h3>
         <form className="space-y-4">
           <div>
             <Label htmlFor="email" className="mb-2">
