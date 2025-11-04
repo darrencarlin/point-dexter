@@ -42,7 +42,7 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --font-serif: Georgia, serif;
-  --radius: 1.3rem;
+  --radius: 1rem;
   --tracking-tighter: calc(var(--tracking-normal) - 0.05em);
   --tracking-tight: calc(var(--tracking-normal) - 0.025em);
   --tracking-wide: calc(var(--tracking-normal) + 0.025em);
@@ -69,10 +69,10 @@
 }
 
 :root {
-  --radius: 1.3rem;
+  --radius: 1rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.1884 0.0128 248.5103);
-  --card: oklch(0.9784 0.0011 197.1387);
+  --card: oklch(0.99 0.001 197.1387);
   --card-foreground: oklch(0.1884 0.0128 248.5103);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.1884 0.0128 248.5103);
@@ -137,7 +137,7 @@
 .dark {
   --background: oklch(0 0 0);
   --foreground: oklch(0.9328 0.0025 228.7857);
-  --card: oklch(0.2097 0.008 274.5332);
+  --card: oklch(0.25 0.008 274.5332);
   --card-foreground: oklch(0.8853 0 0);
   --popover: oklch(0 0 0);
   --popover-foreground: oklch(0.9328 0.0025 228.7857);
@@ -167,7 +167,7 @@
   --sidebar-border: oklch(0.3795 0.022 240.5943);
   --sidebar-ring: oklch(0.6818 0.1584 243.354);
   --destructive-foreground: oklch(1 0 0);
-  --radius: 1.3rem;
+  --radius: 1rem;
   --font-sans: Open Sans, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: Menlo, monospace;

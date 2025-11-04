@@ -23,7 +23,7 @@ export default function Dashboard() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [sessionName, setSessionName] = useState("");
-  const { data: session } = useSession();
+  const { data: session, isPending } = useSession();
   const sessions = useGetSessions();
   const [archivedSessions, setArchivedSessions] = useState<ArchivedSession[]>(
     []
@@ -98,16 +98,24 @@ export default function Dashboard() {
     }
   };
 
+  if (isPending) {
+    return (
+      <main className="flex flex-col items-center justify-between p-24">
+        <p className="font-bold">Loading...</p>
+      </main>
+    );
+  }
+
   if (!session) {
     return (
       <main className="flex flex-col items-center justify-between p-24">
-        <p>You are not signed in.</p>
+        <p className="font-bold">You are not signed in.</p>
       </main>
     );
   }
 
   return (
-    <main className="space-y-8 mt-6 p-8">
+    <main className="space-y-4 px-4">
       {/* Create New Session Section - Full Width */}
       <section className="bg-card border border-border rounded-lg p-6 shadow-sm">
         <form className="space-y-4">
@@ -121,15 +129,19 @@ export default function Dashboard() {
             value={sessionName}
             onChange={(e) => setSessionName(e.target.value)}
           />
-          {error && <p>{error}</p>}
-          <Button type="button" onClick={handleCreateSession}>
+          {error && <p className="text-red-500">{error}</p>}
+          <Button
+            type="button"
+            onClick={handleCreateSession}
+            className="font-bold"
+          >
             {loading ? "Creating..." : "Create Session"}
           </Button>
         </form>
       </section>
 
       {/* Two Column Layout for Active and Past Sessions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Active Sessions Section */}
         <section className="bg-card border border-border rounded-lg p-6 shadow-sm">
           <Title title="Active Sessions" subtitle="View your active sessions" />
@@ -197,6 +209,7 @@ export default function Dashboard() {
                     <Button
                       variant="outline"
                       onClick={() => handleViewArchivedSession(session.id)}
+                      className="font-bold"
                     >
                       View Details
                     </Button>
