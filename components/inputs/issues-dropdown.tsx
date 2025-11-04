@@ -1,10 +1,5 @@
 "use client";
 
-import * as React from "react";
-import { CheckIcon, ChevronsUpDownIcon } from "lucide-react";
-import { Button } from "../ui/button";
-import { BASE_URL } from "@/lib/constants";
-import { cn } from "@/lib/utils";
 import {
   Command,
   CommandEmpty,
@@ -18,95 +13,120 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { BASE_URL } from "@/lib/constants";
+import { cn } from "@/lib/utils";
+import { CheckIcon, ChevronsUpDownIcon, RefreshCw } from "lucide-react";
+import * as React from "react";
+import { Button } from "../ui/button";
 import { Label } from "../ui/label";
-import { Title } from "../title";
+import { useAtom } from "jotai";
+import {
+  jiraBoardsAtom,
+  jiraStoriesAtom,
+  selectedBoardIdAtom,
+  selectedIssueKeyAtom,
+  type Story,
+} from "@/lib/state";
 
-export interface Story {
-  id: string;
-  key: string;
-  title: string;
-  storyPoints: number | null;
-  status: string;
-}
-
-export interface Board {
-  id: number;
-  displayName: string;
-  projectName: string;
-  type: string;
-  projectKey: string | null;
-}
+// Re-export types for backwards compatibility
+export type { Story, Board } from "@/lib/state";
 
 interface Props {
   onAddStory?: (issue: Story | null) => void;
 }
 
 export const IssuesDropdown = ({ onAddStory }: Props) => {
-  const [loadingBoards, setLoadingBoards] = React.useState(true);
+  const [loadingBoards, setLoadingBoards] = React.useState(false);
   const [loadingStories, setLoadingStories] = React.useState(false);
-  const [boards, setBoards] = React.useState<Board[]>([]);
-  const [stories, setStories] = React.useState<Story[]>([]);
-  const [selectedBoardId, setSelectedBoardId] = React.useState<string>("");
-  const [selectedKey, setSelectedKey] = React.useState<string>("");
+  const [boards, setBoards] = useAtom(jiraBoardsAtom);
+  const [storiesMap, setStoriesMap] = useAtom(jiraStoriesAtom);
+  const [selectedBoardId, setSelectedBoardId] = useAtom(selectedBoardIdAtom);
+  const [selectedKey, setSelectedKey] = useAtom(selectedIssueKeyAtom);
   const [openBoards, setOpenBoards] = React.useState(false);
   const [openIssues, setOpenIssues] = React.useState(false);
 
+  const stories = selectedBoardId ? storiesMap[selectedBoardId] || [] : [];
   const selectedStory =
     stories?.find((story) => story.key === selectedKey) || null;
 
-  // Fetch boards on mount
-  React.useEffect(() => {
-    const fetchBoards = async () => {
-      setLoadingBoards(true);
-      try {
-        const res = await fetch(`${BASE_URL}/api/jira/boards`);
-        const { boards } = await res.json();
-        setBoards(boards || []);
-      } catch (error) {
-        console.error("Failed to fetch boards:", error);
-      } finally {
-        setLoadingBoards(false);
-      }
-    };
-
-    fetchBoards();
-  }, []);
-
-  // Fetch stories when board is selected
-  React.useEffect(() => {
-    if (!selectedBoardId) {
-      setStories([]);
-      return;
+  // Fetch boards function
+  const fetchBoards = React.useCallback(async () => {
+    setLoadingBoards(true);
+    try {
+      const res = await fetch(`${BASE_URL}/api/jira/boards`);
+      const { boards: fetchedBoards } = await res.json();
+      setBoards(fetchedBoards || []);
+    } catch (error) {
+      console.error("Failed to fetch boards:", error);
+    } finally {
+      setLoadingBoards(false);
     }
+  }, [setBoards]);
 
-    const fetchStories = async () => {
+  // Fetch boards on mount only if not already loaded
+  React.useEffect(() => {
+    if (boards.length === 0) {
+      fetchBoards();
+    }
+  }, [boards.length, fetchBoards]);
+
+  // Fetch stories function
+  const fetchStories = React.useCallback(
+    async (boardId: string) => {
       setLoadingStories(true);
       setSelectedKey("");
       try {
         const res = await fetch(
-          `${BASE_URL}/api/jira/stories?boardId=${selectedBoardId}`
+          `${BASE_URL}/api/jira/stories?boardId=${boardId}`
         );
         const { issues } = await res.json();
-        setStories(issues || []);
+        setStoriesMap((prev) => ({
+          ...prev,
+          [boardId]: issues || [],
+        }));
       } catch (error) {
         console.error("Failed to fetch stories:", error);
       } finally {
         setLoadingStories(false);
       }
-    };
+    },
+    [setStoriesMap, setSelectedKey]
+  );
 
-    fetchStories();
-  }, [selectedBoardId]);
+  // Fetch stories when board is selected (only if not already loaded)
+  React.useEffect(() => {
+    if (!selectedBoardId) {
+      return;
+    }
+
+    if (!storiesMap[selectedBoardId]) {
+      fetchStories(selectedBoardId);
+    }
+  }, [selectedBoardId, storiesMap, fetchStories]);
 
   return (
     <form className="mb-4 space-y-4">
       {/* Board Selector (ComboBox) */}
       <div>
-        <Label>
-          <h2 className="mb-4 text-2xl font-bold">
-            Choose Stories for Estimation
-          </h2>
-        </Label>
+        <div className="flex items-center justify-between mb-4">
+          <Label>
+            <h2 className="text-2xl font-bold">
+              Choose Stories for Estimation
+            </h2>
+          </Label>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={fetchBoards}
+            disabled={loadingBoards}
+            title="Refresh boards"
+          >
+            <RefreshCw
+              className={cn("h-4 w-4", loadingBoards && "animate-spin")}
+            />
+          </Button>
+        </div>
         <Popover open={openBoards} onOpenChange={setOpenBoards}>
           <PopoverTrigger asChild>
             <Button
@@ -158,7 +178,7 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
                       />
                       <div className="flex items-center justify-between w-full">
                         <span className="truncate">{board.displayName}</span>
-                        <span className="ml-2 text-xs text-muted-foreground whitespace-nowrap">
+                        <span className="ml-2 whitespace-nowrap">
                           {board.projectName}
                         </span>
                       </div>
@@ -176,9 +196,9 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
         <div className="flex gap-2">
           <div className="flex-1">
             {loadingStories ? (
-              <div className="p-2 text-sm font-bold">Loading issues...</div>
+              <div className="p-2 font-bold">Loading issues...</div>
             ) : stories?.length === 0 ? (
-              <div className="p-2 text-sm font-bold">
+              <div className="p-2 font-bold">
                 No issues found for this board.
               </div>
             ) : (
@@ -231,7 +251,7 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
                                 {story.key}: {story.title}
                               </span>
                               {story.storyPoints !== null && (
-                                <span className="ml-2 text-xs text-muted-foreground whitespace-nowrap">
+                                <span className="ml-2 whitespace-nowrap">
                                   {story.storyPoints} SP
                                 </span>
                               )}

@@ -9,13 +9,12 @@ import {
 import { useEndedStory } from "@/lib/hooks/convex/use-ended-story";
 import { useGetStoryVotes } from "@/lib/hooks/convex/votes";
 import { Label } from "@radix-ui/react-label";
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
+import { Card } from "../card";
 import { IssuesDropdown, Story } from "../inputs/issues-dropdown";
-import { Title } from "../title";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { VotingResultsChart } from "../voting/voting-results-chart";
-import { Card } from "../card";
 
 interface Props {
   id: string;
@@ -95,56 +94,64 @@ const StoryItem = ({
   const displayValue = points !== "" ? points : (consensusPoints ?? "");
 
   return (
-    <li className="flex items-center justify-between gap-8 p-4 border rounded-lg">
-      <div className="flex flex-col">
-        <p className="font-semibold">{story.title}</p>
-        <p className="text-sm">{story.description}</p>
-      </div>
-      <div>
-        <div className="flex gap-2 mb-2">
-          {/* Show Start Voting if status is "new" or "pending" */}
-          {(story.status === "new" || story.status === "pending") && (
-            <Button
-              disabled={hasVotingStory}
-              onClick={() => onStartVoting(story._id)}
-            >
-              Start Voting
-            </Button>
-          )}
-
-          {/* Show Stop Voting if status is "voting" */}
-          {story.status === "voting" && (
-            <Button onClick={() => onStopVoting(story._id)}>Stop Voting</Button>
-          )}
-
-          {/* Show Save Points and Input when status is "pending" */}
-          {story.status === "pending" && (
-            <>
-              <Input
-                type="number"
-                placeholder="Enter points manually"
-                value={displayValue}
-                onChange={(e) =>
-                  setPoints(e.target.value === "" ? "" : Number(e.target.value))
-                }
-              />
-              <Button
-                onClick={() => {
-                  const finalPoints =
-                    points !== "" ? points : (consensusPoints ?? 0);
-                  onCompleteStory(
-                    story._id,
-                    typeof finalPoints === "number" ? finalPoints : 0
-                  );
-                }}
-                disabled={displayValue === ""}
-              >
-                Save Points
-              </Button>
-            </>
-          )}
+    <li>
+      <Card className="flex items-center justify-between">
+        <div className="flex flex-col">
+          <p className="font-semibold">{story.title}</p>
+          <p className="text-sm">{story.description}</p>
         </div>
-      </div>
+        <div>
+          <div className="flex items-center gap-2">
+            {/* Show Start Voting if status is "new" or "pending" */}
+            {(story.status === "new" || story.status === "pending") && (
+              <Button
+                disabled={hasVotingStory}
+                onClick={() => onStartVoting(story._id)}
+                variant="start"
+              >
+                Start Voting
+              </Button>
+            )}
+
+            {/* Show Stop Voting if status is "voting" */}
+            {story.status === "voting" && (
+              <Button onClick={() => onStopVoting(story._id)} variant="stop">
+                Stop Voting
+              </Button>
+            )}
+
+            {/* Show Save Points and Input when status is "pending" */}
+            {story.status === "pending" && (
+              <>
+                <Input
+                  className="w-32"
+                  type="number"
+                  placeholder="Points"
+                  value={displayValue}
+                  onChange={(e) =>
+                    setPoints(
+                      e.target.value === "" ? "" : Number(e.target.value)
+                    )
+                  }
+                />
+                <Button
+                  onClick={() => {
+                    const finalPoints =
+                      points !== "" ? points : (consensusPoints ?? 0);
+                    onCompleteStory(
+                      story._id,
+                      typeof finalPoints === "number" ? finalPoints : 0
+                    );
+                  }}
+                  disabled={displayValue === ""}
+                >
+                  Save Points
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      </Card>
     </li>
   );
 };
@@ -387,16 +394,18 @@ export const AdminPanel = ({ id }: Props) => {
           <ul className="space-y-2">
             {sessionStories
               ?.filter((story) => story.status !== "completed")
-              .map((story) => (
-                <StoryItem
-                  key={story._id}
-                  story={story}
-                  hasVotingStory={hasVotingStory ?? false}
-                  onStartVoting={handleStartVoting}
-                  onStopVoting={handleStopVoting}
-                  onCompleteStory={handleCompleteStory}
-                />
-              ))}
+              .map((story) => {
+                return (
+                  <StoryItem
+                    key={story._id}
+                    story={story}
+                    hasVotingStory={hasVotingStory ?? false}
+                    onStartVoting={handleStartVoting}
+                    onStopVoting={handleStopVoting}
+                    onCompleteStory={handleCompleteStory}
+                  />
+                );
+              })}
           </ul>
         )}
       </Card>
@@ -435,7 +444,7 @@ export const AdminPanel = ({ id }: Props) => {
 
       {/* End Session Button */}
       <Card className="shrink-0">
-        <Button variant="destructive" onClick={handleEndSession}>
+        <Button variant="stop" onClick={handleEndSession}>
           End Session
         </Button>
       </Card>
