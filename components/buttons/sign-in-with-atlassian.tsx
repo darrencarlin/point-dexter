@@ -1,14 +1,13 @@
 import { authClient } from "@/lib/auth-client";
 import { Button } from "../ui/button";
 import { useState } from "react";
+import Image from "next/image";
 
 export const SignInWithAtlassianButton = () => {
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const handleSignInWithAtlassian = async () => {
     setError("");
-    setLoading(true);
 
     try {
       const data = await authClient.signIn.social({
@@ -18,8 +17,6 @@ export const SignInWithAtlassianButton = () => {
       console.log("Atlassian sign-in data:", data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign in failed");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -29,8 +26,9 @@ export const SignInWithAtlassianButton = () => {
         type="button"
         variant="outline"
         onClick={handleSignInWithAtlassian}
+        className="w-full"
       >
-        {loading ? "Signing in..." : "Sign in with Atlassian"}
+        <Image src="/logo.png" alt="Atlassian Logo" width={150} height={30} />
       </Button>
       {error && <p>{error}</p>}
     </div>

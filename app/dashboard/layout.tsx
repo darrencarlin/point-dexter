@@ -1,4 +1,4 @@
-import { Header } from "@/components/header";
+import { DashboardNavigation } from "@/components/dashboard-navigation";
 
 export default function DashboardLayout({
   children,
@@ -7,7 +7,7 @@ export default function DashboardLayout({
 }>) {
   return (
     <>
-      <Header />
+      <DashboardNavigation />
       {children}
     </>
   );

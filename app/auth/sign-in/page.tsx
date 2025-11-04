@@ -1,14 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { authClient } from "@/lib/auth-client";
+import { SignInWithAtlassianButton } from "@/components/buttons/sign-in-with-atlassian";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Link from "next/link";
-import { Title } from "@/components/title";
-import { SignInWithAtlassianButton } from "@/components/buttons/sign-in-with-atlassian";
 import { Separator } from "@/components/ui/separator";
+import { authClient } from "@/lib/auth-client";
+import Link from "next/link";
+import { useState } from "react";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -35,8 +34,9 @@ export default function SignIn() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-6">
-      <div>
+    <div className="h-screen flex items-center justify-center">
+      <div className="min-w-xs p-8 rounded-lg shadow-lg">
+        <h3 className="text-2xl font-bold mb-6">Sign In to Your Account</h3>
         <form className="space-y-4">
           <div>
             <Label htmlFor="email" className="mb-2">
@@ -63,7 +63,12 @@ export default function SignIn() {
             />
           </div>
           {error && <p>{error}</p>}
-          <Button type="button" disabled={loading} onClick={handleSignIn}>
+          <Button
+            type="button"
+            disabled={loading}
+            onClick={handleSignIn}
+            className="w-full font-bold"
+          >
             {loading ? "Signing in..." : "Sign In"}
           </Button>
         </form>

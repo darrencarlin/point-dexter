@@ -107,100 +107,111 @@ export default function Dashboard() {
   }
 
   return (
-    <main className="max-w-md mx-auto mt-6">
-      <div className="mb-12">
-        <Title
-          title="Create New Session"
-          subtitle="Please enter a name for your new session"
-        />
-
-        <form className="space-y-4">
-          <Label className="mb-2">Session Name</Label>
-          <Input
-            type="text"
-            placeholder="Enter session name"
-            value={sessionName}
-            onChange={(e) => setSessionName(e.target.value)}
+    <main className="grid grid-cols-1 lg:grid-cols-2 gap-16 mt-6 p-4">
+      {/* Left Column */}
+      <div className="space-y-8">
+        {/* Create New Session Section */}
+        <section>
+          <Title
+            title="Create New Session"
+            subtitle="Please enter a name for your new session"
           />
-          {error && <p>{error}</p>}
-          <Button type="button" onClick={handleCreateSession}>
-            {loading ? "Creating..." : "Create Session"}
-          </Button>
-        </form>
-      </div>
+          <form className="space-y-4">
+            <Label className="mb-2">Session Name</Label>
+            <Input
+              type="text"
+              placeholder="Enter session name"
+              value={sessionName}
+              onChange={(e) => setSessionName(e.target.value)}
+            />
+            {error && <p>{error}</p>}
+            <Button type="button" onClick={handleCreateSession}>
+              {loading ? "Creating..." : "Create Session"}
+            </Button>
+          </form>
+        </section>
 
-      <Title title="Active Sessions" subtitle="View your active sessions" />
-      <div className="my-6">
-        {sessions && sessions.length > 0 ? (
-          <ul className="space-y-2">
-            {sessions.map((sess) => (
-              <li
-                key={sess._id}
-                className="flex items-center justify-between gap-8 p-4 border rounded-lg"
-              >
-                <div className="flex flex-col">
-                  <p className="font-semibold">{sess.name}</p>
-                  <p className="text-sm">
-                    {new Date(sess.createdAt).toDateString()}
-                  </p>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <Button type="button">
-                    <Link
-                      href={`/session/${sess._id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Join Session
-                    </Link>
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    onClick={() => handleCopyLink(sess)}
+        {/* Active Sessions Section */}
+        <section>
+          <Title title="Active Sessions" subtitle="View your active sessions" />
+          <div>
+            {sessions && sessions.length > 0 ? (
+              <ul className="space-y-2">
+                {sessions.map((sess) => (
+                  <li
+                    key={sess._id}
+                    className="flex items-center justify-between gap-8 p-4 border rounded-lg"
                   >
-                    Copy Link
-                  </Button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No sessions found.</p>
-        )}
+                    <div className="flex flex-col">
+                      <p className="font-semibold">{sess.name}</p>
+                      <p className="text-sm">
+                        {new Date(sess.createdAt).toDateString()}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <Button type="button">
+                        <Link
+                          href={`/session/${sess._id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Join Session
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        onClick={() => handleCopyLink(sess)}
+                      >
+                        Copy Link
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No sessions found.</p>
+            )}
+          </div>
+        </section>
       </div>
 
-      <Title title="Past Sessions" subtitle="View your past sessions" />
+      {/* Right Column */}
+      <div>
+        {/* Past Sessions Section */}
+        <section>
+          <Title title="Past Sessions" subtitle="View your past sessions" />
+          <div className="mt-4">
+            {loadingArchived ? (
+              <p>Loading past sessions...</p>
+            ) : archivedSessions.length > 0 ? (
+              <ul className="space-y-2">
+                {archivedSessions.map((session) => (
+                  <li
+                    key={session.id}
+                    className="flex items-center justify-between gap-8 p-4 border rounded-lg"
+                  >
+                    <div className="flex flex-col">
+                      <p className="font-semibold">{session.name}</p>
+                      <p className="text-sm">
+                        {new Date(session.endedAt).toDateString()}
+                      </p>
+                    </div>
 
-      <div className="mt-4">
-        {loadingArchived ? (
-          <p>Loading past sessions...</p>
-        ) : archivedSessions.length > 0 ? (
-          <ul className="space-y-2">
-            {archivedSessions.map((sess) => (
-              <li
-                key={sess.id}
-                className="flex items-center justify-between gap-8 p-4 border rounded-lg"
-              >
-                <div className="flex flex-col">
-                  <p className="font-semibold">{sess.name}</p>
-                  <p className="text-sm">
-                    Ended: {new Date(sess.endedAt).toDateString()}
-                  </p>
-                </div>
-
-                <Button
-                  variant="outline"
-                  onClick={() => handleViewArchivedSession(sess.id)}
-                >
-                  View Details
-                </Button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No past sessions found.</p>
-        )}
+                    <Button
+                      variant="outline"
+                      onClick={() => handleViewArchivedSession(session.id)}
+                    >
+                      View Details
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No past sessions found.</p>
+            )}
+          </div>
+        </section>
       </div>
     </main>
   );
