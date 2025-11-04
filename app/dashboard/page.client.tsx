@@ -117,10 +117,10 @@ export default function DashboardPageClient() {
   }
 
   return (
-    <main className="flex flex-col flex-1 gap-4 p-4 overflow-hidden">
+    <main className="flex flex-col flex-1 w-full gap-4 p-4 mx-auto overflow-hidden max-w-7xl">
       {/* Create New Session Section - Full Width */}
       <Card className="shrink-0">
-        <form className="space-y-4">
+        <form className="flex flex-col space-y-4">
           <Label htmlFor="session">
             <h2 className="text-2xl font-bold">Create a new session</h2>
           </Label>
@@ -129,14 +129,11 @@ export default function DashboardPageClient() {
             type="text"
             placeholder="Enter session name"
             value={sessionName}
+            className="max-w-lg"
             onChange={(e) => setSessionName(e.target.value)}
           />
           {error && <p className="text-red-500">{error}</p>}
-          <Button
-            type="button"
-            onClick={handleCreateSession}
-            className="font-bold"
-          >
+          <Button type="button" onClick={handleCreateSession} className="w-fit">
             {loading ? "Creating..." : "Create Session"}
           </Button>
         </form>
@@ -145,7 +142,7 @@ export default function DashboardPageClient() {
       {/* Two Column Layout for Active and Past Sessions */}
       <div className="grid flex-1 min-h-0 grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Active Sessions Section */}
-        <section className="flex flex-col p-6 border rounded-lg shadow-sm bg-card border-border">
+        <Card>
           <Title title="Active Sessions" subtitle="View your active sessions" />
           <div className="flex-1 overflow-y-auto">
             {sessions && sessions.length > 0 ? (
@@ -192,10 +189,10 @@ export default function DashboardPageClient() {
               <p className="text-muted-foreground">No sessions found.</p>
             )}
           </div>
-        </section>
+        </Card>
 
         {/* Past Sessions Section */}
-        <section className="flex flex-col p-6 border rounded-lg shadow-sm bg-card border-border">
+        <Card>
           <Title title="Past Sessions" subtitle="View your past sessions" />
           <div className="flex-1 overflow-y-auto">
             {loadingArchived ? (
@@ -215,9 +212,8 @@ export default function DashboardPageClient() {
                     </div>
 
                     <Button
-                      variant="outline"
+                      variant="secondary"
                       onClick={() => handleViewArchivedSession(session.id)}
-                      className="font-bold"
                     >
                       View Details
                     </Button>
@@ -228,7 +224,7 @@ export default function DashboardPageClient() {
               <p className="text-muted-foreground">No past sessions found.</p>
             )}
           </div>
-        </section>
+        </Card>
       </div>
     </main>
   );

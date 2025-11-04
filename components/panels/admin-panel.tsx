@@ -3,6 +3,7 @@ import { useGetSession } from "@/lib/hooks/convex/sessions";
 import {
   useAddStory,
   useEndVoting,
+  useGetActiveStory,
   useGetSessionStories,
   useToggleStoryStatus,
 } from "@/lib/hooks/convex/stories";
@@ -15,7 +16,6 @@ import { IssuesDropdown, Story } from "../inputs/issues-dropdown";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { VotingResultsChart } from "../voting/voting-results-chart";
-import { Title } from "../title";
 
 interface Props {
   id: string;
@@ -174,7 +174,6 @@ export const AdminPanel = ({ id }: Props) => {
   const sessionStories = useGetSessionStories(id as Id<"sessions">);
   const toggleStoryStatus = useToggleStoryStatus();
   const endVoting = useEndVoting();
-  const endedStory = useEndedStory(id as Id<"sessions">);
 
   const handleAddManualStory = () => {
     setLoading(true);

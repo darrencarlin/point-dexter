@@ -33,7 +33,7 @@ export const MemberList = ({ id }: Props) => {
   }, [votes]);
 
   return (
-    <div>
+    <Card>
       <Title
         title="Session Members"
         subtitle="List of members in this session"
@@ -45,9 +45,9 @@ export const MemberList = ({ id }: Props) => {
 
           return (
             <li key={member._id}>
-              <Card className="flex items-center justify-between gap-8">
+              <Card className="flex items-center justify-between gap-8 px-4 py-2">
                 <div className="flex flex-col flex-1">
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col">
                     {member.isAdmin && (
                       <span className="text-xs text-muted-foreground">
                         Admin
@@ -60,24 +60,24 @@ export const MemberList = ({ id }: Props) => {
                   (activeStory && activeStory.status === "voting" ? (
                     // During voting: show checkmark if voted, otherwise "?"
                     hasVoted ? (
-                      <div className="flex items-center justify-center w-10 h-10 border-2 rounded-full bg-primary/10 border-primary">
-                        <Check className="w-5 h-5 text-primary" />
+                      <div className="flex items-center justify-center w-5 h-5 border-2 rounded-full bg-primary/10 border-primary">
+                        <Check className="w-4 h-4 text-primary" />
                       </div>
                     ) : (
-                      <div className="flex items-center justify-center w-10 h-10 border-2 rounded-full bg-muted border-muted-foreground/20">
+                      <div className="flex items-center justify-center w-5 h-5 border-2 rounded-full bg-muted border-muted-foreground/20">
                         <span className="text-xs text-muted-foreground">?</span>
                       </div>
                     )
                   ) : endedStory ? (
                     // After voting ended: show vote value or "-"
                     hasVoted ? (
-                      <div className="flex items-center justify-center w-10 h-10 border-2 rounded-full bg-primary/10 border-primary">
+                      <div className="flex items-center justify-center w-5 h-5 border-2 rounded-full bg-primary/10 border-primary">
                         <span className="font-semibold text-primary">
                           {String(memberVote)}
                         </span>
                       </div>
                     ) : (
-                      <div className="flex items-center justify-center w-10 h-10 border-2 rounded-full bg-muted border-muted-foreground/20">
+                      <div className="flex items-center justify-center w-5 h-5 border-2 rounded-full bg-muted border-muted-foreground/20">
                         <span className="text-xs text-muted-foreground">-</span>
                       </div>
                     )
@@ -87,6 +87,6 @@ export const MemberList = ({ id }: Props) => {
           );
         })}
       </ul>
-    </div>
+    </Card>
   );
 };

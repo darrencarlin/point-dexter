@@ -71,7 +71,7 @@ export function VotingInstructions({ sessionId }: Props) {
             const isSelected = currentVote === option;
 
             const cardClassName = cn(
-              "text-3xl font-bold shadow rounded-lg w-28 h-28 flex items-center justify-center transition-colors",
+              "text-3xl font-bold shadow rounded-lg w-28 h-28 flex items-center justify-center transition-colors hover:-translate-y-1 hover:shadow-lg duration-150 transition-transform",
               {
                 "ring-2 ring-primary ring-offset-2 ": isSelected,
               }

@@ -81,7 +81,7 @@ export default function ClientSessionPage({ id }: Props) {
 
   if (hasJoined) {
     return (
-      <main className="flex flex-1 gap-4 p-4 overflow-hidden">
+      <main className="flex flex-1 w-full gap-4 p-4 mx-auto overflow-hidden max-w-7xl">
         {/* Left Column - Scrollable Content */}
         <div className="flex flex-col flex-1 gap-4 overflow-y-auto">
           {/* Title Section - Full Width */}
@@ -95,13 +95,13 @@ export default function ClientSessionPage({ id }: Props) {
 
         {/* Right Column - Session Members (Fixed) */}
         <div className="hidden lg:block w-80 shrink-0">
-          <div className="sticky top-0 flex flex-col h-full p-6 overflow-hidden border rounded-lg shadow-sm bg-card border-border">
+          <div className="sticky top-0 flex flex-col h-full overflow-hidden">
             <MemberList id={id} />
           </div>
         </div>
 
         {/* Mobile: Show members at bottom */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 overflow-y-auto border-t shadow-lg lg:hidden bg-card border-border max-h-48">
+        <div className="fixed bottom-0 left-0 right-0 p-4 overflow-y-auto lg:hidden max-h-48">
           <MemberList id={id} />
         </div>
       </main>

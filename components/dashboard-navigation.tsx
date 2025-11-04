@@ -2,11 +2,10 @@
 
 import { useSession } from "@/lib/auth-client";
 import { useLocalStorageValue } from "@/lib/hooks/use-local-storage-value";
-import { SignOutButton } from "./buttons/sign-out-button";
+import { Pointer } from "lucide-react";
 import Link from "next/link";
-import { Plus, Pointer } from "lucide-react";
+import { SignOutButton } from "./buttons/sign-out-button";
 import { ThemeToggle } from "./buttons/theme-toggle";
-import { Button } from "./ui/button";
 
 export const DashboardNavigation = () => {
   const { data: session } = useSession();
@@ -20,14 +19,21 @@ export const DashboardNavigation = () => {
   const status = session?.user?.name ? "Hi, " : "Participating as";
 
   return (
-    <nav className="flex items-center justify-between p-4 mb-8">
+    <nav className="flex items-center justify-between p-4 mb-4">
       <Link href="/">
-        <Pointer className="hover:animate-spin transition-transform" />
+        <Pointer className="transition-transform hover:animate-spin" />
       </Link>
       <div className="flex items-center gap-4">
-        <p>
-          {status} <span className="font-bold">{displayName}</span>
-        </p>
+        <div className="text-right">
+          <p>
+            {status} <span className="font-bold">{displayName}</span>
+          </p>
+          {session?.user?.email && (
+            <p className="text-sm text-muted-foreground">
+              {session?.user?.email}
+            </p>
+          )}
+        </div>
         {session && <SignOutButton />}
         <ThemeToggle />
       </div>
