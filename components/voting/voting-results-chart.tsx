@@ -102,11 +102,39 @@ export function VotingResultsChart({ storyId, sessionId }: Props) {
       try {
         const confetti = (await import("canvas-confetti")).default;
         if (cancelled) return;
-        confetti({
-          particleCount: 120,
-          spread: 70,
-          origin: { y: 0.6 },
-        });
+
+        // Create curtain effect falling from top
+        const duration = 3000;
+        const animationEnd = Date.now() + duration;
+
+        const frame = () => {
+          if (cancelled || Date.now() > animationEnd) return;
+
+          // Fire confetti from multiple points across the top
+          confetti({
+            particleCount: 3,
+            angle: 90,
+            startVelocity: 30,
+            spread: 45,
+            origin: { x: Math.random(), y: 0 },
+            colors: [
+              "#6366F1",
+              "#22C55E",
+              "#EAB308",
+              "#F97316",
+              "#EF4444",
+              "#06B6D4",
+              "#A855F7",
+            ],
+            gravity: 1.2,
+            drift: 0,
+            ticks: 200,
+          });
+
+          requestAnimationFrame(frame);
+        };
+
+        frame();
       } catch {
         // no-op if library not installed
       }
