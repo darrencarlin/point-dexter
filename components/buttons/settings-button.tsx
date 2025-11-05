@@ -36,7 +36,7 @@ export const SettingsButton = () => {
     ? (sessionIdMatch[1] as Id<"sessions">)
     : null;
 
-  const session = useGetSession(sessionId ?? ("skip" as Id<"sessions">));
+  const session = useGetSession(sessionId ?? undefined);
   const sessionSettings = useSessionSettings(sessionId ?? undefined);
   const isAdmin = session?.createdBy === authSession?.user?.id;
 
