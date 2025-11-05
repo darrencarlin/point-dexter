@@ -8,6 +8,8 @@ import {
 } from "@/lib/hooks/convex/stories";
 import { useEndedStory } from "@/lib/hooks/convex/use-ended-story";
 import { useGetStoryVotes } from "@/lib/hooks/convex/votes";
+import { jiraSiteUrlAtom } from "@/lib/state";
+import { useAtomValue } from "jotai";
 import { Label } from "@radix-ui/react-label";
 import { useMemo, useState } from "react";
 import { Card } from "../card";
@@ -43,6 +45,7 @@ const StoryItem = ({
 }) => {
   const votes = useGetStoryVotes(story._id);
   const [points, setPoints] = useState<number | "">("");
+  const jiraSiteUrl = useAtomValue(jiraSiteUrlAtom);
 
   // Helper function to calculate consensus
   const calculateConsensus = (votes: Array<{ points: number | string }>) => {
@@ -99,6 +102,16 @@ const StoryItem = ({
       <Card className="flex items-center justify-between">
         <div className="flex flex-col">
           <p className="font-semibold">{story.title}</p>
+          {story.jiraKey && (
+            <a
+              href={`${jiraSiteUrl}/browse/${story.jiraKey}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-blue-500 hover:underline"
+            >
+              View in Jira
+            </a>
+          )}
           <p className="text-sm">{story.description}</p>
         </div>
         <div>
