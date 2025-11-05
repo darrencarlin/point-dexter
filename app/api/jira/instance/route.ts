@@ -1,13 +1,6 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-
-export interface JiraInstance {
-  id: string;
-  name: string;
-  url: string;
-  scopes: string[];
-  avatarUrl: string;
-}
+import { AtlassianResource, JiraInstance } from "@/lib/types/jira";
 
 export async function GET() {
   const session = await auth.api.getSession({
@@ -73,7 +66,7 @@ export async function GET() {
     }
 
     // Transform the data to match our interface
-    const instances: JiraInstance[] = sites.map((site: any) => ({
+    const instances: JiraInstance[] = sites.map((site: AtlassianResource) => ({
       id: site.id,
       name: site.name,
       url: site.url,

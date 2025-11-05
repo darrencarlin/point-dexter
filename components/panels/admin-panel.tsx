@@ -102,7 +102,7 @@ const StoryItem = ({
       <Card className="flex items-center justify-between">
         <div className="flex flex-col">
           <p className="font-semibold">{story.title}</p>
-          {story.jiraKey && (
+          {story.jiraKey && jiraSiteUrl && (
             <a
               href={`${jiraSiteUrl}/browse/${story.jiraKey}`}
               target="_blank"

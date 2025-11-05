@@ -3,14 +3,7 @@ import { useAtom } from "jotai";
 import { useSession } from "@/lib/auth-client";
 import { jiraSiteUrlAtom } from "@/lib/state";
 import { BASE_URL } from "@/lib/constants";
-
-export interface JiraInstance {
-  id: string;
-  name: string;
-  url: string;
-  scopes: string[];
-  avatarUrl: string;
-}
+import { JiraInstance } from "@/lib/types/jira";
 
 export function useJiraInstance() {
   const { data: session, isPending } = useSession();
