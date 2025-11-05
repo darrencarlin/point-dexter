@@ -20,6 +20,7 @@ import { MemberList } from "@/components/member-list";
 import { Title } from "@/components/title";
 import { Panels } from "@/components/panels";
 import { Card } from "@/components/card";
+import { Share } from "@/components/share";
 
 interface Props {
   id: string;
@@ -106,14 +107,16 @@ export default function ClientSessionPage({ id }: Props) {
 
         {/* Right Column - Session Members (Fixed) */}
         <div className="hidden lg:block w-80 shrink-0">
-          <div className="sticky top-0 flex flex-col h-full overflow-hidden">
+          <div className="sticky top-0 flex flex-col gap-4 h-full overflow-hidden">
             <MemberList id={id} />
+            <Share />
           </div>
         </div>
 
         {/* Mobile: Show members at bottom */}
         <div className="fixed bottom-0 left-0 right-0 p-4 overflow-y-auto lg:hidden max-h-48">
           <MemberList id={id} />
+          <Share />
         </div>
       </main>
     );
