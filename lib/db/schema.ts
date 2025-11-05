@@ -73,8 +73,9 @@ export const planningSessions = pgTable("planning_sessions", {
   name: text("name").notNull(),
   isActive: boolean("is_active").notNull(),
   createdBy: text("created_by").notNull(),
-  createdAt: bigint("created_at", { mode: "number" }).notNull(),
-  endedAt: bigint("ended_at", { mode: "number" }).notNull(), // When session was archived
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  endedAt: timestamp("ended_at").defaultNow().notNull(), // When session was archived
 });
 
 export const planningSessionMembers = pgTable("planning_session_members", {
@@ -96,7 +97,8 @@ export const planningStories = pgTable("planning_stories", {
   title: text("title").notNull(),
   description: text("description"),
   status: text("status"), // "new", "voting", "pending", "completed"
-  createdAt: bigint("created_at", { mode: "number" }).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
   points: real("points").notNull(),
   jiraKey: text("jira_key"),
 });
@@ -110,4 +112,17 @@ export const planningVotes = pgTable("planning_votes", {
   name: text("name").notNull(),
   points: text("points").notNull(), // Store as text to handle both numbers and "?"
   votedAt: bigint("voted_at", { mode: "number" }).notNull(),
+});
+
+export const planningSettings = pgTable("planning_settings", {
+  id: text("id").primaryKey(), // Original Convex _id
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  timedVoting: boolean("timed_voting").notNull(), // True/False
+  votingTimeLimit: bigint("voting_time_limit", { mode: "number" })
+    .notNull()
+    .default(300), // In seconds 10, 20, 30, 60
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
