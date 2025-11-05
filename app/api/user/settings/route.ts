@@ -3,35 +3,22 @@ import { auth } from "@/lib/auth";
 import { getUserSettings, updateUserSettings } from "@/lib/user-settings";
 import { headers } from "next/headers";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const requestedUserId = searchParams.get("userId");
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
 
-    // If userId is provided in query, get that user's settings (for admin settings)
-    // Otherwise, get the current user's settings
-    let userId: string;
-
-    if (requestedUserId) {
-      userId = requestedUserId;
-    } else {
-      const session = await auth.api.getSession({
-        headers: await headers(),
-      });
-
-      if (!session?.user) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
-
-      userId = session.user.id;
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const settings = await getUserSettings(userId);
+    const settings = await getUserSettings(session.user.id);
 
     return new Response(
       JSON.stringify({
         user: {
-          id: userId,
+          id: session.user.id,
           ...settings,
         },
       }),
