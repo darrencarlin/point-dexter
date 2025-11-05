@@ -19,7 +19,7 @@ interface ArchivedSession {
 }
 
 export default function DashboardPageClient() {
-  const [link, setLink] = useState("Copy Link");
+  const [copiedSessionId, setCopiedSessionId] = useState<string | null>(null);
   const { data: session, isPending } = useSession();
   const sessions = useGetSessions();
   const [archivedSessions, setArchivedSessions] = useState<ArchivedSession[]>(
@@ -59,6 +59,14 @@ export default function DashboardPageClient() {
     if (!session) return;
     const sessionLink: string = `${window.location.origin}/session/${session._id}`;
     navigator.clipboard.writeText(sessionLink);
+    setCopiedSessionId(session._id);
+
+    // Clear the copied state after 2 seconds
+    setTimeout(() => {
+      setCopiedSessionId((currentId) =>
+        currentId === session._id ? null : currentId
+      );
+    }, 2000);
   };
 
   const handleViewArchivedSession = async (sessionId: string) => {
@@ -132,15 +140,11 @@ export default function DashboardPageClient() {
                         </Button>
                         <Button
                           variant="secondary"
-                          onClick={() => {
-                            setLink("Copied!");
-                            handleCopyLink(session);
-                            setTimeout(() => {
-                              setLink("Copy Link");
-                            }, 2000);
-                          }}
+                          onClick={() => handleCopyLink(session)}
                         >
-                          {link}
+                          {copiedSessionId === session._id
+                            ? "Link Copied!"
+                            : "Copy Link"}
                         </Button>
                       </div>
                     </li>
