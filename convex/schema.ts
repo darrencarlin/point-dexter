@@ -28,8 +28,6 @@ const stories = defineTable({
   createdAt: v.number(),
   points: v.optional(v.number()),
   jiraKey: v.optional(v.string()), // JIRA issue key (e.g., "PROJ-123")
-  isActive: v.optional(v.boolean()), // Legacy field - remove after data migration
-  isFinished: v.optional(v.boolean()), // Legacy field - remove after data migration
 });
 
 const votes = defineTable({
