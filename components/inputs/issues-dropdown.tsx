@@ -196,11 +196,9 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
         <div className="flex gap-2">
           <div className="flex-1">
             {loadingStories ? (
-              <div className="p-2 font-bold">Loading issues...</div>
+              <div className="p-2">Loading issues...</div>
             ) : stories?.length === 0 ? (
-              <div className="p-2 font-bold">
-                No issues found for this board.
-              </div>
+              <div className="p-2">No issues found for this board.</div>
             ) : (
               <Popover open={openIssues} onOpenChange={setOpenIssues}>
                 <PopoverTrigger asChild>

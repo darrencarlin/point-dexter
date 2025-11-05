@@ -123,7 +123,10 @@ const StoryItem = ({
 
             {/* Show Stop Voting if status is "voting" */}
             {story.status === "voting" && (
-              <Button onClick={() => onStopVoting(story._id)} variant="stop">
+              <Button
+                onClick={() => onStopVoting(story._id)}
+                variant="destructive"
+              >
                 Stop Voting
               </Button>
             )}
@@ -457,7 +460,7 @@ export const AdminPanel = ({ id }: Props) => {
 
       {/* End Session Button */}
       <Card className="shrink-0">
-        <Button variant="stop" onClick={handleEndSession}>
+        <Button variant="destructive" onClick={handleEndSession}>
           End Session
         </Button>
       </Card>

@@ -61,7 +61,14 @@ export default function ClientSessionPage({ id }: Props) {
 
   // Handle case where session is not found
   if (!session) {
-    return <div className="max-w-md mx-auto mt-6">Session not found</div>;
+    return (
+      <Card className="max-w-md mx-auto mt-6">
+        <Title
+          title="Session not found"
+          subtitle="This session may have been closed or does not exist."
+        />
+      </Card>
+    );
   }
 
   const handleJoinSession = async (e: React.FormEvent) => {
