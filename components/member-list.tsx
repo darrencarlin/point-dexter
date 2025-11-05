@@ -35,8 +35,6 @@ export const MemberList = ({ id }: Props) => {
     return map;
   }, [votes]);
 
-  console.log({ activeStory, endedStory, activeUsers, votes });
-
   return (
     <Card>
       <Title
@@ -84,7 +82,8 @@ export const MemberList = ({ id }: Props) => {
                   </div>
                 </div>
                 {!member.isAdmin &&
-                  (activeStory && activeStory.status === "voting" ? (
+                  activeStory &&
+                  (activeStory.status === "voting" ? (
                     // During voting: show checkmark if voted, otherwise "?"
                     hasVoted ? (
                       <div className="flex items-center justify-center w-7 h-7 border rounded-full bg-primary/10 border-primary">
