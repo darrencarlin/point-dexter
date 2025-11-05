@@ -3,7 +3,6 @@ import { useGetSession } from "@/lib/hooks/convex/sessions";
 import {
   useAddStory,
   useEndVoting,
-  useGetActiveStory,
   useGetSessionStories,
   useToggleStoryStatus,
 } from "@/lib/hooks/convex/stories";
@@ -15,6 +14,7 @@ import { Card } from "../card";
 import { IssuesDropdown, Story } from "../inputs/issues-dropdown";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { VotingResultsChart } from "../voting/voting-results-chart";
 
 interface Props {
@@ -285,44 +285,6 @@ export const AdminPanel = ({ id }: Props) => {
     // }
   };
 
-  const handleEndSession = async () => {
-    if (!session?._id) {
-      console.error("Session not found");
-      return;
-    }
-
-    if (
-      !confirm(
-        "Are you sure you want to end this session? This will archive all data to long-term storage."
-      )
-    ) {
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/sessions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ sessionId: session._id }),
-      });
-
-      if (response.ok) {
-        alert("Session ended successfully and archived to long-term storage!");
-        // Redirect to dashboard
-        window.location.href = "/dashboard";
-      } else {
-        const error = await response.json();
-        console.error("Failed to end session:", error);
-        alert("Failed to end session: " + (error.error || "Unknown error"));
-      }
-    } catch (error) {
-      console.error("Error ending session:", error);
-      alert("Error ending session. Please try again.");
-    }
-  };
-
   // Check if there's any story currently in voting status OR any story in pending status
   // Only allow starting one story at a time (either voting or pending should block others)
   const hasActiveStory = sessionStories?.some(
@@ -387,6 +349,78 @@ export const AdminPanel = ({ id }: Props) => {
         )}
       </Card>
 
+      {/* Stories Tabs Section */}
+      <Card className="flex flex-col flex-1 min-h-0 shrink-0">
+        <Tabs defaultValue="active" className="flex flex-col flex-1 min-h-0">
+          <TabsList className="mb-4">
+            <TabsTrigger value="active">Active Stories</TabsTrigger>
+            <TabsTrigger value="finished">Finished Stories</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="active" className="flex flex-col flex-1 min-h-0">
+            {sessionStories?.filter((story) => story.status !== "completed")
+              .length === 0 ? (
+              <p className="text-muted-foreground">No active stories</p>
+            ) : (
+              <ul className="space-y-2">
+                {sessionStories
+                  ?.filter((story) => story.status !== "completed")
+                  .map((story) => {
+                    // Check if THIS story is the active one (voting or pending)
+                    const isThisStoryActive =
+                      story.status === "voting" || story.status === "pending";
+
+                    return (
+                      <StoryItem
+                        key={story._id}
+                        story={story}
+                        hasVotingStory={
+                          isThisStoryActive ? false : (hasActiveStory ?? false)
+                        }
+                        onStartVoting={handleStartVoting}
+                        onStopVoting={handleStopVoting}
+                        onCompleteStory={handleCompleteStory}
+                      />
+                    );
+                  })}
+              </ul>
+            )}
+          </TabsContent>
+
+          <TabsContent
+            value="finished"
+            className="flex flex-col flex-1 min-h-0"
+          >
+            {sessionStories?.filter((story) => story.status === "completed")
+              .length === 0 ? (
+              <p className="text-muted-foreground">No finished stories</p>
+            ) : (
+              <ul className="space-y-2">
+                {sessionStories
+                  ?.filter((story) => story.status === "completed")
+                  .map((story) => (
+                    <li key={story._id}>
+                      <Card className="flex items-center justify-between">
+                        <div className="flex flex-col">
+                          <p className="font-semibold">{story.title}</p>
+                          <p className="text-sm">{story.description}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">
+                            {story.points && story.points > 0
+                              ? `${story.points} points`
+                              : "Completed"}
+                          </p>
+                        </div>
+                      </Card>
+                    </li>
+                  ))}
+              </ul>
+            )}
+          </TabsContent>
+        </Tabs>
+      </Card>
+
       {/* Show voting results chart if there's a story with votes */}
       {endedStoryForChart && (
         <VotingResultsChart
@@ -394,76 +428,6 @@ export const AdminPanel = ({ id }: Props) => {
           sessionId={id as Id<"sessions">}
         />
       )}
-
-      {/* Active Stories Section */}
-      <Card className="shrink-0">
-        <p className="mb-4 text-lg font-bold">Active Stories</p>
-        {sessionStories?.filter((story) => story.status !== "completed")
-          .length === 0 ? (
-          <p className="text-muted-foreground">No active stories</p>
-        ) : (
-          <ul className="space-y-2">
-            {sessionStories
-              ?.filter((story) => story.status !== "completed")
-              .map((story) => {
-                // Check if THIS story is the active one (voting or pending)
-                const isThisStoryActive =
-                  story.status === "voting" || story.status === "pending";
-
-                return (
-                  <StoryItem
-                    key={story._id}
-                    story={story}
-                    hasVotingStory={
-                      isThisStoryActive ? false : (hasActiveStory ?? false)
-                    }
-                    onStartVoting={handleStartVoting}
-                    onStopVoting={handleStopVoting}
-                    onCompleteStory={handleCompleteStory}
-                  />
-                );
-              })}
-          </ul>
-        )}
-      </Card>
-
-      {/* Finished Stories Section */}
-      <Card className="shrink-0">
-        <p className="mb-4 text-lg font-bold">Finished Stories</p>
-        {sessionStories?.filter((story) => story.status === "completed")
-          .length === 0 ? (
-          <p className="text-muted-foreground">No finished stories</p>
-        ) : (
-          <ul className="space-y-2">
-            {sessionStories
-              ?.filter((story) => story.status === "completed")
-              .map((story) => (
-                <li key={story._id}>
-                  <Card className="flex items-center justify-between">
-                    <div className="flex flex-col">
-                      <p className="font-semibold">{story.title}</p>
-                      <p className="text-sm">{story.description}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        {story.points && story.points > 0
-                          ? `${story.points} points`
-                          : "Completed"}
-                      </p>
-                    </div>
-                  </Card>
-                </li>
-              ))}
-          </ul>
-        )}
-      </Card>
-
-      {/* End Session Button */}
-      <Card className="shrink-0">
-        <Button variant="destructive" onClick={handleEndSession}>
-          End Session
-        </Button>
-      </Card>
     </>
   );
 };

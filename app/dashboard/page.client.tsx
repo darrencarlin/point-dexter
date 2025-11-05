@@ -3,6 +3,7 @@
 import { Card } from "@/components/card";
 import { Title } from "@/components/title";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSession } from "@/lib/auth-client";
 import { useGetSessions } from "@/lib/hooks/convex/sessions";
 import Link from "next/link";
@@ -92,93 +93,102 @@ export default function DashboardPageClient() {
 
   return (
     <main className="flex flex-col flex-1 w-full gap-4 p-4 mx-auto overflow-hidden max-w-7xl">
-      {/* Two Column Layout for Active and Past Sessions */}
-      <div className="grid flex-1 min-h-0 grid-cols-1 gap-4 lg:grid-cols-2">
-        {/* Active Sessions Section */}
-        <Card>
-          <Title title="Active Sessions" subtitle="View your active sessions" />
-          <div className="flex-1 overflow-y-auto">
-            {sessions && sessions.length > 0 ? (
-              <ul className="space-y-2">
-                {sessions.map((session) => (
-                  <li
-                    key={session._id}
-                    className="flex items-center justify-between gap-8 p-4 border rounded-lg bg-muted/30 border-border"
-                  >
-                    <div className="flex flex-col">
-                      <p className="font-semibold">{session.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(session.createdAt).toDateString()}
-                      </p>
-                    </div>
+      <Card className="flex flex-col flex-1 min-h-0">
+        <Tabs defaultValue="active" className="flex flex-col flex-1 min-h-0">
+          <TabsList className="mb-4">
+            <TabsTrigger value="active">Active Sessions</TabsTrigger>
+            <TabsTrigger value="past">Past Sessions</TabsTrigger>
+          </TabsList>
 
-                    <div className="flex flex-col gap-2">
-                      <Button type="button">
-                        <Link
-                          href={`/session/${session._id}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
+          <TabsContent value="active" className="flex flex-col flex-1 min-h-0">
+            <Title
+              title="Active Sessions"
+              subtitle="View your active sessions"
+            />
+            <div className="flex-1 overflow-y-auto">
+              {sessions && sessions.length > 0 ? (
+                <ul className="space-y-2">
+                  {sessions.map((session) => (
+                    <li
+                      key={session._id}
+                      className="flex items-center justify-between gap-8 p-4 border rounded-lg bg-muted/30 border-border"
+                    >
+                      <div className="flex flex-col">
+                        <p className="font-semibold">{session.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(session.createdAt).toDateString()}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <Button type="button">
+                          <Link
+                            href={`/session/${session._id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Join Session
+                          </Link>
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          onClick={() => {
+                            setLink("Copied!");
+                            handleCopyLink(session);
+                            setTimeout(() => {
+                              setLink("Copy Link");
+                            }, 2000);
+                          }}
                         >
-                          Join Session
-                        </Link>
-                      </Button>
+                          {link}
+                        </Button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-muted-foreground">No sessions found.</p>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="past" className="flex flex-col flex-1 min-h-0">
+            <Title title="Past Sessions" subtitle="View your past sessions" />
+            <div className="flex-1 overflow-y-auto">
+              {loadingArchived ? (
+                <p className="text-muted-foreground">
+                  Loading past sessions...
+                </p>
+              ) : archivedSessions.length > 0 ? (
+                <ul className="space-y-2">
+                  {archivedSessions.map((session) => (
+                    <li
+                      key={session.id}
+                      className="flex items-center justify-between gap-8 p-4 rounded-lg bg-secondary/10"
+                    >
+                      <div className="flex flex-col">
+                        <p className="font-semibold">{session.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(session.endedAt).toDateString()}
+                        </p>
+                      </div>
+
                       <Button
                         variant="secondary"
-                        onClick={() => {
-                          setLink("Copied!");
-                          handleCopyLink(session);
-                          setTimeout(() => {
-                            setLink("Copy Link");
-                          }, 2000);
-                        }}
+                        onClick={() => handleViewArchivedSession(session.id)}
                       >
-                        {link}
+                        View Details
                       </Button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-muted-foreground">No sessions found.</p>
-            )}
-          </div>
-        </Card>
-
-        {/* Past Sessions Section */}
-        <Card>
-          <Title title="Past Sessions" subtitle="View your past sessions" />
-          <div className="flex-1 overflow-y-auto">
-            {loadingArchived ? (
-              <p className="text-muted-foreground">Loading past sessions...</p>
-            ) : archivedSessions.length > 0 ? (
-              <ul className="space-y-2">
-                {archivedSessions.map((session) => (
-                  <li
-                    key={session.id}
-                    className="flex items-center justify-between gap-8 p-4 rounded-lg bg-secondary/10"
-                  >
-                    <div className="flex flex-col">
-                      <p className="font-semibold">{session.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(session.endedAt).toDateString()}
-                      </p>
-                    </div>
-
-                    <Button
-                      variant="secondary"
-                      onClick={() => handleViewArchivedSession(session.id)}
-                    >
-                      View Details
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-muted-foreground">No past sessions found.</p>
-            )}
-          </div>
-        </Card>
-      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-muted-foreground">No past sessions found.</p>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </Card>
     </main>
   );
 }

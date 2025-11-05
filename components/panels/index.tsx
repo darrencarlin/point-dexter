@@ -1,6 +1,4 @@
-import { Id } from "@/convex/_generated/dataModel";
-import { useSession } from "@/lib/auth-client";
-import { useGetSession } from "@/lib/hooks/convex/sessions";
+import { useIsAdmin } from "@/lib/hooks/convex/is-admin";
 import { AdminPanel } from "./admin-panel";
 import { UserPanel } from "./user-panel";
 
@@ -9,10 +7,7 @@ interface Props {
 }
 
 export const Panels = ({ id }: Props) => {
-  const { data: authSession } = useSession();
-  const session = useGetSession(id as Id<"sessions">);
-
-  const isAdmin = session?.createdBy === authSession?.user?.id;
+  const isAdmin = useIsAdmin(id);
 
   if (isAdmin) {
     return <AdminPanel id={id} />;

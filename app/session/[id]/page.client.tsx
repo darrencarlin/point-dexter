@@ -21,6 +21,7 @@ import { Title } from "@/components/title";
 import { Panels } from "@/components/panels";
 import { Card } from "@/components/card";
 import { Share } from "@/components/share";
+import { useIsAdmin } from "@/lib/hooks/convex/is-admin";
 
 interface Props {
   id: string;
@@ -36,9 +37,48 @@ export default function ClientSessionPage({ id }: Props) {
   const joinSession = useJoinSession();
   const session = useGetSession(id as Id<"sessions">);
   const sessionMembers = useGetSessionMembers(id as Id<"sessions">);
+  const isAdmin = useIsAdmin(id);
 
   // Maintain presence heartbeat for this user
   useMaintainPresence(hasJoined ? (id as Id<"sessions">) : undefined);
+
+  const handleEndSession = async () => {
+    if (!session?._id) {
+      console.error("Session not found");
+      return;
+    }
+
+    if (
+      !confirm(
+        "Are you sure you want to end this session? This will archive all data to long-term storage."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/sessions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ sessionId: session._id }),
+      });
+
+      if (response.ok) {
+        alert("Session ended successfully and archived to long-term storage!");
+        // Redirect to dashboard
+        window.location.href = "/dashboard";
+      } else {
+        const error = await response.json();
+        console.error("Failed to end session:", error);
+        alert("Failed to end session: " + (error.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error ending session:", error);
+      alert("Error ending session. Please try again.");
+    }
+  };
 
   // Check if the user is already a member of the session
   useEffect(() => {
@@ -97,8 +137,14 @@ export default function ClientSessionPage({ id }: Props) {
         {/* Left Column - Scrollable Content */}
         <div className="flex flex-col flex-1 gap-4 overflow-y-auto">
           {/* Title Section - Full Width */}
-          <Card className="shrink-0">
+          <Card className="shrink-0 flex items-center justify-between">
             <h2 className="text-2xl font-bold">{session.name}</h2>
+
+            {isAdmin && (
+              <Button variant="destructive" onClick={handleEndSession}>
+                End Session
+              </Button>
+            )}
           </Card>
 
           {/* Panels will render sections here */}
