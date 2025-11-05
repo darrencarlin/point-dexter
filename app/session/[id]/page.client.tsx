@@ -7,6 +7,7 @@ import {
   getEffectiveUserId,
 } from "@/lib/hooks/convex/session-members";
 import { useGetSession } from "@/lib/hooks/convex/sessions";
+import { useMaintainPresence } from "@/lib/hooks/convex/presence";
 import { useLocalStorageValue } from "@/lib/hooks/use-local-storage-value";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,9 @@ export default function ClientSessionPage({ id }: Props) {
   const joinSession = useJoinSession();
   const session = useGetSession(id as Id<"sessions">);
   const sessionMembers = useGetSessionMembers(id as Id<"sessions">);
+
+  // Maintain presence heartbeat for this user
+  useMaintainPresence(hasJoined ? (id as Id<"sessions">) : undefined);
 
   // Check if the user is already a member of the session
   useEffect(() => {

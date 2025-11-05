@@ -3,6 +3,7 @@ import { useGetSessionMembers } from "@/lib/hooks/convex/session-members";
 import { useGetStoryVotes } from "@/lib/hooks/convex/votes";
 import { useGetActiveStory } from "@/lib/hooks/convex/stories";
 import { useEndedStory } from "@/lib/hooks/convex/use-ended-story";
+import { useActiveUsers } from "@/lib/hooks/convex/presence";
 import { Title } from "./title";
 import { useMemo } from "react";
 import { Card } from "./card";
@@ -16,6 +17,7 @@ export const MemberList = ({ id }: Props) => {
   const sessionMembers = useGetSessionMembers(id as Id<"sessions">);
   const activeStory = useGetActiveStory(id as Id<"sessions">);
   const endedStory = useEndedStory(id as Id<"sessions">);
+  const activeUsers = useActiveUsers(id as Id<"sessions">);
 
   // Get votes for the active story (if voting) or ended story (if showing results)
   const storyToCheck =
@@ -42,42 +44,64 @@ export const MemberList = ({ id }: Props) => {
         {sessionMembers?.map((member) => {
           const memberVote = votesByUserId.get(member.userId);
           const hasVoted = memberVote !== undefined;
+          const isActive = activeUsers?.includes(member.userId);
 
           return (
             <li key={member._id}>
-              <Card className="flex items-center justify-between gap-8 px-4 py-2">
+              <Card className="flex items-center justify-between gap-8">
                 <div className="flex flex-col flex-1">
-                  <div className="flex flex-col">
-                    {member.isAdmin && (
-                      <span className="text-xs text-muted-foreground">
-                        Admin
-                      </span>
-                    )}
-                    <p className="font-semibold">{member.name}</p>
+                  <div className="flex items-center gap-2">
+                    <div className="flex flex-col gap-2">
+                      {member.isAdmin && (
+                        <span className="text-xs text-muted-foreground">
+                          Admin
+                        </span>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold">{member.name}</p>
+                        {/* Show green pulsing dot if active, orange static dot if inactive */}
+                        {isActive ? (
+                          <span
+                            className="relative flex h-2 w-2"
+                            title="Active"
+                          >
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-start opacity-75"></span>
+                            <span className="relative inline-flex h-2 w-2 rounded-full bg-start"></span>
+                          </span>
+                        ) : (
+                          <span
+                            className="relative flex h-2 w-2"
+                            title="Inactive"
+                          >
+                            <span className="relative inline-flex h-2 w-2 rounded-full bg-orange-500"></span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
                 {!member.isAdmin &&
                   (activeStory && activeStory.status === "voting" ? (
                     // During voting: show checkmark if voted, otherwise "?"
                     hasVoted ? (
-                      <div className="flex items-center justify-center w-5 h-5 border-2 rounded-full bg-primary/10 border-primary">
+                      <div className="flex items-center justify-center w-7 h-7 border rounded-full bg-primary/10 border-primary">
                         <Check className="w-4 h-4 text-primary" />
                       </div>
                     ) : (
-                      <div className="flex items-center justify-center w-5 h-5 border-2 rounded-full bg-muted border-muted-foreground/20">
+                      <div className="flex items-center justify-center w-7 h-7 border rounded-full bg-muted border-muted-foreground/20">
                         <span className="text-xs text-muted-foreground">?</span>
                       </div>
                     )
                   ) : endedStory ? (
                     // After voting ended: show vote value or "-"
                     hasVoted ? (
-                      <div className="flex items-center justify-center w-5 h-5 border-2 rounded-full bg-primary/10 border-primary">
-                        <span className="font-semibold text-primary">
+                      <div className="flex items-center justify-center w-7 h-7 border rounded-full bg-primary/10 border-primary">
+                        <span className="text-primary">
                           {String(memberVote)}
                         </span>
                       </div>
                     ) : (
-                      <div className="flex items-center justify-center w-5 h-5 border-2 rounded-full bg-muted border-muted-foreground/20">
+                      <div className="flex items-center justify-center w-7 h-7 border rounded-full bg-muted border-muted-foreground/20">
                         <span className="text-xs text-muted-foreground">-</span>
                       </div>
                     )

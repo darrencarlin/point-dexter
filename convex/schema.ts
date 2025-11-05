@@ -38,9 +38,18 @@ const votes = defineTable({
   votedAt: v.number(),
 }).index("by_story", ["storyId"]);
 
+const presence = defineTable({
+  sessionId: v.id("sessions"),
+  userId: v.string(),
+  lastSeen: v.number(),
+})
+  .index("by_session", ["sessionId"])
+  .index("by_user_session", ["userId", "sessionId"]);
+
 export default defineSchema({
   sessions,
   sessionMembers,
   stories,
   votes,
+  presence,
 });
