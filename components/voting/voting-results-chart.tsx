@@ -150,9 +150,9 @@ export function VotingResultsChart({ storyId, sessionId }: Props) {
 
   if (votes.length === 0 || chartData.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-muted-foreground">
-        No votes recorded yet
-      </div>
+      <Card>
+        <Title title="No votes recorded yet" />
+      </Card>
     );
   }
 

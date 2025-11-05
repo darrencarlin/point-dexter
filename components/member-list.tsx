@@ -39,7 +39,7 @@ export const MemberList = ({ id }: Props) => {
     <Card>
       <Title
         title="Session Members"
-        subtitle="List of members in this session"
+        subtitle={`${sessionMembers?.length || 0} members in this session`}
       />
       <ul className="space-y-2">
         {sessionMembers?.map((member) => {

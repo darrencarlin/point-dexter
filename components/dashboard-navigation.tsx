@@ -35,7 +35,9 @@ export const DashboardNavigation = () => {
   const displayName = session?.user?.name || anonymousUserName;
   const status = session?.user?.name ? "Hi, " : "Participating as";
 
-  const handleCreateSession = async () => {
+  const handleCreateSession = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+
     if (!sessionName) {
       setError("Session name is required");
       return;
@@ -78,9 +80,16 @@ export const DashboardNavigation = () => {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Create a new session</DialogTitle>
+              <DialogTitle>
+                <h2 className="mb-2 text-2xl font-bold">
+                  Create a new session
+                </h2>
+              </DialogTitle>
             </DialogHeader>
-            <form className="flex flex-col space-y-4">
+            <form
+              className="flex flex-col space-y-4"
+              onSubmit={handleCreateSession}
+            >
               <div className="space-y-2">
                 <Label htmlFor="session">Session Name</Label>
                 <Input
@@ -92,11 +101,7 @@ export const DashboardNavigation = () => {
                 />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button
-                type="button"
-                onClick={handleCreateSession}
-                className="w-full"
-              >
+              <Button type="submit" className="w-full">
                 {loading ? "Creating..." : "Create Session"}
               </Button>
             </form>
