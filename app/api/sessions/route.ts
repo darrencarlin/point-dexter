@@ -95,8 +95,9 @@ export const POST = async (req: Request) => {
       name: sessionData.session.name,
       isActive: false,
       createdBy: sessionData.session.createdBy,
-      createdAt: sessionData.session.createdAt,
-      endedAt,
+      createdAt: new Date(sessionData.session.createdAt),
+      updatedAt: new Date(sessionData.session.createdAt),
+      endedAt: new Date(endedAt),
     });
 
     // Insert session members
@@ -122,7 +123,8 @@ export const POST = async (req: Request) => {
           title: story.title,
           description: story.description,
           status: story.status,
-          createdAt: story.createdAt,
+          createdAt: new Date(story.createdAt),
+          updatedAt: new Date(story.createdAt),
           points: story.points ?? -1, // Default to -1 if not set
           jiraKey: story.jiraKey,
         }))
