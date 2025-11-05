@@ -77,13 +77,22 @@ export function VotingResultsChart({ storyId, sessionId }: Props) {
   // Unanimous detection
   const unanimousValue = useMemo(() => {
     if (!votes || votes.length === 0 || participantCount === 0) return null;
-    // Only consider non-admin member votes by mapping via userId
+
+    // Filter out admin votes - only count participant votes
+    const participantVotes = votes.filter((vote) => {
+      const member = members?.find((m) => m.userId === vote.userId);
+      return member && !member.isAdmin;
+    });
+
     // Build a map of userId -> vote value
-    const voteValues = votes.map((v) => String(v.points));
+    const voteValues = participantVotes.map((v) => String(v.points));
+
     // Require everyone voted and all values equal the first
-    if (votes.length !== participantCount) return null;
+    if (participantVotes.length !== participantCount) return null;
+    if (participantVotes.length === 0) return null;
+
     return voteValues.every((v) => v === voteValues[0]) ? voteValues[0] : null;
-  }, [votes, participantCount]);
+  }, [votes, participantCount, members]);
 
   // Confetti when unanimous
   useEffect(() => {
