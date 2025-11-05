@@ -18,7 +18,7 @@ export async function GET() {
     return new Response(
       JSON.stringify({
         user: {
-          id: session.user.id,
+          ...session.user,
           ...settings,
         },
       }),
