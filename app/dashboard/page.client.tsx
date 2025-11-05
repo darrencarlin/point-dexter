@@ -147,7 +147,9 @@ export default function DashboardPageClient() {
                   ))}
                 </ul>
               ) : (
-                <p className="text-muted-foreground">No sessions found.</p>
+                <p className="text-muted-foreground">
+                  No active sessions found.
+                </p>
               )}
             </div>
           </TabsContent>

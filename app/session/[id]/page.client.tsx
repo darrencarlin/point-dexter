@@ -13,6 +13,15 @@ import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Id } from "@/convex/_generated/dataModel";
 import { Loading } from "@/components/loading";
 import { useRouter } from "next/navigation";
@@ -22,6 +31,7 @@ import { Panels } from "@/components/panels";
 import { Card } from "@/components/card";
 import { Share } from "@/components/share";
 import { useIsAdmin } from "@/lib/hooks/convex/is-admin";
+import { toast } from "sonner";
 
 interface Props {
   id: string;
@@ -34,6 +44,8 @@ export default function ClientSessionPage({ id }: Props) {
   const [name, setName] = useState(storedName);
   const [hasJoined, setHasJoined] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isEndSessionDialogOpen, setIsEndSessionDialogOpen] = useState(false);
+  const [isEndingSession, setIsEndingSession] = useState(false);
   const joinSession = useJoinSession();
   const session = useGetSession(id as Id<"sessions">);
   const sessionMembers = useGetSessionMembers(id as Id<"sessions">);
@@ -45,17 +57,11 @@ export default function ClientSessionPage({ id }: Props) {
   const handleEndSession = async () => {
     if (!session?._id) {
       console.error("Session not found");
+      toast.error("Session not found");
       return;
     }
 
-    if (
-      !confirm(
-        "Are you sure you want to end this session? This will archive all data to long-term storage."
-      )
-    ) {
-      return;
-    }
-
+    setIsEndingSession(true);
     try {
       const response = await fetch("/api/sessions", {
         method: "POST",
@@ -66,17 +72,26 @@ export default function ClientSessionPage({ id }: Props) {
       });
 
       if (response.ok) {
-        alert("Session ended successfully and archived to long-term storage!");
+        toast.success(
+          "Session ended successfully and archived to long-term storage!"
+        );
+        setIsEndSessionDialogOpen(false);
         // Redirect to dashboard
-        window.location.href = "/dashboard";
+        setTimeout(() => {
+          window.location.href = "/dashboard";
+        }, 1000);
       } else {
         const error = await response.json();
         console.error("Failed to end session:", error);
-        alert("Failed to end session: " + (error.error || "Unknown error"));
+        toast.error(
+          "Failed to end session: " + (error.error || "Unknown error")
+        );
       }
     } catch (error) {
       console.error("Error ending session:", error);
-      alert("Error ending session. Please try again.");
+      toast.error("Error ending session. Please try again.");
+    } finally {
+      setIsEndingSession(false);
     }
   };
 
@@ -141,9 +156,39 @@ export default function ClientSessionPage({ id }: Props) {
             <h2 className="text-2xl font-bold">{session.name}</h2>
 
             {isAdmin && (
-              <Button variant="destructive" onClick={handleEndSession}>
-                End Session
-              </Button>
+              <Dialog
+                open={isEndSessionDialogOpen}
+                onOpenChange={setIsEndSessionDialogOpen}
+              >
+                <DialogTrigger asChild>
+                  <Button variant="destructive">End Session</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>End Session</DialogTitle>
+                    <DialogDescription>
+                      Are you sure you want to end this session? This will
+                      archive all data to long-term storage.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsEndSessionDialogOpen(false)}
+                      disabled={isEndingSession}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={handleEndSession}
+                      disabled={isEndingSession}
+                    >
+                      {isEndingSession ? "Ending..." : "End Session"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             )}
           </Card>
 
