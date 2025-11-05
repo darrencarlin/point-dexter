@@ -26,9 +26,7 @@ export async function GET() {
   });
 
   if (!session?.user) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-    });
+    return Response.json({ error: "Unauthorized", boards: [] }, { status: 401 });
   }
 
   const tokenData = await auth.api.getAccessToken({
@@ -42,11 +40,11 @@ export async function GET() {
   const accessToken = tokenData?.accessToken;
 
   if (!accessToken) {
-    return new Response(
-      JSON.stringify({
-        error:
-          "No Atlassian access token found. Please reconnect your Atlassian account.",
-      }),
+    return Response.json(
+      {
+        error: "No Atlassian access token found. Please reconnect your Atlassian account.",
+        boards: [],
+      },
       { status: 401 }
     );
   }
@@ -63,20 +61,14 @@ export async function GET() {
   );
 
   if (!sitesRes.ok) {
-    const error = await sitesRes.text();
-
-    return new Response(
-      JSON.stringify({ error: "Failed to fetch Jira sites", details: error }),
-      { status: sitesRes.status }
-    );
+    return Response.json({ error: "Failed to fetch Jira sites", boards: [] }, {
+      status: sitesRes.status,
+    });
   }
 
   const sites = await sitesRes.json();
-
   if (!sites?.length) {
-    return new Response(JSON.stringify({ error: "No Jira sites found" }), {
-      status: 404,
-    });
+    return Response.json({ error: "No Jira sites found", boards: [] }, { status: 404 });
   }
 
   // Step 2: Get boards from first site
@@ -92,23 +84,19 @@ export async function GET() {
   );
 
   if (!boardsRes.ok) {
-    const error = await boardsRes.text();
-
-    return new Response(
-      JSON.stringify({ error: "Failed to fetch boards", details: error }),
-      { status: boardsRes.status }
-    );
+    return Response.json({ error: "Failed to fetch boards", boards: [] }, {
+      status: boardsRes.status,
+    });
   }
 
   const boards = await boardsRes.json();
-
-  const data = boards.values.map((board: Board) => ({
+  const data = (boards.values || []).map((board: Board) => ({
     id: board.id,
-    displayName: board.location.displayName,
-    projectName: board.location.projectName,
+    displayName: board.location?.displayName || "",
+    projectName: board.location?.projectName || "",
     type: board.type,
     projectKey: board.location?.projectKey || null,
   }));
 
-  return new Response(JSON.stringify({ boards: data }));
+  return Response.json({ boards: data });
 }

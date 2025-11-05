@@ -28,6 +28,8 @@ const stories = defineTable({
   createdAt: v.number(),
   points: v.optional(v.number()),
   jiraKey: v.optional(v.string()), // JIRA issue key (e.g., "PROJ-123")
+  isActive: v.optional(v.boolean()), // Legacy field - remove after data migration
+  isFinished: v.optional(v.boolean()), // Legacy field - remove after data migration
 });
 
 const votes = defineTable({
@@ -46,10 +48,19 @@ const presence = defineTable({
   .index("by_session", ["sessionId"])
   .index("by_user_session", ["userId", "sessionId"]);
 
+const sessionSettings = defineTable({
+  sessionId: v.id("sessions"),
+  timedVoting: v.boolean(),
+  votingTimeLimit: v.number(),
+  updatedAt: v.number(),
+})
+  .index("by_session", ["sessionId"]);
+
 export default defineSchema({
   sessions,
   sessionMembers,
   stories,
   votes,
   presence,
+  sessionSettings,
 });

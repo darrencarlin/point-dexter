@@ -31,6 +31,7 @@ import { Panels } from "@/components/panels";
 import { Card } from "@/components/card";
 import { Share } from "@/components/share";
 import { useIsAdmin } from "@/lib/hooks/convex/is-admin";
+import { VotingTimer } from "@/components/voting/voting-timer";
 import { toast } from "sonner";
 
 interface Props {
@@ -199,13 +200,15 @@ export default function ClientSessionPage({ id }: Props) {
         {/* Right Column - Session Members (Fixed) */}
         <div className="hidden lg:block w-80 shrink-0">
           <div className="flex flex-col gap-4 max-h-[500px]">
+            <VotingTimer sessionId={id as Id<"sessions">} />
             <MemberList id={id} />
             <Share />
           </div>
         </div>
 
         {/* Mobile: Show members at bottom */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 max-h-48 overflow-y-auto lg:hidden">
+        <div className="lg:hidden mt-4">
+          <VotingTimer sessionId={id as Id<"sessions">} />
           <MemberList id={id} />
           <Share />
         </div>

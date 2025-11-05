@@ -6,6 +6,7 @@ import { useCreateSession } from "@/lib/hooks/convex/sessions";
 import { Pointer } from "lucide-react";
 import Link from "next/link";
 import { SignOutButton } from "./buttons/sign-out-button";
+import { SettingsButton } from "./buttons/settings-button";
 import { ThemeToggle } from "./buttons/theme-toggle";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -107,7 +108,12 @@ export const DashboardNavigation = () => {
             </form>
           </DialogContent>
         </Dialog>
-        {session && <SignOutButton />}
+        {session && (
+          <>
+            <SettingsButton />
+            <SignOutButton />
+          </>
+        )}
         <ThemeToggle />
       </div>
     </nav>

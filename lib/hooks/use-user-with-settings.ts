@@ -37,8 +37,42 @@ export function useUserSettings() {
     }
   }, [session?.user, isPending]);
 
+  const updateSettings = async (newSettings: Partial<NonNullable<UserSettings>>) => {
+    if (!session?.user) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${BASE_URL}/api/user/settings`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          settings: {
+            timedVoting: settings?.timedVoting ?? false,
+            votingTimeLimit: settings?.votingTimeLimit ?? 300,
+            ...newSettings,
+          },
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSettings({
+          timedVoting: data.user.timedVoting,
+          votingTimeLimit: data.user.votingTimeLimit,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to update user settings:", error);
+      throw error;
+    }
+  };
+
   return {
     settings,
     isLoading: isPending || isLoading,
+    updateSettings,
   };
 }
