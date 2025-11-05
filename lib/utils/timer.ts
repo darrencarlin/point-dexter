@@ -19,9 +19,9 @@ export function getTimerColorClass(
   const percentage = (timeRemaining / timeLimit) * 100;
 
   if (percentage === 0) return "text-destructive";
-  if (percentage <= 10) return "text-red-600";
-  if (percentage <= 30) return "text-orange-500";
-  if (percentage <= 50) return "text-yellow-500";
+  if (percentage <= 10) return "text-red-600 animate-pulse";
+  if (percentage <= 30) return "text-orange-500 animate-pulse";
+  if (percentage <= 50) return "text-yellow-500 animate-pulse";
 
   return "text-green-500";
 }

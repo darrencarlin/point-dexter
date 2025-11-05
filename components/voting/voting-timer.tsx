@@ -1,16 +1,16 @@
 "use client";
 
 import { Id } from "@/convex/_generated/dataModel";
+import { useIsAdmin } from "@/lib/hooks/convex/is-admin";
 import {
   useGetActiveStory,
   useToggleStoryStatus,
 } from "@/lib/hooks/convex/stories";
 import { useSessionSettings } from "@/lib/hooks/use-session-settings";
-import { useIsAdmin } from "@/lib/hooks/convex/is-admin";
 import { useVotingTimer } from "@/lib/hooks/use-voting-timer";
-import { Card } from "../card";
 import { Clock } from "lucide-react";
 import { toast } from "sonner";
+import { Card } from "../card";
 
 interface Props {
   sessionId: Id<"sessions">;
@@ -58,11 +58,14 @@ export function VotingTimer({ sessionId }: Props) {
   }
 
   return (
-    <Card className="flex items-center justify-center gap-2 p-3 mb-4">
-      <Clock className={`h-5 w-5 ${getColorClass()}`} />
-      <span className={`text-lg font-bold ${getColorClass()}`}>
-        {formatTime(timeRemaining)}
-      </span>
+    <Card className="flex flex-col items-center justify-center gap-2 p-3 mb-4">
+      <h2 className="text-2xl font-bold">Time Remaining</h2>
+      <div className="flex items-center gap-2">
+        <Clock className={`h-5 w-5 ${getColorClass()}`} />
+        <p className={`text-xl font-bold tabular-nums ${getColorClass()}`}>
+          {formatTime(timeRemaining)}
+        </p>
+      </div>
     </Card>
   );
 }
