@@ -31,6 +31,8 @@ import { Panels } from "@/components/panels";
 import { Card } from "@/components/card";
 import { Share } from "@/components/share";
 import { useIsAdmin } from "@/lib/hooks/convex/is-admin";
+import { VotingTimer } from "@/components/voting/voting-timer";
+import { SettingsButton } from "@/components/buttons/settings-button";
 import { toast } from "sonner";
 
 interface Props {
@@ -156,13 +158,15 @@ export default function ClientSessionPage({ id }: Props) {
             <h2 className="text-2xl font-bold">{session.name}</h2>
 
             {isAdmin && (
-              <Dialog
-                open={isEndSessionDialogOpen}
-                onOpenChange={setIsEndSessionDialogOpen}
-              >
-                <DialogTrigger asChild>
-                  <Button variant="destructive">End Session</Button>
-                </DialogTrigger>
+              <div className="flex items-center gap-2">
+                <SettingsButton />
+                <Dialog
+                  open={isEndSessionDialogOpen}
+                  onOpenChange={setIsEndSessionDialogOpen}
+                >
+                  <DialogTrigger asChild>
+                    <Button variant="destructive">End Session</Button>
+                  </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>End Session</DialogTitle>
@@ -189,6 +193,7 @@ export default function ClientSessionPage({ id }: Props) {
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
+              </div>
             )}
           </Card>
 
@@ -199,13 +204,15 @@ export default function ClientSessionPage({ id }: Props) {
         {/* Right Column - Session Members (Fixed) */}
         <div className="hidden lg:block w-80 shrink-0">
           <div className="flex flex-col gap-4 max-h-[500px]">
+            <VotingTimer sessionId={id as Id<"sessions">} />
             <MemberList id={id} />
             <Share />
           </div>
         </div>
 
         {/* Mobile: Show members at bottom */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 max-h-48 overflow-y-auto lg:hidden">
+        <div className="lg:hidden mt-4">
+          <VotingTimer sessionId={id as Id<"sessions">} />
           <MemberList id={id} />
           <Share />
         </div>

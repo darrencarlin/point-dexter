@@ -3,8 +3,11 @@ import { api } from "../../../convex/_generated/api";
 import { useSession } from "../../auth-client";
 import { Id } from "../../../convex/_generated/dataModel";
 
-export function useGetSession(sessionId: Id<"sessions">) {
-  return useQuery(api.sessions.getSession, { sessionId });
+export function useGetSession(sessionId: Id<"sessions"> | undefined) {
+  return useQuery(
+    api.sessions.getSession,
+    sessionId ? { sessionId } : "skip"
+  );
 }
 
 export function useGetSessions() {

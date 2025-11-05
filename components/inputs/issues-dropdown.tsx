@@ -54,10 +54,15 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
     setLoadingBoards(true);
     try {
       const res = await fetch(`${BASE_URL}/api/jira/boards`);
-      const { boards: fetchedBoards } = await res.json();
-      setBoards(fetchedBoards || []);
+      if (!res.ok) {
+        setBoards([]);
+        return;
+      }
+      const data = await res.json();
+      setBoards(data?.boards || []);
     } catch (error) {
       console.error("Failed to fetch boards:", error);
+      setBoards([]);
     } finally {
       setLoadingBoards(false);
     }
@@ -79,13 +84,18 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
         const res = await fetch(
           `${BASE_URL}/api/jira/stories?boardId=${boardId}`
         );
-        const { issues } = await res.json();
+        if (!res.ok) {
+          setStoriesMap((prev) => ({ ...prev, [boardId]: [] }));
+          return;
+        }
+        const data = await res.json();
         setStoriesMap((prev) => ({
           ...prev,
-          [boardId]: issues || [],
+          [boardId]: data?.issues || [],
         }));
       } catch (error) {
         console.error("Failed to fetch stories:", error);
+        setStoriesMap((prev) => ({ ...prev, [boardId]: [] }));
       } finally {
         setLoadingStories(false);
       }

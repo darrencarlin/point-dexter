@@ -46,10 +46,19 @@ const presence = defineTable({
   .index("by_session", ["sessionId"])
   .index("by_user_session", ["userId", "sessionId"]);
 
+const sessionSettings = defineTable({
+  sessionId: v.id("sessions"),
+  timedVoting: v.boolean(),
+  votingTimeLimit: v.number(),
+  updatedAt: v.number(),
+})
+  .index("by_session", ["sessionId"]);
+
 export default defineSchema({
   sessions,
   sessionMembers,
   stories,
   votes,
   presence,
+  sessionSettings,
 });

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Title } from "@/components/title";
 import { Loading } from "@/components/loading";
 import { Card } from "../card";
+import { VotingTimer } from "./voting-timer";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -49,10 +50,12 @@ export function VotingInstructions({ sessionId }: Props) {
 
   return (
     <Card>
-      <Title
-        title="Voting Instructions"
-        subtitle="Select your estimate for the current story"
-      />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+        <Title
+          title="Voting Instructions"
+          subtitle="Select your estimate for the current story"
+        />
+      </div>
 
       {/* Story Information */}
       <Card className="mb-6">
