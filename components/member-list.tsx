@@ -22,6 +22,7 @@ export const MemberList = ({ id }: Props) => {
   // Get votes for the active story (if voting) or ended story (if showing results)
   const storyToCheck =
     activeStory?.status === "voting" ? activeStory : endedStory;
+
   const votes = useGetStoryVotes(storyToCheck?._id);
 
   // Create a map of userId -> vote for quick lookup
@@ -33,6 +34,8 @@ export const MemberList = ({ id }: Props) => {
     });
     return map;
   }, [votes]);
+
+  console.log({ activeStory, endedStory, activeUsers, votes });
 
   return (
     <Card>

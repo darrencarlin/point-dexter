@@ -92,20 +92,20 @@ export default function DashboardPageClient() {
   }
 
   return (
-    <main className="flex flex-col flex-1 w-full gap-4 p-4 mx-auto overflow-hidden max-w-7xl">
-      <Card className="flex flex-col flex-1 min-h-0">
-        <Tabs defaultValue="active" className="flex flex-col flex-1 min-h-0">
+    <main className="flex flex-col w-full gap-4 p-4 mx-auto max-w-7xl">
+      <Card className="flex flex-col">
+        <Tabs defaultValue="active" className="flex flex-col">
           <TabsList className="mb-4">
             <TabsTrigger value="active">Active Sessions</TabsTrigger>
             <TabsTrigger value="past">Past Sessions</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="active" className="flex flex-col flex-1 min-h-0">
+          <TabsContent value="active" className="flex flex-col">
             <Title
               title="Active Sessions"
               subtitle="View your active sessions"
             />
-            <div className="flex-1 overflow-y-auto">
+            <div className="max-h-[500px] overflow-y-auto">
               {sessions && sessions.length > 0 ? (
                 <ul className="space-y-2">
                   {sessions.map((session) => (
@@ -152,9 +152,9 @@ export default function DashboardPageClient() {
             </div>
           </TabsContent>
 
-          <TabsContent value="past" className="flex flex-col flex-1 min-h-0">
+          <TabsContent value="past" className="flex flex-col">
             <Title title="Past Sessions" subtitle="View your past sessions" />
-            <div className="flex-1 overflow-y-auto">
+            <div className="max-h-[500px] overflow-y-auto">
               {loadingArchived ? (
                 <p className="text-muted-foreground">
                   Loading past sessions...
