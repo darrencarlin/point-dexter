@@ -32,14 +32,24 @@ export const MemberList = () => {
     return map;
   }, [votes]);
 
+  // Sort members to show admin first
+  const sortedMembers = useMemo(() => {
+    if (!sessionMembers) return [];
+    return [...sessionMembers].sort((a, b) => {
+      if (a.isAdmin && !b.isAdmin) return -1;
+      if (!a.isAdmin && b.isAdmin) return 1;
+      return 0;
+    });
+  }, [sessionMembers]);
+
   return (
     <Card>
       <Title
         title="Session Members"
         subtitle={`${sessionMembers?.length || 0} members in this session`}
       />
-      <ul className="space-y-2">
-        {sessionMembers?.map((member) => {
+      <ul className="space-y-2 max-h-[calc(100vh-250px)] overflow-y-auto hide-scrollbar mt-4">
+        {sortedMembers?.map((member) => {
           const memberVote = votesByUserId.get(member.userId);
           const hasVoted = memberVote !== undefined;
           const isActive = activeUsers?.includes(member.userId);

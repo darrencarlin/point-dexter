@@ -35,7 +35,7 @@ import { sessionIdAtom } from "@/lib/state";
 import { useMaintainPresence } from "@/lib/hooks/use-session-hooks";
 import { useSetAtom } from "jotai";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 interface Props {
@@ -43,12 +43,14 @@ interface Props {
 }
 
 export default function ClientSessionPage({ id }: Props) {
+  const nameInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const { data: authSession, isPending: isAuthPending } = useSession();
   const storedName = useLocalStorageValue("anonymous_user_name", "");
   const [name, setName] = useState(storedName);
   const [hasJoined, setHasJoined] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [isEndSessionDialogOpen, setIsEndSessionDialogOpen] = useState(false);
   const [isEndingSession, setIsEndingSession] = useState(false);
   const joinSession = useJoinSession();
@@ -131,6 +133,22 @@ export default function ClientSessionPage({ id }: Props) {
     }
   }, [storedName]);
 
+  // Focus the name input when the join form is shown (after loading completes)
+  useEffect(() => {
+    if (
+      !hasJoined &&
+      !isAuthPending &&
+      sessionMembers !== undefined &&
+      nameInputRef.current
+    ) {
+      // Small timeout to ensure the input is fully rendered
+      const timer = setTimeout(() => {
+        nameInputRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [hasJoined, isAuthPending, sessionMembers]);
+
   // Save name to local storage when it changes
   if (isAuthPending || sessionMembers === undefined) {
     return <Loading />;
@@ -150,6 +168,13 @@ export default function ClientSessionPage({ id }: Props) {
 
   const handleJoinSession = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+
+    if (!name.trim()) {
+      setError("Please enter your name");
+      return;
+    }
+
     setLoading(true);
     try {
       await joinSession(id as Id<"sessions">, name);
@@ -158,6 +183,7 @@ export default function ClientSessionPage({ id }: Props) {
       router.refresh();
     } catch (error) {
       console.error("Failed to join session:", error);
+      setError("Failed to join session. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -252,6 +278,7 @@ export default function ClientSessionPage({ id }: Props) {
               Your Name
             </Label>
             <Input
+              ref={nameInputRef}
               id="name"
               type="text"
               value={name}
@@ -259,6 +286,7 @@ export default function ClientSessionPage({ id }: Props) {
               placeholder="Enter your name"
               required
             />
+            {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
           </div>
           <Button type="button" disabled={loading} onClick={handleJoinSession}>
             {loading ? "Joining..." : "Join Session"}

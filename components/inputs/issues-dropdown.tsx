@@ -115,7 +115,7 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
   }, [selectedBoardId, storiesMap, fetchStories]);
 
   return (
-    <form className="mb-4 space-y-4">
+    <div className="mb-4 space-y-4">
       {/* Board Selector (ComboBox) */}
       <div>
         <div className="flex items-center justify-between mb-4">
@@ -283,6 +283,6 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
           </Button>
         </div>
       )}
-    </form>
+    </div>
   );
 };

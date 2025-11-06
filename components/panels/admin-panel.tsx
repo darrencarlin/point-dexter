@@ -1,11 +1,18 @@
 import { Id } from "@/convex/_generated/dataModel";
 
 import {
+  useAddStory,
+  useEndVoting,
+  useToggleStoryStatus,
+} from "@/lib/hooks/convex/use-stories";
+import { useGetStoryVotes, useResetVotes } from "@/lib/hooks/convex/use-votes";
+import {
   useEndedStory,
   useGetSession,
   useGetSessionStories,
   useSessionId,
 } from "@/lib/hooks/use-session-hooks";
+
 import { jiraSiteUrlAtom } from "@/lib/state";
 import {
   DropdownMenu,
@@ -14,7 +21,7 @@ import {
 import { Label } from "@radix-ui/react-label";
 import { useAtomValue } from "jotai";
 import { ArrowLeft, ChevronDown } from "lucide-react";
-import { useMemo, useState } from "react";
+import { KeyboardEvent, useMemo, useState } from "react";
 import { Card } from "../card";
 import { IssuesDropdown, Story } from "../inputs/issues-dropdown";
 import { Button } from "../ui/button";
@@ -22,13 +29,6 @@ import { DropdownMenuContent, DropdownMenuItem } from "../ui/dropdown-menu";
 import { Input } from "../ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { VotingResultsChart } from "../voting/voting-results-chart";
-import { useGetStoryVotes } from "@/lib/hooks/use-story-hooks";
-import {
-  useAddStory,
-  useEndVoting,
-  useToggleStoryStatus,
-} from "@/lib/hooks/convex/use-stories";
-import { useResetVotes } from "@/lib/hooks/convex/use-votes";
 
 // Helper component to handle individual story logic with votes
 const StoryItem = ({
@@ -52,7 +52,7 @@ const StoryItem = ({
   onStopVoting: (id: string) => void;
   onCompleteStory: (id: string, points: number) => void;
 }) => {
-  const votes = useGetStoryVotes();
+  const votes = useGetStoryVotes(story._id);
   const [points, setPoints] = useState<number | "">("");
   const jiraSiteUrl = useAtomValue(jiraSiteUrlAtom);
 
@@ -365,6 +365,12 @@ export const AdminPanel = () => {
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
+                  onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddStory(null);
+                    }
+                  }}
                   required
                 />
                 <Button
@@ -395,7 +401,10 @@ export const AdminPanel = () => {
 
       {/* Stories Tabs Section */}
       <Card className="flex flex-col flex-1 min-h-0 shrink-0">
-        <Tabs defaultValue="active" className="flex flex-col flex-1 min-h-0">
+        <Tabs
+          defaultValue="active"
+          className="flex flex-col flex-1 min-h-0 max-h-[500px] overflow-y-scroll hide-scrollbar"
+        >
           <TabsList className="mb-4">
             <TabsTrigger value="active">Active Stories</TabsTrigger>
             <TabsTrigger value="finished">Finished Stories</TabsTrigger>
