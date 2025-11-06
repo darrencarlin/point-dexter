@@ -24,7 +24,6 @@ import { VotingTimer } from "@/components/voting/voting-timer";
 import { Id } from "@/convex/_generated/dataModel";
 import { useSession } from "@/lib/auth-client";
 import { useIsAdmin } from "@/lib/hooks/convex/use-is-admin";
-import { useMaintainPresence } from "@/lib/hooks/convex/use-presence";
 import {
   getEffectiveUserId,
   useGetSessionMembers,
@@ -32,6 +31,9 @@ import {
 } from "@/lib/hooks/convex/use-session-members";
 import { useGetSession } from "@/lib/hooks/convex/use-sessions";
 import { useLocalStorageValue } from "@/lib/hooks/use-local-storage-value";
+import { sessionIdAtom } from "@/lib/state";
+import { useMaintainPresence } from "@/lib/hooks/use-session-hooks";
+import { useSetAtom } from "jotai";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -54,8 +56,16 @@ export default function ClientSessionPage({ id }: Props) {
   const sessionMembers = useGetSessionMembers(id as Id<"sessions">);
   const isAdmin = useIsAdmin(id);
 
-  // Maintain presence heartbeat for this user
-  useMaintainPresence(hasJoined ? (id as Id<"sessions">) : undefined);
+  // Set the session ID atom for use throughout the app
+  const setSessionId = useSetAtom(sessionIdAtom);
+
+  // Set session ID atom when component mounts or id changes
+  useEffect(() => {
+    setSessionId(id as Id<"sessions">);
+  }, [id, setSessionId]);
+
+  // Maintain presence heartbeat for this user (only when joined)
+  useMaintainPresence(hasJoined);
 
   const handleEndSession = async () => {
     if (!session?._id) {
@@ -158,7 +168,7 @@ export default function ClientSessionPage({ id }: Props) {
           <Card className="shrink-0 flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold mb-2">{session.name}</h2>
-              <Total id={id as Id<"sessions">} />
+              <Total />
             </div>
 
             {isAdmin && (
@@ -202,22 +212,22 @@ export default function ClientSessionPage({ id }: Props) {
           </Card>
 
           {/* Panels will render sections here */}
-          <Panels id={id} />
+          <Panels />
         </div>
 
         {/* Right Column - Session Members (Fixed) */}
         <div className="hidden lg:block w-80 shrink-0">
           <div className="flex flex-col gap-4 max-h-[500px]">
-            <VotingTimer sessionId={id as Id<"sessions">} />
-            <MemberList id={id} />
+            <VotingTimer />
+            <MemberList />
             <Share />
           </div>
         </div>
 
         {/* Mobile: Show members at bottom */}
         <div className="lg:hidden mt-4">
-          <VotingTimer sessionId={id as Id<"sessions">} />
-          <MemberList id={id} />
+          <VotingTimer />
+          <MemberList />
           <Share />
         </div>
       </main>

@@ -1,21 +1,17 @@
-import { useIsAdmin } from "@/lib/hooks/convex/use-is-admin";
 import { useJiraInstance } from "@/lib/hooks/use-jira-instance";
+import { useIsAdmin } from "@/lib/hooks/use-session-hooks";
 import { AdminPanel } from "./admin-panel";
 import { UserPanel } from "./user-panel";
 
-interface Props {
-  id: string;
-}
-
-export const Panels = ({ id }: Props) => {
-  const isAdmin = useIsAdmin(id);
+export const Panels = () => {
+  const isAdmin = useIsAdmin();
 
   // Fetch and set the Jira instance URL
   useJiraInstance();
 
   if (isAdmin) {
-    return <AdminPanel id={id} />;
+    return <AdminPanel />;
   }
 
-  return <UserPanel id={id} />;
+  return <UserPanel />;
 };

@@ -1,12 +1,9 @@
 import { Id } from "@/convex/_generated/dataModel";
-import { useGetSession } from "@/lib/hooks/convex/use-sessions";
 import {
   useAddStory,
   useEndVoting,
-  useGetSessionStories,
   useToggleStoryStatus,
 } from "@/lib/hooks/convex/use-stories";
-import { useEndedStory } from "@/lib/hooks/convex/use-ended-story";
 import { useGetStoryVotes } from "@/lib/hooks/convex/use-votes";
 import { jiraSiteUrlAtom } from "@/lib/state";
 import { useAtomValue } from "jotai";
@@ -18,10 +15,13 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { VotingResultsChart } from "../voting/voting-results-chart";
-
-interface Props {
-  id: string;
-}
+import {
+  useGetSession,
+  useGetSessionStories,
+  useEndedStory,
+  useSessionId,
+} from "@/lib/hooks/use-session-hooks";
+import { ArrowLeft } from "lucide-react";
 
 // Helper component to handle individual story logic with votes
 const StoryItem = ({
@@ -180,14 +180,14 @@ const StoryItem = ({
   );
 };
 
-export const AdminPanel = ({ id }: Props) => {
+export const AdminPanel = () => {
   const addStory = useAddStory();
   const [title, setTitle] = useState("");
   const [manual, setManual] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const session = useGetSession(id as Id<"sessions">);
-  const sessionStories = useGetSessionStories(id as Id<"sessions">);
+  const session = useGetSession();
+  const sessionStories = useGetSessionStories();
   const toggleStoryStatus = useToggleStoryStatus();
   const endVoting = useEndVoting();
 
@@ -307,7 +307,8 @@ export const AdminPanel = ({ id }: Props) => {
     (story) => story.status === "voting"
   );
 
-  const endedStoryForChart = useEndedStory(id as Id<"sessions">);
+  const endedStoryForChart = useEndedStory();
+  const sessionId = useSessionId();
 
   return (
     <>
@@ -326,11 +327,11 @@ export const AdminPanel = ({ id }: Props) => {
         )}
         {manual && (
           <form className="mb-4 space-y-4">
-            <div className="flex items-end gap-2">
-              <div className="w-full">
-                <Label htmlFor="title">
-                  <h2 className="mb-4 text-2xl font-bold">Story Title</h2>
-                </Label>
+            <div>
+              <Label htmlFor="title">
+                <h2 className="mb-4 text-2xl font-bold">Story Title</h2>
+              </Label>
+              <div className="flex items-center gap-4">
                 <Input
                   className="flex-1"
                   id="title"
@@ -339,16 +340,15 @@ export const AdminPanel = ({ id }: Props) => {
                   onChange={(e) => setTitle(e.target.value)}
                   required
                 />
-
-                {error && <p>{error}</p>}
+                <Button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => handleAddStory(null)}
+                >
+                  {loading ? "Adding story..." : "Add Story"}
+                </Button>
               </div>
-              <Button
-                type="button"
-                disabled={loading}
-                onClick={() => handleAddStory(null)}
-              >
-                {loading ? "Adding story..." : "Add Story"}
-              </Button>
+              {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
             </div>
           </form>
         )}
@@ -360,7 +360,8 @@ export const AdminPanel = ({ id }: Props) => {
             className="mb-6"
             onClick={() => setManual(false)}
           >
-            Back to Issue Selector
+            <ArrowLeft />
+            Issue Selector
           </Button>
         )}
       </Card>
@@ -438,11 +439,8 @@ export const AdminPanel = ({ id }: Props) => {
       </Card>
 
       {/* Show voting results chart only when there's an ended story and NO active voting */}
-      {endedStoryForChart && !hasVotingStory && (
-        <VotingResultsChart
-          storyId={endedStoryForChart._id}
-          sessionId={id as Id<"sessions">}
-        />
+      {endedStoryForChart && !hasVotingStory && sessionId && (
+        <VotingResultsChart />
       )}
     </>
   );

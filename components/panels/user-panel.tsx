@@ -1,14 +1,12 @@
-import { Id } from "@/convex/_generated/dataModel";
-import { VotingInstructions } from "../voting/voting-instructions";
-import { useGetActiveStory } from "@/lib/hooks/convex/use-stories";
-import { useEndedStory } from "@/lib/hooks/convex/use-ended-story";
-import { Title } from "../title";
-import { VotingResultsChart } from "../voting/voting-results-chart";
 import { Card } from "../card";
-
-interface Props {
-  id: string;
-}
+import { Title } from "../title";
+import { VotingInstructions } from "../voting/voting-instructions";
+import { VotingResultsChart } from "../voting/voting-results-chart";
+import {
+  useGetActiveStory,
+  useEndedStory,
+  useSessionId,
+} from "@/lib/hooks/use-session-hooks";
 
 const NoActiveStory = () => {
   return (
@@ -21,21 +19,19 @@ const NoActiveStory = () => {
   );
 };
 
-export const UserPanel = ({ id }: Props) => {
-  const activeStory = useGetActiveStory(id as Id<"sessions">);
-  const endedStory = useEndedStory(id as Id<"sessions">);
+export const UserPanel = () => {
+  const activeStory = useGetActiveStory();
+  const endedStory = useEndedStory();
+  const sessionId = useSessionId();
 
   if (activeStory?.status === "voting") {
-    return <VotingInstructions sessionId={id as Id<"sessions">} />;
+    return <VotingInstructions />;
   }
 
-  if (endedStory) {
+  if (endedStory && sessionId) {
     return (
       <div className="space-y-6">
-        <VotingResultsChart
-          storyId={endedStory._id}
-          sessionId={id as Id<"sessions">}
-        />
+        <VotingResultsChart />
       </div>
     );
   }
