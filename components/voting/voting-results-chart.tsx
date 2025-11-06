@@ -1,8 +1,7 @@
 "use client";
 
-import { Id } from "@/convex/_generated/dataModel";
 import { useGetStoryVotes } from "@/lib/hooks/convex/use-votes";
-import { useGetSessionMembers } from "@/lib/hooks/convex/use-session-members";
+import { Id } from "@/convex/_generated/dataModel";
 import {
   ChartContainer,
   ChartTooltip,
@@ -12,7 +11,6 @@ import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell } from "recharts";
 import { Loading } from "@/components/loading";
 import { useEffect, useMemo } from "react";
 import { Title } from "../title";
-import { useEndedStory } from "@/lib/hooks/convex/use-ended-story";
 import { Card } from "../card";
 import { useSessionSettings } from "@/lib/hooks/use-session-settings";
 import {
@@ -20,21 +18,23 @@ import {
   getScoringLabel,
   getScoringOptions,
 } from "@/lib/constants/scoring";
-
+import {
+  useGetSessionMembers,
+  useEndedStory,
+} from "@/lib/hooks/use-session-hooks";
 interface Props {
-  storyId: Id<"stories"> | undefined;
   sessionId: Id<"sessions">;
 }
 
+
 /**
  * Voting results chart component that displays vote distribution using a bar chart
- * @param {Props} props - Component properties
  * @returns {JSX.Element} Rendered chart component
  */
-export function VotingResultsChart({ storyId, sessionId }: Props) {
-  const votes = useGetStoryVotes(storyId);
-  const members = useGetSessionMembers(sessionId);
-  const endedStory = useEndedStory(sessionId);
+export function VotingResultsChart({ sessionId }: Props) {
+  const endedStory = useEndedStory();
+  const votes = useGetStoryVotes(endedStory?._id);
+  const members = useGetSessionMembers();
   const { settings: sessionSettings } = useSessionSettings(sessionId);
 
   const scoringType =
@@ -107,7 +107,7 @@ export function VotingResultsChart({ storyId, sessionId }: Props) {
   const unanimousValue = useMemo(() => {
     if (!votes || votes.length === 0 || participantCount === 0) return null;
     // Ensure we're looking at votes for the correct story
-    if (!storyId) return null;
+    if (!endedStory?._id) return null;
 
     // Filter out admin votes - only count participant votes
     const participantVotes = votes.filter((vote) => {
@@ -123,7 +123,7 @@ export function VotingResultsChart({ storyId, sessionId }: Props) {
     if (participantVotes.length === 0) return null;
 
     return voteValues.every((v) => v === voteValues[0]) ? voteValues[0] : null;
-  }, [votes, participantCount, members, storyId]);
+  }, [votes, participantCount, members, endedStory?._id]);
 
   // Confetti when unanimous
   useEffect(() => {
@@ -175,7 +175,7 @@ export function VotingResultsChart({ storyId, sessionId }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [unanimousValue, storyId, votes]);
+  }, [unanimousValue, endedStory?._id, votes]);
 
   if (votes === undefined) {
     return <Loading />;

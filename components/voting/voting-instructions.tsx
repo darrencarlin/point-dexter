@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
-import { useGetActiveStory } from "@/lib/hooks/convex/use-stories";
 import { useGetUserVote, useVote } from "@/lib/hooks/convex/use-votes";
 import { Button } from "@/components/ui/button";
 import { Title } from "@/components/title";
@@ -15,7 +14,7 @@ import {
   getScoringLabel,
   getScoringOptions,
 } from "@/lib/constants/scoring";
-
+import { useGetActiveStory } from "@/lib/hooks/use-session-hooks";
 interface Props {
   sessionId: Id<"sessions">;
 }
@@ -25,7 +24,7 @@ interface Props {
  * and allows users to vote using numbered buttons
  */
 export function VotingInstructions({ sessionId }: Props) {
-  const activeStory = useGetActiveStory(sessionId);
+  const activeStory = useGetActiveStory();
   const userVote = useGetUserVote(activeStory?._id);
   const vote = useVote();
   const [isVoting, setIsVoting] = useState(false);

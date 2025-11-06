@@ -30,6 +30,5 @@ export const selectedIssueKeyAtom = atom<string>("");
 // Jira site instance URL
 export const jiraSiteUrlAtom = atom<string>("");
 
-// ID's
+// Session ID
 export const sessionIdAtom = atom<Id<"sessions">>();
-export const storyIdAtom = atom<Id<"stories">>();

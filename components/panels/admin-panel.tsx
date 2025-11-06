@@ -1,33 +1,34 @@
 import { Id } from "@/convex/_generated/dataModel";
-import { useGetSession } from "@/lib/hooks/convex/use-sessions";
+
 import {
   useAddStory,
   useEndVoting,
-  useGetSessionStories,
   useToggleStoryStatus,
 } from "@/lib/hooks/convex/use-stories";
-import { useEndedStory } from "@/lib/hooks/convex/use-ended-story";
 import { useGetStoryVotes, useResetVotes } from "@/lib/hooks/convex/use-votes";
+import {
+  useEndedStory,
+  useGetSession,
+  useGetSessionStories,
+  useSessionId,
+} from "@/lib/hooks/use-session-hooks";
+
 import { jiraSiteUrlAtom } from "@/lib/state";
-import { useAtomValue } from "jotai";
-import { ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
 import { Label } from "@radix-ui/react-label";
-import { useMemo, useState } from "react";
+import { useAtomValue } from "jotai";
+import { ArrowLeft, ChevronDown } from "lucide-react";
+import { KeyboardEvent, useMemo, useState } from "react";
 import { Card } from "../card";
 import { IssuesDropdown, Story } from "../inputs/issues-dropdown";
 import { Button } from "../ui/button";
+import { DropdownMenuContent, DropdownMenuItem } from "../ui/dropdown-menu";
 import { Input } from "../ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { VotingResultsChart } from "../voting/voting-results-chart";
-import { DropdownMenuContent, DropdownMenuItem } from "../ui/dropdown-menu";
-
-interface Props {
-  id: string;
-}
 
 // Helper component to handle individual story logic with votes
 const StoryItem = ({
@@ -139,7 +140,9 @@ const StoryItem = ({
             {story.status === "pending" && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="start">Resume Voting <ChevronDown /></Button>
+                  <Button variant="start">
+                    Resume Voting <ChevronDown />
+                  </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuItem onClick={() => onStartVoting(story._id)}>
@@ -198,14 +201,14 @@ const StoryItem = ({
   );
 };
 
-export const AdminPanel = ({ id }: Props) => {
+export const AdminPanel = () => {
   const addStory = useAddStory();
   const [title, setTitle] = useState("");
   const [manual, setManual] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const session = useGetSession(id as Id<"sessions">);
-  const sessionStories = useGetSessionStories(id as Id<"sessions">);
+  const session = useGetSession();
+  const sessionStories = useGetSessionStories();
   const toggleStoryStatus = useToggleStoryStatus();
   const resetVotes = useResetVotes();
   const endVoting = useEndVoting();
@@ -331,7 +334,8 @@ export const AdminPanel = ({ id }: Props) => {
     (story) => story.status === "voting"
   );
 
-  const endedStoryForChart = useEndedStory(id as Id<"sessions">);
+  const endedStoryForChart = useEndedStory();
+  const sessionId = useSessionId();
 
   return (
     <>
@@ -350,29 +354,34 @@ export const AdminPanel = ({ id }: Props) => {
         )}
         {manual && (
           <form className="mb-4 space-y-4">
-            <div className="flex items-end gap-2">
-              <div className="w-full">
-                <Label htmlFor="title">
-                  <h2 className="mb-4 text-2xl font-bold">Story Title</h2>
-                </Label>
+            <div>
+              <Label htmlFor="title">
+                <h2 className="mb-4 text-2xl font-bold">Story Title</h2>
+              </Label>
+              <div className="flex items-center gap-4">
                 <Input
                   className="flex-1"
                   id="title"
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
+                  onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddStory(null);
+                    }
+                  }}
                   required
                 />
-
-                {error && <p>{error}</p>}
+                <Button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => handleAddStory(null)}
+                >
+                  {loading ? "Adding story..." : "Add Story"}
+                </Button>
               </div>
-              <Button
-                type="button"
-                disabled={loading}
-                onClick={() => handleAddStory(null)}
-              >
-                {loading ? "Adding story..." : "Add Story"}
-              </Button>
+              {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
             </div>
           </form>
         )}
@@ -384,14 +393,18 @@ export const AdminPanel = ({ id }: Props) => {
             className="mb-6"
             onClick={() => setManual(false)}
           >
-            Back to Issue Selector
+            <ArrowLeft />
+            Issue Selector
           </Button>
         )}
       </Card>
 
       {/* Stories Tabs Section */}
       <Card className="flex flex-col flex-1 min-h-0 shrink-0">
-        <Tabs defaultValue="active" className="flex flex-col flex-1 min-h-0">
+        <Tabs
+          defaultValue="active"
+          className="flex flex-col flex-1 min-h-0 max-h-[500px] overflow-y-scroll hide-scrollbar"
+        >
           <TabsList className="mb-4">
             <TabsTrigger value="active">Active Stories</TabsTrigger>
             <TabsTrigger value="finished">Finished Stories</TabsTrigger>
@@ -463,11 +476,8 @@ export const AdminPanel = ({ id }: Props) => {
       </Card>
 
       {/* Show voting results chart only when there's an ended story and NO active voting */}
-      {endedStoryForChart && !hasVotingStory && (
-        <VotingResultsChart
-          storyId={endedStoryForChart._id}
-          sessionId={id as Id<"sessions">}
-        />
+      {endedStoryForChart && !hasVotingStory && sessionId && (
+        <VotingResultsChart />
       )}
     </>
   );
