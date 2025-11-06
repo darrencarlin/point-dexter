@@ -294,6 +294,8 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
               selectedStories.forEach((story) => {
                 onAddStory?.(story)
               });
+              // Clear selection after adding
+              setSelectedIssuesSet(new Set());
             }}
             disabled={selectedStories.length === 0 || loadingStories}
             className="self-end"
