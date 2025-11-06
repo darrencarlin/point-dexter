@@ -34,6 +34,8 @@ import { useIsAdmin } from "@/lib/hooks/convex/use-is-admin";
 import { VotingTimer } from "@/components/voting/voting-timer";
 import { SettingsButton } from "@/components/buttons/settings-button";
 import { toast } from "sonner";
+import { useGetSessionStories } from "@/lib/hooks/convex/use-stories";
+import { Total } from "@/components/total";
 
 interface Props {
   id: string;
@@ -155,7 +157,10 @@ export default function ClientSessionPage({ id }: Props) {
         <div className="flex flex-col flex-1 gap-4">
           {/* Title Section - Full Width */}
           <Card className="shrink-0 flex items-center justify-between">
-            <h2 className="text-2xl font-bold">{session.name}</h2>
+            <div>
+              <h2 className="text-2xl font-bold mb-2">{session.name}</h2>
+              <Total id={id as Id<"sessions">} />
+            </div>
 
             {isAdmin && (
               <div className="flex items-center gap-2">

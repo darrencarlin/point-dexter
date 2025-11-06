@@ -95,10 +95,17 @@ export const DashboardNavigation = () => {
                   placeholder="Enter session name"
                   value={sessionName}
                   onChange={(e) => setSessionName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !loading) {
+                      e.preventDefault();
+                      handleCreateSession();
+                    }
+                  }}
+                  autoFocus
                 />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Creating..." : "Create Session"}
               </Button>
             </form>

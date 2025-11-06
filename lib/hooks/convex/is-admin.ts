@@ -1,7 +1,7 @@
 import { useSession } from "@/lib/auth-client";
-import { useGetSession } from "./sessions";
 import { Id } from "@/convex/_generated/dataModel";
 import { useMemo } from "react";
+import { useGetSession } from "./use-sessions";
 
 /**
  * Utility function to check if a user is the admin of a session
