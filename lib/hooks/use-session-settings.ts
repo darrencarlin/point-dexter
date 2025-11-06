@@ -1,7 +1,9 @@
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
-import { DEFAULT_SCORING_TYPE } from "../constants/scoring";
+import {
+  normalizeScoringType,
+} from "../constants/scoring";
 import { ScoringType } from "../types";
 
 /**
@@ -25,7 +27,7 @@ export function useSessionSettings(sessionId: Id<"sessions"> | undefined) {
       ? ({
           timedVoting: settings.timedVoting,
           votingTimeLimit: settings.votingTimeLimit,
-          scoringType: settings.scoringType ?? DEFAULT_SCORING_TYPE,
+          scoringType: normalizeScoringType(settings.scoringType),
         } satisfies SessionSettingsResult)
       : null,
     isLoading: settings === undefined,

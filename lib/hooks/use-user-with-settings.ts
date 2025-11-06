@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { useSession } from "@/lib/auth-client";
 import { BASE_URL } from "../constants";
-import { DEFAULT_SCORING_TYPE } from "../constants/scoring";
+import {
+  DEFAULT_SCORING_TYPE,
+  normalizeScoringType,
+} from "../constants/scoring";
 import { UserSettings } from "../types";
 
 export function useUserSettings() {
@@ -27,7 +30,7 @@ export function useUserSettings() {
         setSettings({
           timedVoting: data.user.timedVoting ?? false,
           votingTimeLimit: data.user.votingTimeLimit ?? 300,
-          scoringType: data.user.scoringType ?? DEFAULT_SCORING_TYPE,
+          scoringType: normalizeScoringType(data.user.scoringType),
         });
       } catch (error) {
         console.error("Failed to fetch user settings:", error);
@@ -62,16 +65,16 @@ export function useUserSettings() {
         }),
       });
 
-        if (!response.ok) {
-          return;
-        }
+      if (!response.ok) {
+        return;
+      }
 
-        const data = await response.json();
-        setSettings({
-          timedVoting: data.user.timedVoting ?? false,
-          votingTimeLimit: data.user.votingTimeLimit ?? 300,
-          scoringType: data.user.scoringType ?? DEFAULT_SCORING_TYPE,
-        });
+      const data = await response.json();
+      setSettings({
+        timedVoting: data.user.timedVoting ?? false,
+        votingTimeLimit: data.user.votingTimeLimit ?? 300,
+        scoringType: normalizeScoringType(data.user.scoringType),
+      });
     } catch (error) {
       console.error("Failed to update user settings:", error);
       throw error;

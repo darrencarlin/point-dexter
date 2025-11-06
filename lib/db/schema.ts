@@ -123,7 +123,7 @@ export const planningSettings = pgTable("planning_settings", {
   votingTimeLimit: bigint("voting_time_limit", { mode: "number" })
     .notNull()
     .default(300), // In seconds 10, 20, 30, 60
-  scoringType: text("scoring_type").notNull().default("planning_poker"),
+  scoringType: text("scoring_type").notNull().default("fibonacci"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

@@ -1,10 +1,10 @@
 export type ScoringType =
-  | "planning_poker"
-  | "ideal_days"
-  | "bucket_system"
-  | "affinity_estimation"
-  | "no_estimates"
-  | "team_velocity";
+  | "fibonacci"
+  | "modified_fibonacci"
+  | "powers_of_two"
+  | "linear_scale"
+  | "scale_1_10"
+  | "bucket_system";
 
 export interface Settings {
   timedVoting: boolean;
