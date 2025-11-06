@@ -1,44 +1,39 @@
 "use client";
 
-import { useGetStoryVotes } from "@/lib/hooks/convex/use-votes";
-import { Id } from "@/convex/_generated/dataModel";
+import { Loading } from "@/components/loading";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell } from "recharts";
-import { Loading } from "@/components/loading";
+import { useGetStoryVotes } from "@/lib/hooks/convex/use-votes";
 import { useEffect, useMemo } from "react";
-import { Title } from "../title";
+import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from "recharts";
 import { Card } from "../card";
-import { useSessionSettings } from "@/lib/hooks/use-session-settings";
+import { Title } from "../title";
+
 import {
   DEFAULT_SCORING_TYPE,
   getScoringLabel,
   getScoringOptions,
 } from "@/lib/constants/scoring";
 import {
-  useGetSessionMembers,
   useEndedStory,
+  useGetSessionMembers,
+  useSessionSettings,
 } from "@/lib/hooks/use-session-hooks";
-interface Props {
-  sessionId: Id<"sessions">;
-}
-
 
 /**
  * Voting results chart component that displays vote distribution using a bar chart
  * @returns {JSX.Element} Rendered chart component
  */
-export function VotingResultsChart({ sessionId }: Props) {
+export function VotingResultsChart() {
   const endedStory = useEndedStory();
   const votes = useGetStoryVotes(endedStory?._id);
   const members = useGetSessionMembers();
-  const { settings: sessionSettings } = useSessionSettings(sessionId);
+  const { settings: sessionSettings } = useSessionSettings();
 
-  const scoringType =
-    sessionSettings?.scoringType ?? DEFAULT_SCORING_TYPE;
+  const scoringType = sessionSettings?.scoringType ?? DEFAULT_SCORING_TYPE;
   const scoringLabel = getScoringLabel(scoringType);
   const votingOptions = useMemo(() => {
     return getScoringOptions(scoringType).map((option) => String(option));
@@ -195,9 +190,7 @@ export function VotingResultsChart({ sessionId }: Props) {
   return (
     <Card>
       <Title title={endedStory?.title} />
-      <p className="text-sm text-muted-foreground">
-        Deck: {scoringLabel}
-      </p>
+      <p className="text-sm text-muted-foreground">Deck: {scoringLabel}</p>
       {endedStory?.description && (
         <p className="text-sm text-muted-foreground">
           {endedStory?.description}

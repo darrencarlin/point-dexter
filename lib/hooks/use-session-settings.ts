@@ -1,9 +1,7 @@
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
-import {
-  normalizeScoringType,
-} from "../constants/scoring";
+import { normalizeScoringType } from "../constants/scoring";
 import { ScoringType } from "../types";
 
 /**
@@ -33,4 +31,3 @@ export function useSessionSettings(sessionId: Id<"sessions"> | undefined) {
     isLoading: settings === undefined,
   };
 }
-

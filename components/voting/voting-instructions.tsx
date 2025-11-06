@@ -1,37 +1,36 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Id } from "@/convex/_generated/dataModel";
+
 import { useGetUserVote, useVote } from "@/lib/hooks/convex/use-votes";
 import { Button } from "@/components/ui/button";
 import { Title } from "@/components/title";
 import { Loading } from "@/components/loading";
 import { Card } from "../card";
 import { cn } from "@/lib/utils";
-import { useSessionSettings } from "@/lib/hooks/use-session-settings";
+
 import {
   DEFAULT_SCORING_TYPE,
   getScoringLabel,
   getScoringOptions,
 } from "@/lib/constants/scoring";
-import { useGetActiveStory } from "@/lib/hooks/use-session-hooks";
-interface Props {
-  sessionId: Id<"sessions">;
-}
+import {
+  useGetActiveStory,
+  useSessionSettings,
+} from "@/lib/hooks/use-session-hooks";
 
 /**
  * Voting instructions component that displays the current active story
  * and allows users to vote using numbered buttons
  */
-export function VotingInstructions({ sessionId }: Props) {
+export function VotingInstructions() {
   const activeStory = useGetActiveStory();
   const userVote = useGetUserVote(activeStory?._id);
   const vote = useVote();
   const [isVoting, setIsVoting] = useState(false);
-  const { settings: sessionSettings } = useSessionSettings(sessionId);
+  const { settings: sessionSettings } = useSessionSettings();
 
-  const scoringType =
-    sessionSettings?.scoringType ?? DEFAULT_SCORING_TYPE;
+  const scoringType = sessionSettings?.scoringType ?? DEFAULT_SCORING_TYPE;
 
   const votingOptions = useMemo(
     () => getScoringOptions(scoringType),
@@ -67,9 +66,7 @@ export function VotingInstructions({ sessionId }: Props) {
           title="Voting Instructions"
           subtitle="Select your estimate for the current story"
         />
-        <p className="text-sm text-muted-foreground">
-          Deck: {scoringLabel}
-        </p>
+        <p className="text-sm text-muted-foreground">Deck: {scoringLabel}</p>
       </div>
 
       {/* Story Information */}
