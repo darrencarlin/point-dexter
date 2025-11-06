@@ -1,3 +1,4 @@
+import { Id } from "@/convex/_generated/dataModel";
 import { atom } from "jotai";
 
 export const sessionAtom = atom<string | null>(null);
@@ -28,3 +29,7 @@ export const selectedIssueKeyAtom = atom<string>("");
 
 // Jira site instance URL
 export const jiraSiteUrlAtom = atom<string>("");
+
+// ID's
+export const sessionIdAtom = atom<Id<"sessions">>();
+export const storyIdAtom = atom<Id<"stories">>();
