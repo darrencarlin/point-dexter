@@ -61,8 +61,38 @@ export const vote = mutation({
 });
 
 export const resetVotes = mutation({
-  args: { storyId: v.id("stories") },
+  args: {
+    storyId: v.id("stories"),
+    userId: v.string(),
+  },
   handler: async (ctx, args) => {
+    // Get the story to find the session
+    const story = await ctx.db.get(args.storyId);
+    if (!story) {
+      throw new Error("Story not found");
+    }
+
+    // Get the session to verify it exists
+    const session = await ctx.db.get(story.sessionId);
+    if (!session) {
+      throw new Error("Session not found");
+    }
+
+    // Check if user is a session member and has admin privileges
+    const sessionMember = await ctx.db
+      .query("sessionMembers")
+      .withIndex("by_session", (q) => q.eq("sessionId", story.sessionId))
+      .filter((q) => q.eq(q.field("userId"), args.userId))
+      .first();
+
+    if (!sessionMember) {
+      throw new Error("User is not a member of this session");
+    }
+
+    if (!sessionMember.isAdmin) {
+      throw new Error("Only session administrators can reset votes");
+    }
+
     // Get all votes for this story
     const votes = await ctx.db
       .query("votes")
