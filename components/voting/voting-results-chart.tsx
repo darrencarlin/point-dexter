@@ -1,8 +1,8 @@
 "use client";
 
 import { Id } from "@/convex/_generated/dataModel";
-import { useGetStoryVotes } from "@/lib/hooks/convex/votes";
-import { useGetSessionMembers } from "@/lib/hooks/convex/session-members";
+import { useGetStoryVotes } from "@/lib/hooks/convex/use-votes";
+import { useGetSessionMembers } from "@/lib/hooks/convex/use-session-members";
 import {
   ChartContainer,
   ChartTooltip,

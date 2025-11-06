@@ -1,5 +1,5 @@
 import { useSession } from "@/lib/auth-client";
-import { useGetSession } from "./sessions";
+import { useGetSession } from "./use-sessions";
 import { Id } from "@/convex/_generated/dataModel";
 import { useMemo } from "react";
 

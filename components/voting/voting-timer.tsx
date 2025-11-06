@@ -1,11 +1,11 @@
 "use client";
 
 import { Id } from "@/convex/_generated/dataModel";
-import { useIsAdmin } from "@/lib/hooks/convex/is-admin";
+import { useIsAdmin } from "@/lib/hooks/convex/use-is-admin";
 import {
   useGetActiveStory,
   useToggleStoryStatus,
-} from "@/lib/hooks/convex/stories";
+} from "@/lib/hooks/convex/use-stories";
 import { useSessionSettings } from "@/lib/hooks/use-session-settings";
 import { useVotingTimer } from "@/lib/hooks/use-voting-timer";
 import { Clock } from "lucide-react";

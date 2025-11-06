@@ -118,11 +118,6 @@ export async function GET(request: Request) {
 
   const data = await res.json();
 
-  console.log("Fetched issues data:", {
-    total: data.total,
-    issueCount: data.issues?.length,
-  });
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const allIssues = (data.issues || []).map((issue: any) => ({
     id: issue.id,

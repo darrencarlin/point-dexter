@@ -13,12 +13,12 @@ import { Switch } from "../ui/switch";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { useUserSettings } from "@/lib/hooks/use-user-with-settings";
-import { useUpdateSessionSettings } from "@/lib/hooks/convex/session-settings";
+import { useUpdateSessionSettings } from "@/lib/hooks/convex/use-session-settings";
 import { usePathname } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
 import { useState, useEffect, useRef } from "react";
 import { useSessionSettings } from "@/lib/hooks/use-session-settings";
-import { useGetSession } from "@/lib/hooks/convex/sessions";
+import { useGetSession } from "@/lib/hooks/convex/use-sessions";
 import { useSession } from "@/lib/auth-client";
 
 export const SettingsButton = () => {
@@ -92,7 +92,7 @@ export const SettingsButton = () => {
     try {
       // Update Neon DB (persistent storage)
       await updateSettings({ timedVoting: checked });
-      
+
       // Also update Convex (real-time sync for all participants) if in a session
       if (sessionId) {
         await updateSessionSettings(sessionId, { timedVoting: checked });
@@ -117,7 +117,7 @@ export const SettingsButton = () => {
       try {
         // Update Neon DB (persistent storage)
         await updateSettings({ votingTimeLimit: numValue });
-        
+
         // Also update Convex (real-time sync for all participants) if in a session
         if (sessionId) {
           await updateSessionSettings(sessionId, {
@@ -193,4 +193,3 @@ export const SettingsButton = () => {
     </DropdownMenu>
   );
 };
-

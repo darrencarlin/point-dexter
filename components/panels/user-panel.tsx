@@ -1,6 +1,6 @@
 import { Id } from "@/convex/_generated/dataModel";
 import { VotingInstructions } from "../voting/voting-instructions";
-import { useGetActiveStory } from "@/lib/hooks/convex/stories";
+import { useGetActiveStory } from "@/lib/hooks/convex/use-stories";
 import { useEndedStory } from "@/lib/hooks/convex/use-ended-story";
 import { Title } from "../title";
 import { VotingResultsChart } from "../voting/voting-results-chart";

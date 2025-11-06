@@ -5,9 +5,9 @@ import {
   useGetSessionMembers,
   useJoinSession,
   getEffectiveUserId,
-} from "@/lib/hooks/convex/session-members";
-import { useGetSession } from "@/lib/hooks/convex/sessions";
-import { useMaintainPresence } from "@/lib/hooks/convex/presence";
+} from "@/lib/hooks/convex/use-session-members";
+import { useGetSession } from "@/lib/hooks/convex/use-sessions";
+import { useMaintainPresence } from "@/lib/hooks/convex/use-presence";
 import { useLocalStorageValue } from "@/lib/hooks/use-local-storage-value";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,7 @@ import { Title } from "@/components/title";
 import { Panels } from "@/components/panels";
 import { Card } from "@/components/card";
 import { Share } from "@/components/share";
-import { useIsAdmin } from "@/lib/hooks/convex/is-admin";
+import { useIsAdmin } from "@/lib/hooks/convex/use-is-admin";
 import { VotingTimer } from "@/components/voting/voting-timer";
 import { SettingsButton } from "@/components/buttons/settings-button";
 import { toast } from "sonner";
@@ -167,32 +167,32 @@ export default function ClientSessionPage({ id }: Props) {
                   <DialogTrigger asChild>
                     <Button variant="destructive">End Session</Button>
                   </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>End Session</DialogTitle>
-                    <DialogDescription>
-                      Are you sure you want to end this session? This will
-                      archive all data to long-term storage.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <DialogFooter>
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsEndSessionDialogOpen(false)}
-                      disabled={isEndingSession}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={handleEndSession}
-                      disabled={isEndingSession}
-                    >
-                      {isEndingSession ? "Ending..." : "End Session"}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>End Session</DialogTitle>
+                      <DialogDescription>
+                        Are you sure you want to end this session? This will
+                        archive all data to long-term storage.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsEndSessionDialogOpen(false)}
+                        disabled={isEndingSession}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={handleEndSession}
+                        disabled={isEndingSession}
+                      >
+                        {isEndingSession ? "Ending..." : "End Session"}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             )}
           </Card>
