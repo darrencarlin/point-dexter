@@ -2,10 +2,8 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import { useSession } from "../../auth-client";
-import {
-  getEffectiveUserId,
-  getCurrentUserName,
-} from "@/lib/utils/user-identity";
+import { getEffectiveUserId } from "./session-members";
+import { getCurrentUserName } from "@/lib/utils/user-identity";
 
 export function useGetStoryVotes(storyId: Id<"stories"> | undefined) {
   return useQuery(
@@ -48,7 +46,13 @@ export function useResetVotes() {
 
   return async (storyId: Id<"stories">) => {
     try {
+      // Get fresh userId each time to ensure we use the latest from localStorage
       const userId = getEffectiveUserId(authSession);
+
+      if (!userId) {
+        throw new Error("User not authenticated");
+      }
+
       const result = await mutation({ storyId, userId });
       return result;
     } catch (error) {

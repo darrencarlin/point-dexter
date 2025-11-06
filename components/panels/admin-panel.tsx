@@ -1,32 +1,40 @@
 import { Id } from "@/convex/_generated/dataModel";
+
+import {
+  useEndedStory,
+  useGetSession,
+  useGetSessionStories,
+  useSessionId,
+} from "@/lib/hooks/use-session-hooks";
+import { jiraSiteUrlAtom } from "@/lib/state";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+} from "@radix-ui/react-dropdown-menu";
+import { Label } from "@radix-ui/react-label";
+import { useAtomValue } from "jotai";
+import { ArrowLeft, ChevronDown } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Card } from "../card";
+import { IssuesDropdown, Story } from "../inputs/issues-dropdown";
+import { Button } from "../ui/button";
+import { DropdownMenuContent, DropdownMenuItem } from "../ui/dropdown-menu";
+import { Input } from "../ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { VotingResultsChart } from "../voting/voting-results-chart";
+import { useGetStoryVotes } from "@/lib/hooks/use-story-hooks";
 import {
   useAddStory,
   useEndVoting,
   useToggleStoryStatus,
 } from "@/lib/hooks/convex/use-stories";
-import { useGetStoryVotes } from "@/lib/hooks/convex/use-votes";
-import { jiraSiteUrlAtom } from "@/lib/state";
-import { useAtomValue } from "jotai";
-import { Label } from "@radix-ui/react-label";
-import { useMemo, useState } from "react";
-import { Card } from "../card";
-import { IssuesDropdown, Story } from "../inputs/issues-dropdown";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { VotingResultsChart } from "../voting/voting-results-chart";
-import {
-  useGetSession,
-  useGetSessionStories,
-  useEndedStory,
-  useSessionId,
-} from "@/lib/hooks/use-session-hooks";
-import { ArrowLeft } from "lucide-react";
+import { useResetVotes } from "@/lib/hooks/convex/use-votes";
 
 // Helper component to handle individual story logic with votes
 const StoryItem = ({
   story,
   hasVotingStory,
+  onResetVotes,
   onStartVoting,
   onStopVoting,
   onCompleteStory,
@@ -39,11 +47,12 @@ const StoryItem = ({
     jiraKey?: string;
   };
   hasVotingStory: boolean;
+  onResetVotes: (id: string) => void;
   onStartVoting: (id: string) => void;
   onStopVoting: (id: string) => void;
   onCompleteStory: (id: string, points: number) => void;
 }) => {
-  const votes = useGetStoryVotes(story._id);
+  const votes = useGetStoryVotes();
   const [points, setPoints] = useState<number | "">("");
   const jiraSiteUrl = useAtomValue(jiraSiteUrlAtom);
 
@@ -129,9 +138,21 @@ const StoryItem = ({
 
             {/* Show Resume Voting if status is "pending" (paused) */}
             {story.status === "pending" && (
-              <Button onClick={() => onStartVoting(story._id)} variant="start">
-                Resume Voting
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="start">
+                    Resume Voting <ChevronDown />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => onStartVoting(story._id)}>
+                    Resume Voting
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onResetVotes(story._id)}>
+                    Reset Voting
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
 
             {/* Show Stop Voting if status is "voting" */}
@@ -189,6 +210,7 @@ export const AdminPanel = () => {
   const session = useGetSession();
   const sessionStories = useGetSessionStories();
   const toggleStoryStatus = useToggleStoryStatus();
+  const resetVotes = useResetVotes();
   const endVoting = useEndVoting();
 
   const handleAddManualStory = () => {
@@ -259,6 +281,11 @@ export const AdminPanel = () => {
   const handleStopVoting = async (storyId: string) => {
     // Stop voting - this will trigger the useMemo in StoryItem to calculate consensus
     await toggleStoryStatus(storyId as Id<"stories">, "pending");
+  };
+
+  // Reset all votes for a story
+  const handleResetVotes = async (storyId: string) => {
+    await resetVotes(storyId as Id<"stories">);
   };
 
   const handleCompleteStory = async (storyId: string, finalPoints: number) => {
@@ -394,6 +421,7 @@ export const AdminPanel = () => {
                         hasVotingStory={
                           isThisStoryActive ? false : (hasActiveStory ?? false)
                         }
+                        onResetVotes={handleResetVotes}
                         onStartVoting={handleStartVoting}
                         onStopVoting={handleStopVoting}
                         onCompleteStory={handleCompleteStory}
