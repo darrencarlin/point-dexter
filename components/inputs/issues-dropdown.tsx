@@ -224,14 +224,16 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
                     className="justify-between w-full"
                   >
                     {selectedIssuesSet.size > 0
-                      ? (() => {
-                          const story = stories.find(
-                            (s) => selectedIssuesSet.has(s.key)
-                          );
-                          return story
-                            ? `${story.key}: ${story.title}`
-                            : "Select issue...";
-                        })()
+                      ? selectedIssuesSet.size === 1
+                        ? (() => {
+                            const story = stories.find(
+                              (s) => selectedIssuesSet.has(s.key)
+                            );
+                            return story
+                              ? `${story.key}: ${story.title}`
+                              : "Select issue...";
+                          })()
+                        : `${selectedIssuesSet.size} stories selected`
                       : "Select issue..."}
                     <ChevronsUpDownIcon className="w-4 h-4 ml-2 opacity-50 shrink-0" />
                   </Button>
