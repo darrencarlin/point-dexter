@@ -1,27 +1,22 @@
 "use client";
 
-import { Id } from "@/convex/_generated/dataModel";
-import { useIsAdmin } from "@/lib/hooks/convex/use-is-admin";
-import {
-  useGetActiveStory,
-  useToggleStoryStatus,
-} from "@/lib/hooks/convex/use-stories";
-import { useSessionSettings } from "@/lib/hooks/use-session-settings";
+import { useToggleStoryStatus } from "@/lib/hooks/convex/use-stories";
 import { useVotingTimer } from "@/lib/hooks/use-voting-timer";
 import { Clock } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "../card";
+import {
+  useGetActiveStory,
+  useIsAdmin,
+  useSessionSettings,
+} from "@/lib/hooks/use-session-hooks";
 
-interface Props {
-  sessionId: Id<"sessions">;
-}
-
-export function VotingTimer({ sessionId }: Props) {
-  const activeStory = useGetActiveStory(sessionId);
+export function VotingTimer() {
+  const activeStory = useGetActiveStory();
   const isVotingActive = activeStory?.status === "voting";
-  const { settings, isLoading } = useSessionSettings(sessionId);
+  const { settings, isLoading } = useSessionSettings();
   const toggleStoryStatus = useToggleStoryStatus();
-  const isAdmin = useIsAdmin(sessionId);
+  const isAdmin = useIsAdmin();
 
   const isTimedVotingEnabled = settings?.timedVoting ?? false;
   const timeLimit = settings?.votingTimeLimit ?? 300;

@@ -24,7 +24,6 @@ import { VotingTimer } from "@/components/voting/voting-timer";
 import { Id } from "@/convex/_generated/dataModel";
 import { useSession } from "@/lib/auth-client";
 import { useIsAdmin } from "@/lib/hooks/convex/use-is-admin";
-import { useMaintainPresence } from "@/lib/hooks/convex/use-presence";
 import {
   getEffectiveUserId,
   useGetSessionMembers,
@@ -32,8 +31,11 @@ import {
 } from "@/lib/hooks/convex/use-session-members";
 import { useGetSession } from "@/lib/hooks/convex/use-sessions";
 import { useLocalStorageValue } from "@/lib/hooks/use-local-storage-value";
+import { sessionIdAtom } from "@/lib/state";
+import { useMaintainPresence } from "@/lib/hooks/use-session-hooks";
+import { useSetAtom } from "jotai";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 interface Props {
@@ -41,12 +43,14 @@ interface Props {
 }
 
 export default function ClientSessionPage({ id }: Props) {
+  const nameInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const { data: authSession, isPending: isAuthPending } = useSession();
   const storedName = useLocalStorageValue("anonymous_user_name", "");
   const [name, setName] = useState(storedName);
   const [hasJoined, setHasJoined] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [isEndSessionDialogOpen, setIsEndSessionDialogOpen] = useState(false);
   const [isEndingSession, setIsEndingSession] = useState(false);
   const joinSession = useJoinSession();
@@ -54,8 +58,20 @@ export default function ClientSessionPage({ id }: Props) {
   const sessionMembers = useGetSessionMembers(id as Id<"sessions">);
   const isAdmin = useIsAdmin(id);
 
-  // Maintain presence heartbeat for this user
-  useMaintainPresence(hasJoined ? (id as Id<"sessions">) : undefined);
+  // Set the session ID atom for use throughout the app
+  const setSessionId = useSetAtom(sessionIdAtom);
+
+  // Set session ID atom when component mounts or id changes
+  useEffect(() => {
+    setSessionId(id as Id<"sessions">);
+
+    return () => {
+      setSessionId("" as Id<"sessions">);
+    };
+  }, [id, setSessionId]);
+
+  // Maintain presence heartbeat for this user (only when joined)
+  useMaintainPresence(hasJoined);
 
   const handleEndSession = async () => {
     if (!session?._id) {
@@ -117,6 +133,22 @@ export default function ClientSessionPage({ id }: Props) {
     }
   }, [storedName]);
 
+  // Focus the name input when the join form is shown (after loading completes)
+  useEffect(() => {
+    if (
+      !hasJoined &&
+      !isAuthPending &&
+      sessionMembers !== undefined &&
+      nameInputRef.current
+    ) {
+      // Small timeout to ensure the input is fully rendered
+      const timer = setTimeout(() => {
+        nameInputRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [hasJoined, isAuthPending, sessionMembers]);
+
   // Save name to local storage when it changes
   if (isAuthPending || sessionMembers === undefined) {
     return <Loading />;
@@ -136,6 +168,13 @@ export default function ClientSessionPage({ id }: Props) {
 
   const handleJoinSession = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+
+    if (!name.trim()) {
+      setError("Please enter your name");
+      return;
+    }
+
     setLoading(true);
     try {
       await joinSession(id as Id<"sessions">, name);
@@ -144,6 +183,7 @@ export default function ClientSessionPage({ id }: Props) {
       router.refresh();
     } catch (error) {
       console.error("Failed to join session:", error);
+      setError("Failed to join session. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -158,7 +198,7 @@ export default function ClientSessionPage({ id }: Props) {
           <Card className="shrink-0 flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold mb-2">{session.name}</h2>
-              <Total id={id as Id<"sessions">} />
+              <Total />
             </div>
 
             {isAdmin && (
@@ -202,22 +242,22 @@ export default function ClientSessionPage({ id }: Props) {
           </Card>
 
           {/* Panels will render sections here */}
-          <Panels id={id} />
+          <Panels />
         </div>
 
         {/* Right Column - Session Members (Fixed) */}
         <div className="hidden lg:block w-80 shrink-0">
           <div className="flex flex-col gap-4 max-h-[500px]">
-            <VotingTimer sessionId={id as Id<"sessions">} />
-            <MemberList id={id} />
+            <VotingTimer />
+            <MemberList />
             <Share />
           </div>
         </div>
 
         {/* Mobile: Show members at bottom */}
         <div className="lg:hidden mt-4">
-          <VotingTimer sessionId={id as Id<"sessions">} />
-          <MemberList id={id} />
+          <VotingTimer />
+          <MemberList />
           <Share />
         </div>
       </main>
@@ -238,6 +278,7 @@ export default function ClientSessionPage({ id }: Props) {
               Your Name
             </Label>
             <Input
+              ref={nameInputRef}
               id="name"
               type="text"
               value={name}
@@ -245,6 +286,7 @@ export default function ClientSessionPage({ id }: Props) {
               placeholder="Enter your name"
               required
             />
+            {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
           </div>
           <Button type="button" disabled={loading} onClick={handleJoinSession}>
             {loading ? "Joining..." : "Join Session"}

@@ -1,25 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { Id } from "@/convex/_generated/dataModel";
-import { useGetActiveStory } from "@/lib/hooks/convex/use-stories";
 import { useGetUserVote, useVote } from "@/lib/hooks/convex/use-votes";
 import { Button } from "@/components/ui/button";
 import { Title } from "@/components/title";
 import { Loading } from "@/components/loading";
 import { Card } from "../card";
 import { cn } from "@/lib/utils";
-
-interface Props {
-  sessionId: Id<"sessions">;
-}
+import { useGetActiveStory } from "@/lib/hooks/use-session-hooks";
 
 /**
  * Voting instructions component that displays the current active story
  * and allows users to vote using numbered buttons
  */
-export function VotingInstructions({ sessionId }: Props) {
-  const activeStory = useGetActiveStory(sessionId);
+export function VotingInstructions() {
+  const activeStory = useGetActiveStory();
   const userVote = useGetUserVote(activeStory?._id);
   const vote = useVote();
   const [isVoting, setIsVoting] = useState(false);

@@ -1,12 +1,7 @@
-import { Id } from "@/convex/_generated/dataModel";
-import { useGetSessionStories } from "@/lib/hooks/convex/use-stories";
+import { useGetSessionStories } from "@/lib/hooks/use-session-hooks";
 
-interface Props {
-  id: string;
-}
-
-export const Total = ({ id }: Props) => {
-  const stories = useGetSessionStories(id as Id<"sessions">);
+export const Total = () => {
+  const stories = useGetSessionStories();
 
   if (!stories) {
     return <p className="text-sm text-muted-foreground">Loading...</p>;

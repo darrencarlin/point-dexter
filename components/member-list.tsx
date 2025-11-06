@@ -1,23 +1,20 @@
-import { Id } from "@/convex/_generated/dataModel";
-import { useGetSessionMembers } from "@/lib/hooks/convex/use-session-members";
 import { useGetStoryVotes } from "@/lib/hooks/convex/use-votes";
-import { useGetActiveStory } from "@/lib/hooks/convex/use-stories";
-import { useEndedStory } from "@/lib/hooks/convex/use-ended-story";
-import { useActiveUsers } from "@/lib/hooks/convex/use-presence";
 import { Card } from "./card";
 import { Title } from "./title";
 import { useMemo } from "react";
 import { Check } from "lucide-react";
+import {
+  useGetSessionMembers,
+  useGetActiveStory,
+  useEndedStory,
+  useActiveUsers,
+} from "@/lib/hooks/use-session-hooks";
 
-interface Props {
-  id: string;
-}
-
-export const MemberList = ({ id }: Props) => {
-  const sessionMembers = useGetSessionMembers(id as Id<"sessions">);
-  const activeStory = useGetActiveStory(id as Id<"sessions">);
-  const endedStory = useEndedStory(id as Id<"sessions">);
-  const activeUsers = useActiveUsers(id as Id<"sessions">);
+export const MemberList = () => {
+  const sessionMembers = useGetSessionMembers();
+  const activeStory = useGetActiveStory();
+  const endedStory = useEndedStory();
+  const activeUsers = useActiveUsers();
 
   // Get votes for the active story (if voting) or ended story (if showing results)
   const storyToCheck =
@@ -35,14 +32,24 @@ export const MemberList = ({ id }: Props) => {
     return map;
   }, [votes]);
 
+  // Sort members to show admin first
+  const sortedMembers = useMemo(() => {
+    if (!sessionMembers) return [];
+    return [...sessionMembers].sort((a, b) => {
+      if (a.isAdmin && !b.isAdmin) return -1;
+      if (!a.isAdmin && b.isAdmin) return 1;
+      return 0;
+    });
+  }, [sessionMembers]);
+
   return (
     <Card>
       <Title
         title="Session Members"
         subtitle={`${sessionMembers?.length || 0} members in this session`}
       />
-      <ul className="space-y-2">
-        {sessionMembers?.map((member) => {
+      <ul className="space-y-2 max-h-[calc(100vh-250px)] overflow-y-auto hide-scrollbar mt-4">
+        {sortedMembers?.map((member) => {
           const memberVote = votesByUserId.get(member.userId);
           const hasVoted = memberVote !== undefined;
           const isActive = activeUsers?.includes(member.userId);
