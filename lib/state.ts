@@ -25,3 +25,6 @@ export const jiraStoriesAtom = atom<Record<string, Story[]>>({});
 // Selected board and issue state
 export const selectedBoardIdAtom = atom<string>("");
 export const selectedIssueKeyAtom = atom<string>("");
+
+// Jira site instance URL
+export const jiraSiteUrlAtom = atom<string>("");
