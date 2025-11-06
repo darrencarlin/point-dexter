@@ -92,7 +92,7 @@ export const SettingsButton = () => {
     try {
       // Update Neon DB (persistent storage)
       await updateSettings({ timedVoting: checked });
-      
+
       // Also update Convex (real-time sync for all participants) if in a session
       if (sessionId) {
         await updateSessionSettings(sessionId, { timedVoting: checked });
@@ -117,7 +117,7 @@ export const SettingsButton = () => {
       try {
         // Update Neon DB (persistent storage)
         await updateSettings({ votingTimeLimit: numValue });
-        
+
         // Also update Convex (real-time sync for all participants) if in a session
         if (sessionId) {
           await updateSessionSettings(sessionId, {
@@ -193,4 +193,3 @@ export const SettingsButton = () => {
     </DropdownMenu>
   );
 };
-

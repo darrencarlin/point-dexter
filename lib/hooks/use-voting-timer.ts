@@ -57,7 +57,7 @@ export function useVotingTimer({
       const elapsed = Math.floor(
         (Date.now() - votingStartTimeRef.current) / 1000
       );
-      
+
       if (timeLimit > elapsed) {
         // Extend the voting by resetting start time
         votingStartTimeRef.current = Date.now();

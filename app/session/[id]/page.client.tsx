@@ -167,32 +167,32 @@ export default function ClientSessionPage({ id }: Props) {
                   <DialogTrigger asChild>
                     <Button variant="destructive">End Session</Button>
                   </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>End Session</DialogTitle>
-                    <DialogDescription>
-                      Are you sure you want to end this session? This will
-                      archive all data to long-term storage.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <DialogFooter>
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsEndSessionDialogOpen(false)}
-                      disabled={isEndingSession}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={handleEndSession}
-                      disabled={isEndingSession}
-                    >
-                      {isEndingSession ? "Ending..." : "End Session"}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>End Session</DialogTitle>
+                      <DialogDescription>
+                        Are you sure you want to end this session? This will
+                        archive all data to long-term storage.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsEndSessionDialogOpen(false)}
+                        disabled={isEndingSession}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={handleEndSession}
+                        disabled={isEndingSession}
+                      >
+                        {isEndingSession ? "Ending..." : "End Session"}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             )}
           </Card>

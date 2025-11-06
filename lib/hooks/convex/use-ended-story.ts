@@ -23,4 +23,3 @@ export function useEndedStory(sessionId: Id<"sessions"> | undefined) {
     );
   }, [sessionStories]);
 }
-

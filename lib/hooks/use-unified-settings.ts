@@ -24,7 +24,7 @@ interface UseUnifiedSettingsReturn {
  * - Outside sessions: Uses user defaults from Neon DB
  * - Inside sessions (non-admin): Uses session settings from Convex (read-only)
  * - Inside sessions (admin): Updates both user defaults and session settings
- * 
+ *
  * This eliminates redundant code and sync complexity in components.
  */
 export function useUnifiedSettings(
@@ -36,15 +36,13 @@ export function useUnifiedSettings(
     isLoading: userSettingsLoading,
     updateSettings: updateUserSettings,
   } = useUserSettings();
-  
-  const {
-    settings: sessionSettings,
-    isLoading: sessionSettingsLoading,
-  } = useSessionSettings(sessionId);
-  
+
+  const { settings: sessionSettings, isLoading: sessionSettingsLoading } =
+    useSessionSettings(sessionId);
+
   const updateSessionSettingsMutation = useUpdateSessionSettings();
   const session = useGetSession(sessionId);
-  
+
   const isAdmin = session?.createdBy === authSession?.user?.id;
   const hasSyncedRef = useRef(false);
 
@@ -73,11 +71,10 @@ export function useUnifiedSettings(
       updateSessionSettingsMutation(sessionId, {
         timedVoting: userSettings.timedVoting,
         votingTimeLimit: userSettings.votingTimeLimit,
-      })
-        .catch((error) => {
-          console.error("Failed to sync initial settings:", error);
-          hasSyncedRef.current = false;
-        });
+      }).catch((error) => {
+        console.error("Failed to sync initial settings:", error);
+        hasSyncedRef.current = false;
+      });
     }
   }, [
     sessionId,
@@ -90,17 +87,18 @@ export function useUnifiedSettings(
   ]);
 
   // Determine which settings to show
-  const effectiveSettings = sessionId && sessionSettings 
-    ? sessionSettings 
-    : userSettings 
-      ? { 
-          timedVoting: userSettings.timedVoting ?? false, 
-          votingTimeLimit: userSettings.votingTimeLimit ?? 300 
-        }
-      : null;
+  const effectiveSettings =
+    sessionId && sessionSettings
+      ? sessionSettings
+      : userSettings
+        ? {
+            timedVoting: userSettings.timedVoting ?? false,
+            votingTimeLimit: userSettings.votingTimeLimit ?? 300,
+          }
+        : null;
 
-  const isLoading = sessionId 
-    ? (userSettingsLoading || sessionSettingsLoading)
+  const isLoading = sessionId
+    ? userSettingsLoading || sessionSettingsLoading
     : userSettingsLoading;
 
   const updateSettings = async (newSettings: Partial<UnifiedSettings>) => {
