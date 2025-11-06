@@ -51,7 +51,7 @@ export function ActiveSessionsList() {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button type="button">
+                    <Button asChild type="button">
                       <Link
                         href={`/session/${session._id}`}
                         target="_blank"
