@@ -24,6 +24,7 @@ export function useVotingTimer({
   const votingStartTimeRef = useRef<number | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const hasTriggeredEndRef = useRef<boolean>(false);
+  const previousTimeLimitRef = useRef<number>(timeLimit);
 
   // When voting status or time limit changes
   useEffect(() => {
@@ -32,23 +33,37 @@ export function useVotingTimer({
       if (votingStartTimeRef.current === null) {
         votingStartTimeRef.current = Date.now();
         hasTriggeredEndRef.current = false;
+        previousTimeLimitRef.current = timeLimit;
       }
     } else {
       // Reset when voting ends
       votingStartTimeRef.current = null;
       hasTriggeredEndRef.current = false;
+      previousTimeLimitRef.current = timeLimit;
     }
-  }, [isVotingActive, isTimedVotingEnabled]);
+  }, [isVotingActive, isTimedVotingEnabled, timeLimit]);
 
-  // Reset timer when time limit changes during active voting
+  // Only reset timer if time limit changes during active voting AND it's a significant change
+  // This prevents unwanted resets from minor adjustments
   useEffect(() => {
     if (
       isVotingActive &&
       isTimedVotingEnabled &&
-      votingStartTimeRef.current !== null
+      votingStartTimeRef.current !== null &&
+      timeLimit !== previousTimeLimitRef.current
     ) {
-      votingStartTimeRef.current = Date.now();
-      hasTriggeredEndRef.current = false;
+      // Only reset if the new time limit would extend the voting time
+      // This prevents cutting off votes unexpectedly
+      const elapsed = Math.floor(
+        (Date.now() - votingStartTimeRef.current) / 1000
+      );
+      
+      if (timeLimit > elapsed) {
+        // Extend the voting by resetting start time
+        votingStartTimeRef.current = Date.now();
+        hasTriggeredEndRef.current = false;
+        previousTimeLimitRef.current = timeLimit;
+      }
     }
   }, [timeLimit, isVotingActive, isTimedVotingEnabled]);
 

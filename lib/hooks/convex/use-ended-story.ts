@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Id } from "@/convex/_generated/dataModel";
-import { useGetSessionStories } from "./stories";
+import { useGetSessionStories } from "./use-stories";
 
 /**
  * Hook to find the most recent story that has ended voting (pending or completed)

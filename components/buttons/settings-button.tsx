@@ -13,12 +13,12 @@ import { Switch } from "../ui/switch";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { useUserSettings } from "@/lib/hooks/use-user-with-settings";
-import { useUpdateSessionSettings } from "@/lib/hooks/convex/session-settings";
+import { useUpdateSessionSettings } from "@/lib/hooks/convex/use-session-settings";
 import { usePathname } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
 import { useState, useEffect, useRef } from "react";
 import { useSessionSettings } from "@/lib/hooks/use-session-settings";
-import { useGetSession } from "@/lib/hooks/convex/sessions";
+import { useGetSession } from "@/lib/hooks/convex/use-sessions";
 import { useSession } from "@/lib/auth-client";
 
 export const SettingsButton = () => {

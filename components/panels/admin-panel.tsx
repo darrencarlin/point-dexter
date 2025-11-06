@@ -1,13 +1,13 @@
 import { Id } from "@/convex/_generated/dataModel";
-import { useGetSession } from "@/lib/hooks/convex/sessions";
+import { useGetSession } from "@/lib/hooks/convex/use-sessions";
 import {
   useAddStory,
   useEndVoting,
   useGetSessionStories,
   useToggleStoryStatus,
-} from "@/lib/hooks/convex/stories";
+} from "@/lib/hooks/convex/use-stories";
 import { useEndedStory } from "@/lib/hooks/convex/use-ended-story";
-import { useGetStoryVotes } from "@/lib/hooks/convex/votes";
+import { useGetStoryVotes } from "@/lib/hooks/convex/use-votes";
 import { Label } from "@radix-ui/react-label";
 import { useMemo, useState } from "react";
 import { Card } from "../card";
@@ -249,8 +249,6 @@ export const AdminPanel = ({ id }: Props) => {
   };
 
   const handleCompleteStory = async (storyId: string, finalPoints: number) => {
-    console.log("Completing story with points:", finalPoints);
-
     // Find the story to get its jiraKey
     // const story = sessionStories?.find((s) => s._id === storyId);
 

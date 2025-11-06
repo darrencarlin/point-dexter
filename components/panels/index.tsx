@@ -1,4 +1,4 @@
-import { useIsAdmin } from "@/lib/hooks/convex/is-admin";
+import { useIsAdmin } from "@/lib/hooks/convex/use-is-admin";
 import { AdminPanel } from "./admin-panel";
 import { UserPanel } from "./user-panel";
 
