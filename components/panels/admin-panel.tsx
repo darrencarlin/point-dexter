@@ -282,7 +282,7 @@ export const AdminPanel = ({ id }: Props) => {
 
   // Reset all votes for a story & start voting again
   const handleResetVotes = async (storyId: string) => {
-    const result = await resetVotes(storyId as Id<"stories">);
+    await resetVotes(storyId as Id<"stories">);
     toggleStoryStatus(storyId as Id<"stories">, "voting");
   };
 
