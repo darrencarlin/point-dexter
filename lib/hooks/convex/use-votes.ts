@@ -44,10 +44,12 @@ export function useVote() {
 
 export function useResetVotes() {
   const mutation = useMutation(api.votesActions.resetVotes);
+  const { data: authSession } = useSession();
 
   return async (storyId: Id<"stories">) => {
     try {
-      const result = await mutation({ storyId });
+      const userId = getEffectiveUserId(authSession);
+      const result = await mutation({ storyId, userId });
       return result;
     } catch (error) {
       console.error("Failed to reset votes:", error);
