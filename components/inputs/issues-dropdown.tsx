@@ -15,7 +15,12 @@ import {
 } from "@/components/ui/popover";
 import { BASE_URL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { CheckIcon, ChevronsUpDownIcon, RefreshCw } from "lucide-react";
+import {
+  CheckIcon,
+  ChevronsUpDownIcon,
+  RefreshCw,
+  Square,
+} from "lucide-react";
 import * as React from "react";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
@@ -25,6 +30,7 @@ import {
   jiraStoriesAtom,
   selectedBoardIdAtom,
   selectedIssueKeyAtom,
+  selectedIssuesSetAtom,
   type Story,
 } from "@/lib/state";
 
@@ -41,13 +47,14 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
   const [boards, setBoards] = useAtom(jiraBoardsAtom);
   const [storiesMap, setStoriesMap] = useAtom(jiraStoriesAtom);
   const [selectedBoardId, setSelectedBoardId] = useAtom(selectedBoardIdAtom);
-  const [selectedKey, setSelectedKey] = useAtom(selectedIssueKeyAtom);
+  // const [selectedKey, setSelectedKey] = useAtom(selectedIssueKeyAtom);
+  const [selectedIssuesSet, setSelectedIssuesSet] = useAtom(selectedIssuesSetAtom);
   const [openBoards, setOpenBoards] = React.useState(false);
   const [openIssues, setOpenIssues] = React.useState(false);
 
   const stories = selectedBoardId ? storiesMap[selectedBoardId] || [] : [];
-  const selectedStory =
-    stories?.find((story) => story.key === selectedKey) || null;
+  const selectedStories =
+    stories?.filter((story) => selectedIssuesSet.has(story.key)) || [];
 
   // Fetch boards function
   const fetchBoards = React.useCallback(async () => {
@@ -79,7 +86,7 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
   const fetchStories = React.useCallback(
     async (boardId: string) => {
       setLoadingStories(true);
-      setSelectedKey("");
+      setSelectedIssuesSet(new Set());
       try {
         const res = await fetch(
           `${BASE_URL}/api/jira/stories?boardId=${boardId}`
@@ -100,7 +107,7 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
         setLoadingStories(false);
       }
     },
-    [setStoriesMap, setSelectedKey]
+    [setStoriesMap, setSelectedIssuesSet]
   );
 
   // Fetch stories when board is selected (only if not already loaded)
@@ -218,10 +225,10 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
                     aria-expanded={openIssues}
                     className="justify-between w-full"
                   >
-                    {selectedKey
+                    {selectedIssuesSet.size > 0
                       ? (() => {
                           const story = stories.find(
-                            (s) => s.key === selectedKey
+                            (s) => selectedIssuesSet.has(s.key)
                           );
                           return story
                             ? `${story.key}: ${story.title}`
@@ -242,18 +249,26 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
                             key={story.id}
                             value={`${story.key} ${story.title}`}
                             onSelect={() => {
-                              setSelectedKey(story.key);
-                              setOpenIssues(false);
+                              if (selectedIssuesSet.has(story.key)) {
+                                setSelectedIssuesSet((prev) => {
+                                  const newSet = new Set(prev);
+                                  newSet.delete(story.key);
+                                  return newSet;
+                                });
+                                return;
+                              }
+
+                              setSelectedIssuesSet((prev) => new Set(prev).add(story.key));
                             }}
                           >
-                            <CheckIcon
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                selectedKey === story.key
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
+                            { selectedIssuesSet.has(story.key)
+                              ? (
+                                <CheckIcon className={cn("mr-2 h-4 w-4")} />
+                              ) : (
+                                <Square className={cn("mr-2 h-4 w-4")} />
+                              )
+                            }
+
                             <div className="flex items-center justify-between w-full">
                               <span className="truncate">
                                 {story.key}: {story.title}
@@ -275,11 +290,18 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
           </div>
           <Button
             type="button"
-            onClick={() => onAddStory?.(selectedStory)}
-            disabled={!selectedKey || loadingStories}
+            onClick={() => {
+              selectedStories.forEach((story) => {
+                onAddStory?.(story)
+              });
+            }}
+            disabled={selectedStories.length === 0 || loadingStories}
             className="self-end"
           >
-            Add Story
+            { selectedStories.length > 1
+              ? `Add ${selectedStories.length} Stories`
+              : "Add Story"
+            }
           </Button>
         </div>
       )}
