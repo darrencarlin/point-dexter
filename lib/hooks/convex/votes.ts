@@ -38,3 +38,17 @@ export function useVote() {
     });
   };
 }
+
+export function useResetVotes() {
+  const mutation = useMutation(api.votesActions.resetVotes);
+
+  return async (storyId: Id<"stories">) => {
+    try {
+      const result = await mutation({ storyId });
+      return result;
+    } catch (error) {
+      console.error("Failed to reset votes:", error);
+      throw error;
+    }
+  };
+}

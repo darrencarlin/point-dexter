@@ -7,9 +7,14 @@ import {
   useToggleStoryStatus,
 } from "@/lib/hooks/convex/stories";
 import { useEndedStory } from "@/lib/hooks/convex/use-ended-story";
-import { useGetStoryVotes } from "@/lib/hooks/convex/votes";
+import { useGetStoryVotes, useResetVotes } from "@/lib/hooks/convex/votes";
 import { jiraSiteUrlAtom } from "@/lib/state";
 import { useAtomValue } from "jotai";
+import { ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger
+} from "@radix-ui/react-dropdown-menu";
 import { Label } from "@radix-ui/react-label";
 import { useMemo, useState } from "react";
 import { Card } from "../card";
@@ -18,6 +23,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { VotingResultsChart } from "../voting/voting-results-chart";
+import { DropdownMenuContent, DropdownMenuItem } from "../ui/dropdown-menu";
 
 interface Props {
   id: string;
@@ -27,6 +33,7 @@ interface Props {
 const StoryItem = ({
   story,
   hasVotingStory,
+  onResetVotes,
   onStartVoting,
   onStopVoting,
   onCompleteStory,
@@ -39,6 +46,7 @@ const StoryItem = ({
     jiraKey?: string;
   };
   hasVotingStory: boolean;
+  onResetVotes: (id: string) => void;
   onStartVoting: (id: string) => void;
   onStopVoting: (id: string) => void;
   onCompleteStory: (id: string, points: number) => void;
@@ -129,9 +137,19 @@ const StoryItem = ({
 
             {/* Show Resume Voting if status is "pending" (paused) */}
             {story.status === "pending" && (
-              <Button onClick={() => onStartVoting(story._id)} variant="start">
-                Resume Voting
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="start">Resume Voting <ChevronDown /></Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => onStartVoting(story._id)}>
+                    Resume Voting
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onResetVotes(story._id)}>
+                    Reset Voting
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
 
             {/* Show Stop Voting if status is "voting" */}
@@ -189,6 +207,7 @@ export const AdminPanel = ({ id }: Props) => {
   const session = useGetSession(id as Id<"sessions">);
   const sessionStories = useGetSessionStories(id as Id<"sessions">);
   const toggleStoryStatus = useToggleStoryStatus();
+  const resetVotes = useResetVotes();
   const endVoting = useEndVoting();
 
   const handleAddManualStory = () => {
@@ -259,6 +278,12 @@ export const AdminPanel = ({ id }: Props) => {
   const handleStopVoting = async (storyId: string) => {
     // Stop voting - this will trigger the useMemo in StoryItem to calculate consensus
     await toggleStoryStatus(storyId as Id<"stories">, "pending");
+  };
+
+  // Reset all votes for a story & start voting again
+  const handleResetVotes = async (storyId: string) => {
+    const result = await resetVotes(storyId as Id<"stories">);
+    toggleStoryStatus(storyId as Id<"stories">, "voting");
   };
 
   const handleCompleteStory = async (storyId: string, finalPoints: number) => {
@@ -395,6 +420,7 @@ export const AdminPanel = ({ id }: Props) => {
                         hasVotingStory={
                           isThisStoryActive ? false : (hasActiveStory ?? false)
                         }
+                        onResetVotes={handleResetVotes}
                         onStartVoting={handleStartVoting}
                         onStopVoting={handleStopVoting}
                         onCompleteStory={handleCompleteStory}

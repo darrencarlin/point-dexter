@@ -59,3 +59,20 @@ export const vote = mutation({
     return voteId;
   },
 });
+
+export const resetVotes = mutation({
+  args: { storyId: v.id("stories") },
+  handler: async (ctx, args) => {
+    // Get all votes for this story
+    const votes = await ctx.db
+      .query("votes")
+      .withIndex("by_story", (q) => q.eq("storyId", args.storyId))
+      .collect();
+
+    // Delete all votes for this story
+    const deletePromises = votes.map((vote) => ctx.db.delete(vote._id));
+    await Promise.all(deletePromises);
+
+    return { deletedCount: votes.length };
+  },
+});
