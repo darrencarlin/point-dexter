@@ -15,6 +15,7 @@ export function getTimerColorClass(
   timeLimit: number
 ): string {
   if (timeRemaining === null) return "text-primary";
+  if (timeLimit <= 0) return "text-destructive";
 
   const percentage = (timeRemaining / timeLimit) * 100;
 
