@@ -77,6 +77,8 @@ export function VotingResultsChart({ storyId, sessionId }: Props) {
   // Unanimous detection
   const unanimousValue = useMemo(() => {
     if (!votes || votes.length === 0 || participantCount === 0) return null;
+    // Ensure we're looking at votes for the correct story
+    if (!storyId) return null;
 
     // Filter out admin votes - only count participant votes
     const participantVotes = votes.filter((vote) => {
@@ -92,11 +94,13 @@ export function VotingResultsChart({ storyId, sessionId }: Props) {
     if (participantVotes.length === 0) return null;
 
     return voteValues.every((v) => v === voteValues[0]) ? voteValues[0] : null;
-  }, [votes, participantCount, members]);
+  }, [votes, participantCount, members, storyId]);
 
   // Confetti when unanimous
   useEffect(() => {
-    if (!unanimousValue) return;
+    // Only trigger confetti if we have actual votes and unanimous value
+    if (!unanimousValue || !votes || votes.length === 0) return;
+
     let cancelled = false;
     (async () => {
       try {
@@ -142,7 +146,7 @@ export function VotingResultsChart({ storyId, sessionId }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [unanimousValue]);
+  }, [unanimousValue, storyId, votes]);
 
   if (votes === undefined) {
     return <Loading />;

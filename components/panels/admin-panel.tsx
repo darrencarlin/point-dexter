@@ -291,6 +291,11 @@ export const AdminPanel = ({ id }: Props) => {
     (story) => story.status === "voting" || story.status === "pending"
   );
 
+  // Check if there's a story actively being voted on
+  const hasVotingStory = sessionStories?.some(
+    (story) => story.status === "voting"
+  );
+
   const endedStoryForChart = useEndedStory(id as Id<"sessions">);
 
   return (
@@ -421,8 +426,8 @@ export const AdminPanel = ({ id }: Props) => {
         </Tabs>
       </Card>
 
-      {/* Show voting results chart if there's a story with votes */}
-      {endedStoryForChart && (
+      {/* Show voting results chart only when there's an ended story and NO active voting */}
+      {endedStoryForChart && !hasVotingStory && (
         <VotingResultsChart
           storyId={endedStoryForChart._id}
           sessionId={id as Id<"sessions">}

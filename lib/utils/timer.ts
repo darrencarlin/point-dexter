@@ -1,0 +1,28 @@
+/**
+ * Format time in seconds as MM:SS
+ */
+export function formatTime(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+}
+
+/**
+ * Get Tailwind color class based on time remaining
+ */
+export function getTimerColorClass(
+  timeRemaining: number | null,
+  timeLimit: number
+): string {
+  if (timeRemaining === null) return "text-primary";
+  if (timeLimit <= 0) return "text-destructive";
+
+  const percentage = (timeRemaining / timeLimit) * 100;
+
+  if (percentage === 0) return "text-destructive";
+  if (percentage <= 10) return "text-red-600 animate-pulse";
+  if (percentage <= 30) return "text-orange-500 animate-pulse";
+  if (percentage <= 50) return "text-yellow-500 animate-pulse";
+
+  return "text-green-500";
+}
