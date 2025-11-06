@@ -2,6 +2,7 @@ import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useSession } from "../../auth-client";
 import { Id } from "../../../convex/_generated/dataModel";
+import { ScoringType } from "../../types";
 
 export function useUpdateSessionSettings() {
   const mutation = useMutation(api.sessionSettings.updateSessionSettings);
@@ -12,6 +13,7 @@ export function useUpdateSessionSettings() {
     settings: {
       timedVoting?: boolean;
       votingTimeLimit?: number;
+      scoringType?: ScoringType;
     }
   ) => {
     if (!session?.user?.id) {
@@ -23,6 +25,7 @@ export function useUpdateSessionSettings() {
       userId: session.user.id,
       timedVoting: settings.timedVoting,
       votingTimeLimit: settings.votingTimeLimit,
+      scoringType: settings.scoringType,
     });
   };
 }

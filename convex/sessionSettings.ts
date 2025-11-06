@@ -1,5 +1,9 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import {
+  DEFAULT_SCORING_TYPE,
+  normalizeScoringType,
+} from "../lib/constants/scoring";
 
 /**
  * Get session settings (admin's timer settings for the session)
@@ -17,12 +21,14 @@ export const getSessionSettings = query({
       return {
         timedVoting: false,
         votingTimeLimit: 300,
+        scoringType: DEFAULT_SCORING_TYPE,
       };
     }
 
     return {
       timedVoting: settings.timedVoting,
       votingTimeLimit: settings.votingTimeLimit,
+      scoringType: normalizeScoringType(settings.scoringType),
     };
   },
 });
@@ -36,6 +42,7 @@ export const updateSessionSettings = mutation({
     userId: v.string(),
     timedVoting: v.optional(v.boolean()),
     votingTimeLimit: v.optional(v.number()),
+    scoringType: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     // Verify user is admin of the session
@@ -57,19 +64,25 @@ export const updateSessionSettings = mutation({
     const updatedAt = Date.now();
 
     if (existing) {
+      const nextScoringType = normalizeScoringType(
+        args.scoringType ?? existing.scoringType
+      );
       // Update existing settings
       await ctx.db.patch(existing._id, {
         timedVoting: args.timedVoting ?? existing.timedVoting,
         votingTimeLimit: args.votingTimeLimit ?? existing.votingTimeLimit,
+        scoringType: nextScoringType,
         updatedAt,
       });
       return existing._id;
     } else {
+      const initialScoringType = normalizeScoringType(args.scoringType);
       // Create new settings
       const id = await ctx.db.insert("sessionSettings", {
         sessionId: args.sessionId,
         timedVoting: args.timedVoting ?? false,
         votingTimeLimit: args.votingTimeLimit ?? 300,
+        scoringType: initialScoringType,
         updatedAt,
       });
       return id;

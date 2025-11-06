@@ -5,10 +5,13 @@ import { useUserSettings } from "./use-user-with-settings";
 import { useSessionSettings } from "./use-session-settings";
 import { useUpdateSessionSettings } from "./convex/use-session-settings";
 import { useGetSession } from "./convex/use-sessions";
+import { DEFAULT_SCORING_TYPE } from "../constants/scoring";
+import { ScoringType } from "../types";
 
 interface UnifiedSettings {
   timedVoting: boolean;
   votingTimeLimit: number;
+  scoringType: ScoringType;
 }
 
 interface UseUnifiedSettingsReturn {
@@ -64,7 +67,10 @@ export function useUnifiedSettings(
     const needsSync =
       sessionSettings.timedVoting === false &&
       sessionSettings.votingTimeLimit === 300 &&
-      (userSettings.timedVoting || userSettings.votingTimeLimit !== 300);
+      sessionSettings.scoringType === DEFAULT_SCORING_TYPE &&
+      (userSettings.timedVoting ||
+        userSettings.votingTimeLimit !== 300 ||
+        userSettings.scoringType !== DEFAULT_SCORING_TYPE);
 
     if (needsSync) {
       hasSyncedRef.current = true;
@@ -94,6 +100,7 @@ export function useUnifiedSettings(
         ? {
             timedVoting: userSettings.timedVoting ?? false,
             votingTimeLimit: userSettings.votingTimeLimit ?? 300,
+            scoringType: userSettings.scoringType ?? DEFAULT_SCORING_TYPE,
           }
         : null;
 
