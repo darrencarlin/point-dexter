@@ -20,6 +20,18 @@ import { useState, useEffect, useRef } from "react";
 import { useSessionSettings } from "@/lib/hooks/use-session-settings";
 import { useGetSession } from "@/lib/hooks/convex/use-sessions";
 import { useSession } from "@/lib/auth-client";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import {
+  DEFAULT_SCORING_TYPE,
+  SCORING_SELECT_OPTIONS,
+} from "@/lib/constants/scoring";
+import { ScoringType } from "@/lib/types";
 
 export const SettingsButton = () => {
   const { settings, isLoading, updateSettings } = useUserSettings();
@@ -27,6 +39,8 @@ export const SettingsButton = () => {
   const pathname = usePathname();
   const [isUpdating, setIsUpdating] = useState(false);
   const [timeLimit, setTimeLimit] = useState<string>("300");
+  const [scoringType, setScoringType] =
+    useState<ScoringType>(DEFAULT_SCORING_TYPE);
   const hasSyncedRef = useRef(false);
   const { data: authSession } = useSession();
 
@@ -57,13 +71,17 @@ export const SettingsButton = () => {
     const needsSync =
       sessionSettings.settings?.timedVoting === false &&
       sessionSettings.settings?.votingTimeLimit === 300 &&
-      (settings.timedVoting || settings.votingTimeLimit !== 300);
+      sessionSettings.settings?.scoringType === DEFAULT_SCORING_TYPE &&
+      (settings.timedVoting ||
+        settings.votingTimeLimit !== 300 ||
+        settings.scoringType !== DEFAULT_SCORING_TYPE);
 
     if (needsSync) {
       hasSyncedRef.current = true;
       updateSessionSettings(sessionId, {
         timedVoting: settings.timedVoting,
         votingTimeLimit: settings.votingTimeLimit,
+        scoringType: settings.scoringType,
       }).catch((error) => {
         console.error("Failed to sync initial settings:", error);
         hasSyncedRef.current = false;
@@ -84,6 +102,12 @@ export const SettingsButton = () => {
       setTimeLimit(settings.votingTimeLimit.toString());
     }
   }, [settings?.votingTimeLimit]);
+
+  useEffect(() => {
+    if (settings?.scoringType) {
+      setScoringType(settings.scoringType);
+    }
+  }, [settings?.scoringType]);
 
   const handleTimedVotingToggle = async (checked: boolean) => {
     if (isUpdating || isLoading) return;
@@ -137,6 +161,25 @@ export const SettingsButton = () => {
     }
   };
 
+  const handleScoringTypeChange = async (value: ScoringType) => {
+    if (isUpdating || isLoading) return;
+
+    setScoringType(value);
+
+    setIsUpdating(true);
+    try {
+      await updateSettings({ scoringType: value });
+      if (sessionId) {
+        await updateSessionSettings(sessionId, { scoringType: value });
+      }
+    } catch (error) {
+      console.error("Error updating scoring type:", error);
+      setScoringType(settings?.scoringType ?? DEFAULT_SCORING_TYPE);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -149,6 +192,40 @@ export const SettingsButton = () => {
         <DropdownMenuLabel>Settings</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <div className="px-2 py-1.5 space-y-3">
+          <div className="space-y-1.5">
+            <Label
+              htmlFor="scoring-type"
+              className="text-sm font-normal cursor-pointer flex-1"
+            >
+              Scoring System
+            </Label>
+            <Select
+              value={scoringType}
+              onValueChange={(value) =>
+                handleScoringTypeChange(value as ScoringType)
+              }
+              disabled={isLoading || isUpdating}
+            >
+              <SelectTrigger
+                id="scoring-type"
+                className="h-8"
+                aria-label="Select scoring system"
+              >
+                <SelectValue
+                  placeholder="Select scoring system"
+                  className="text-sm"
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {SCORING_SELECT_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="flex items-center justify-between space-x-2">
             <Label
               htmlFor="timed-voting"

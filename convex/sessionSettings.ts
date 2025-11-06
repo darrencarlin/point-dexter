@@ -1,6 +1,8 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+const DEFAULT_SCORING_TYPE = "planning_poker";
+
 /**
  * Get session settings (admin's timer settings for the session)
  */
@@ -17,12 +19,14 @@ export const getSessionSettings = query({
       return {
         timedVoting: false,
         votingTimeLimit: 300,
+        scoringType: DEFAULT_SCORING_TYPE,
       };
     }
 
     return {
       timedVoting: settings.timedVoting,
       votingTimeLimit: settings.votingTimeLimit,
+      scoringType: settings.scoringType ?? DEFAULT_SCORING_TYPE,
     };
   },
 });
@@ -36,6 +40,7 @@ export const updateSessionSettings = mutation({
     userId: v.string(),
     timedVoting: v.optional(v.boolean()),
     votingTimeLimit: v.optional(v.number()),
+    scoringType: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     // Verify user is admin of the session
@@ -61,6 +66,7 @@ export const updateSessionSettings = mutation({
       await ctx.db.patch(existing._id, {
         timedVoting: args.timedVoting ?? existing.timedVoting,
         votingTimeLimit: args.votingTimeLimit ?? existing.votingTimeLimit,
+        scoringType: args.scoringType ?? existing.scoringType ?? DEFAULT_SCORING_TYPE,
         updatedAt,
       });
       return existing._id;
@@ -70,6 +76,7 @@ export const updateSessionSettings = mutation({
         sessionId: args.sessionId,
         timedVoting: args.timedVoting ?? false,
         votingTimeLimit: args.votingTimeLimit ?? 300,
+        scoringType: args.scoringType ?? DEFAULT_SCORING_TYPE,
         updatedAt,
       });
       return id;

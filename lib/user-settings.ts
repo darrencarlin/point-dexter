@@ -13,6 +13,7 @@ export async function getUserSettings(userId: string) {
   return {
     timedVoting: settings[0]?.timedVoting ?? false,
     votingTimeLimit: settings[0]?.votingTimeLimit ?? 300,
+    scoringType: settings[0]?.scoringType ?? "planning_poker",
   };
 }
 
@@ -45,6 +46,7 @@ export async function updateUserSettings(
         userId,
         timedVoting: settings?.timedVoting ?? false,
         votingTimeLimit: settings?.votingTimeLimit ?? 300,
+        scoringType: settings?.scoringType ?? "planning_poker",
       })
       .returning();
 

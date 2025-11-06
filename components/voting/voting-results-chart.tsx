@@ -14,6 +14,12 @@ import { useEffect, useMemo } from "react";
 import { Title } from "../title";
 import { useEndedStory } from "@/lib/hooks/convex/use-ended-story";
 import { Card } from "../card";
+import { useSessionSettings } from "@/lib/hooks/use-session-settings";
+import {
+  DEFAULT_SCORING_TYPE,
+  getScoringLabel,
+  getScoringOptions,
+} from "@/lib/constants/scoring";
 
 interface Props {
   storyId: Id<"stories"> | undefined;
@@ -29,44 +35,67 @@ export function VotingResultsChart({ storyId, sessionId }: Props) {
   const votes = useGetStoryVotes(storyId);
   const members = useGetSessionMembers(sessionId);
   const endedStory = useEndedStory(sessionId);
-  // Transform votes into chart data format
-  const chartData = useMemo(() => {
+  const { settings: sessionSettings } = useSessionSettings(sessionId);
+
+  const scoringType =
+    sessionSettings?.scoringType ?? DEFAULT_SCORING_TYPE;
+  const scoringLabel = getScoringLabel(scoringType);
+  const votingOptions = useMemo(() => {
+    return getScoringOptions(scoringType).map((option) => String(option));
+  }, [scoringType]);
+
+  const { chartData, chartConfig } = useMemo(() => {
     if (!votes || votes.length === 0) {
-      return [];
+      return {
+        chartData: [] as { name: string; value: number }[],
+        chartConfig: {} as Record<string, { label: string; color: string }>,
+      };
     }
 
-    // Count votes by point value
     const voteCounts: Record<string, number> = {};
     votes.forEach((vote) => {
       const key = String(vote.points);
       voteCounts[key] = (voteCounts[key] || 0) + 1;
     });
 
-    // Standard voting options (Fibonacci sequence + question mark)
-    const votingOptions: (number | string)[] = [1, 2, 3, 5, 8, 13, 21, "?"];
+    const optionKeys = votingOptions;
+    const uniqueKeys = Array.from(
+      new Set([...optionKeys, ...Object.keys(voteCounts)])
+    );
 
-    // Create chart data points - only include options with votes
-    const data = votingOptions
-      .filter((option) => voteCounts[String(option)] > 0)
-      .map((option) => ({
-        name: String(option),
-        value: voteCounts[String(option)],
+    const data = uniqueKeys
+      .filter((key) => (voteCounts[key] ?? 0) > 0)
+      .map((key) => ({
+        name: key,
+        value: voteCounts[key] ?? 0,
       }));
 
-    return data;
-  }, [votes]);
+    const colorPalette = [
+      "#6366F1",
+      "#22C55E",
+      "#EAB308",
+      "#F97316",
+      "#EF4444",
+      "#06B6D4",
+      "#A855F7",
+      "#EC4899",
+      "#14B8A6",
+      "#F59E0B",
+    ];
 
-  // Explicit, high-contrast palette per option (previous working version)
-  const chartConfig: Record<string, { label: string; color: string }> = {
-    "1": { label: "1", color: "#6366F1" }, // indigo-500
-    "2": { label: "2", color: "#22C55E" }, // green-500
-    "3": { label: "3", color: "#EAB308" }, // yellow-500
-    "5": { label: "5", color: "#F97316" }, // orange-500
-    "8": { label: "8", color: "#EF4444" }, // red-500
-    "13": { label: "13", color: "#06B6D4" }, // cyan-500
-    "21": { label: "21", color: "#A855F7" }, // purple-500
-    "?": { label: "?", color: "#94A3B8" }, // slate-400
-  };
+    const config = uniqueKeys.reduce(
+      (acc, key, index) => {
+        acc[key] = {
+          label: key,
+          color: colorPalette[index % colorPalette.length],
+        };
+        return acc;
+      },
+      {} as Record<string, { label: string; color: string }>
+    );
+
+    return { chartData: data, chartConfig: config };
+  }, [votes, votingOptions]);
 
   // Determine participant (non-admin) count
   const participantCount = useMemo(() => {
@@ -156,6 +185,9 @@ export function VotingResultsChart({ storyId, sessionId }: Props) {
     return (
       <Card>
         <Title title="No votes recorded yet" />
+        <p className="text-sm text-muted-foreground mt-2">
+          Deck: {scoringLabel}
+        </p>
       </Card>
     );
   }
@@ -163,6 +195,9 @@ export function VotingResultsChart({ storyId, sessionId }: Props) {
   return (
     <Card>
       <Title title={endedStory?.title} />
+      <p className="text-sm text-muted-foreground">
+        Deck: {scoringLabel}
+      </p>
       {endedStory?.description && (
         <p className="text-sm text-muted-foreground">
           {endedStory?.description}
@@ -202,16 +237,12 @@ export function VotingResultsChart({ storyId, sessionId }: Props) {
             {unanimousValue ? (
               <div>
                 <span className="text-muted-foreground">
-                  {unanimousValue === "2" ? (
-                    "Everyone voted for 2"
-                  ) : (
-                    <>
-                      Everyone voted for{" "}
-                      <span className="font-semibold text-foreground">
-                        {unanimousValue}
-                      </span>
-                    </>
-                  )}
+                  <>
+                    Everyone voted for{" "}
+                    <span className="font-semibold text-foreground">
+                      {unanimousValue}
+                    </span>
+                  </>
                 </span>
               </div>
             ) : (
