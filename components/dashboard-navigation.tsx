@@ -2,7 +2,7 @@
 
 import { useSession } from "@/lib/auth-client";
 import { useLocalStorageValue } from "@/lib/hooks/use-local-storage-value";
-import { useCreateSession } from "@/lib/hooks/convex/sessions";
+import { useCreateSession } from "@/lib/hooks/convex/use-sessions";
 import { Pointer } from "lucide-react";
 import Link from "next/link";
 import { SignOutButton } from "./buttons/sign-out-button";
@@ -47,8 +47,7 @@ export const DashboardNavigation = () => {
     setLoading(true);
 
     try {
-      const newSession = await createSession(sessionName);
-      console.log("Session created:", newSession);
+      await createSession(sessionName);
       setSessionName("");
       setOpen(false);
     } catch (error) {
@@ -80,10 +79,8 @@ export const DashboardNavigation = () => {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>
-                <h2 className="mb-2 text-2xl font-bold">
-                  Create a new session
-                </h2>
+              <DialogTitle className="mb-2 text-2xl font-bold">
+                Create a new session
               </DialogTitle>
             </DialogHeader>
             <form

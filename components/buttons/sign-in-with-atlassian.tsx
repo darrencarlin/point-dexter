@@ -10,11 +10,9 @@ export const SignInWithAtlassianButton = () => {
     setError("");
 
     try {
-      const data = await authClient.signIn.social({
+      await authClient.signIn.social({
         provider: "atlassian",
       });
-
-      console.log("Atlassian sign-in data:", data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign in failed");
     }

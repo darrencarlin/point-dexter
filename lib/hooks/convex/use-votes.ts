@@ -2,7 +2,10 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import { useSession } from "../../auth-client";
-import { getEffectiveUserId, getCurrentUserName } from "./session-members";
+import {
+  getEffectiveUserId,
+  getCurrentUserName,
+} from "@/lib/utils/user-identity";
 
 export function useGetStoryVotes(storyId: Id<"stories"> | undefined) {
   return useQuery(

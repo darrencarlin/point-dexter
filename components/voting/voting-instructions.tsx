@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
-import { useGetActiveStory } from "@/lib/hooks/convex/stories";
-import { useGetUserVote, useVote } from "@/lib/hooks/convex/votes";
+import { useGetActiveStory } from "@/lib/hooks/convex/use-stories";
+import { useGetUserVote, useVote } from "@/lib/hooks/convex/use-votes";
 import { Button } from "@/components/ui/button";
 import { Title } from "@/components/title";
 import { Loading } from "@/components/loading";
 import { Card } from "../card";
-import { VotingTimer } from "./voting-timer";
 import { cn } from "@/lib/utils";
 
 interface Props {

@@ -5,7 +5,7 @@ import { Title } from "@/components/title";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSession } from "@/lib/auth-client";
-import { useGetSessions } from "@/lib/hooks/convex/sessions";
+import { useGetSessions } from "@/lib/hooks/convex/use-sessions";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 

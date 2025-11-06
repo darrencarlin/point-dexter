@@ -1,12 +1,12 @@
 import { Id } from "@/convex/_generated/dataModel";
-import { useGetSessionMembers } from "@/lib/hooks/convex/session-members";
-import { useGetStoryVotes } from "@/lib/hooks/convex/votes";
-import { useGetActiveStory } from "@/lib/hooks/convex/stories";
+import { useGetSessionMembers } from "@/lib/hooks/convex/use-session-members";
+import { useGetStoryVotes } from "@/lib/hooks/convex/use-votes";
+import { useGetActiveStory } from "@/lib/hooks/convex/use-stories";
 import { useEndedStory } from "@/lib/hooks/convex/use-ended-story";
-import { useActiveUsers } from "@/lib/hooks/convex/presence";
+import { useActiveUsers } from "@/lib/hooks/convex/use-presence";
+import { Card } from "./card";
 import { Title } from "./title";
 import { useMemo } from "react";
-import { Card } from "./card";
 import { Check } from "lucide-react";
 
 interface Props {
