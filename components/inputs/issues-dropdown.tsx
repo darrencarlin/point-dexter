@@ -29,7 +29,6 @@ import {
   jiraBoardsAtom,
   jiraStoriesAtom,
   selectedBoardIdAtom,
-  selectedIssueKeyAtom,
   selectedIssuesSetAtom,
   type Story,
 } from "@/lib/state";
@@ -47,7 +46,6 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
   const [boards, setBoards] = useAtom(jiraBoardsAtom);
   const [storiesMap, setStoriesMap] = useAtom(jiraStoriesAtom);
   const [selectedBoardId, setSelectedBoardId] = useAtom(selectedBoardIdAtom);
-  // const [selectedKey, setSelectedKey] = useAtom(selectedIssueKeyAtom);
   const [selectedIssuesSet, setSelectedIssuesSet] = useAtom(selectedIssuesSetAtom);
   const [openBoards, setOpenBoards] = React.useState(false);
   const [openIssues, setOpenIssues] = React.useState(false);
