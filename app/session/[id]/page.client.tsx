@@ -1,18 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import {
-  useGetSessionMembers,
-  useJoinSession,
-  getEffectiveUserId,
-} from "@/lib/hooks/convex/use-session-members";
-import { useGetSession } from "@/lib/hooks/convex/use-sessions";
-import { useMaintainPresence } from "@/lib/hooks/convex/use-presence";
-import { useLocalStorageValue } from "@/lib/hooks/use-local-storage-value";
-import { useSession } from "@/lib/auth-client";
+import { SettingsButton } from "@/components/buttons/settings-button";
+import { Card } from "@/components/card";
+import { Loading } from "@/components/loading";
+import { MemberList } from "@/components/member-list";
+import { Panels } from "@/components/panels";
+import { Share } from "@/components/share";
+import { Title } from "@/components/title";
+import { Total } from "@/components/total";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -22,20 +18,23 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Id } from "@/convex/_generated/dataModel";
-import { Loading } from "@/components/loading";
-import { useRouter } from "next/navigation";
-import { MemberList } from "@/components/member-list";
-import { Title } from "@/components/title";
-import { Panels } from "@/components/panels";
-import { Card } from "@/components/card";
-import { Share } from "@/components/share";
-import { useIsAdmin } from "@/lib/hooks/convex/use-is-admin";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { VotingTimer } from "@/components/voting/voting-timer";
-import { SettingsButton } from "@/components/buttons/settings-button";
+import { Id } from "@/convex/_generated/dataModel";
+import { useSession } from "@/lib/auth-client";
+import { useIsAdmin } from "@/lib/hooks/convex/use-is-admin";
+import { useMaintainPresence } from "@/lib/hooks/convex/use-presence";
+import {
+  getEffectiveUserId,
+  useGetSessionMembers,
+  useJoinSession,
+} from "@/lib/hooks/convex/use-session-members";
+import { useGetSession } from "@/lib/hooks/convex/use-sessions";
+import { useLocalStorageValue } from "@/lib/hooks/use-local-storage-value";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useGetSessionStories } from "@/lib/hooks/convex/use-stories";
-import { Total } from "@/components/total";
 
 interface Props {
   id: string;
