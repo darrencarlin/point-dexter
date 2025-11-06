@@ -62,6 +62,10 @@ export default function ClientSessionPage({ id }: Props) {
   // Set session ID atom when component mounts or id changes
   useEffect(() => {
     setSessionId(id as Id<"sessions">);
+
+    return () => {
+      setSessionId("" as Id<"sessions">);
+    };
   }, [id, setSessionId]);
 
   // Maintain presence heartbeat for this user (only when joined)
