@@ -1,21 +1,25 @@
-"use client";
+import HomePageClient from "./page.client";
 
-import { Navigation } from "@/components/navigation";
-import { useSession } from "@/lib/auth-client";
+async function getStats() {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const response = await fetch(`${baseUrl}/api/stats`, {
+      next: { revalidate: 3600 }, // Revalidate every hour
+    });
 
-export default function Home() {
-  const { data: session } = useSession();
+    if (!response.ok) {
+      return null;
+    }
 
-  return (
-    <>
-      <Navigation />
-      <main className="flex flex-col items-center justify-between p-24">
-        {session ? (
-          <p className="mb-4">Signed in as {session.user?.email}</p>
-        ) : (
-          <p>Not signed in</p>
-        )}
-      </main>
-    </>
-  );
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching stats:", error);
+    return null;
+  }
+}
+
+export default async function Home() {
+  const stats = await getStats();
+
+  return <HomePageClient stats={stats} />;
 }

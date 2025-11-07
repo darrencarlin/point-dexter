@@ -20,6 +20,14 @@ export const getSessions = query({
   },
 });
 
+export const getActiveSessionCount = query({
+  args: {},
+  handler: async (ctx) => {
+    const sessions = await ctx.db.query("sessions").collect();
+    return sessions.length;
+  },
+});
+
 export const getCompleteSession = query({
   args: { sessionId: v.id("sessions") },
   handler: async (ctx, args) => {

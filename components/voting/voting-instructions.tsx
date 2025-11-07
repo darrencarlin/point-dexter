@@ -88,7 +88,7 @@ export function VotingInstructions() {
             const isStringOption = typeof option === "string";
 
             const cardClassName = cn(
-              "shadow rounded-lg min-w-[7rem] min-h-[4.5rem] px-4 py-5 flex items-center justify-center text-center break-words transition-colors hover:-translate-y-1 hover:shadow-lg duration-150 transition-transform",
+              "shadow rounded-lg min-w-[7rem] min-h-[9rem] px-4 py-5 flex items-center justify-center text-center break-words transition-colors hover:-translate-y-1 hover:shadow-lg duration-150 transition-transform",
               {
                 "text-3xl font-bold": !isStringOption,
                 "text-lg font-semibold": isStringOption,

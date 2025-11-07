@@ -72,7 +72,10 @@ export function normalizeScoringType(
 }
 
 export function getScoringLabel(scoringType: ScoringType): string {
-  return SCORING_CONFIGS[scoringType]?.label ?? SCORING_CONFIGS[DEFAULT_SCORING_TYPE].label;
+  return (
+    SCORING_CONFIGS[scoringType]?.label ??
+    SCORING_CONFIGS[DEFAULT_SCORING_TYPE].label
+  );
 }
 
 export function getScoringOptions(scoringType: ScoringType): ScoringOption[] {
@@ -81,4 +84,3 @@ export function getScoringOptions(scoringType: ScoringType): ScoringOption[] {
     SCORING_CONFIGS[DEFAULT_SCORING_TYPE].options
   );
 }
-
