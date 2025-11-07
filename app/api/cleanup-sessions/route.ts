@@ -14,14 +14,14 @@ export const GET = async (req: Request) => {
     // Verify request is authorized with CRON_SECRET
     const authHeader = req.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET;
-    
+
     if (!cronSecret) {
       return new Response(
-        JSON.stringify({ error: "CRON_SECRET not configured" }), 
+        JSON.stringify({ error: "CRON_SECRET not configured" }),
         { status: 500 }
       );
     }
-    
+
     if (authHeader !== `Bearer ${cronSecret}`) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
