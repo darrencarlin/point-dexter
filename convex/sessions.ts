@@ -160,3 +160,19 @@ export const deleteSession = mutation({
     return { success: true };
   },
 });
+
+export const getStaleSessions = query({
+  args: {},
+  handler: async (ctx) => {
+    const threeDaysAgo = Date.now() - 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
+    
+    const allSessions = await ctx.db.query("sessions").collect();
+    
+    // Filter sessions older than 3 days
+    const staleSessions = allSessions.filter(
+      (session) => session.createdAt < threeDaysAgo
+    );
+    
+    return staleSessions;
+  },
+});
