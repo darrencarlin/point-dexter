@@ -1,9 +1,9 @@
+import { BASE_URL } from "@/lib/constants";
 import HomePageClient from "./page.client";
 
 async function getStats() {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-    const response = await fetch(`${baseUrl}/api/stats`, {
+    const response = await fetch(`${BASE_URL}/api/stats`, {
       next: { revalidate: 3600 }, // Revalidate every hour
     });
 
