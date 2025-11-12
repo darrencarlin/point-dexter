@@ -130,3 +130,43 @@ export const endVoting = mutation({
     });
   },
 });
+
+export const deleteStory = mutation({
+  args: {
+    storyId: v.id("stories"),
+    userId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Get the story to find the session
+    const story = await ctx.db.get(args.storyId);
+    if (!story) {
+      throw new Error("Story not found");
+    }
+
+    // Get the session to verify ownership
+    const session = await ctx.db.get(story.sessionId);
+    if (!session) {
+      throw new Error("Session not found");
+    }
+
+    // Only session creator can delete stories
+    if (session.createdBy !== args.userId) {
+      throw new Error("Only session owner can delete stories");
+    }
+
+    // Get all votes for this story
+    const votes = await ctx.db
+      .query("votes")
+      .withIndex("by_story", (q) => q.eq("storyId", args.storyId))
+      .collect();
+
+    // Delete all votes for this story
+    const deleteVotePromises = votes.map((vote) => ctx.db.delete(vote._id));
+    await Promise.all(deleteVotePromises);
+
+    // Delete the story itself
+    await ctx.db.delete(args.storyId);
+
+    return { success: true };
+  },
+});

@@ -77,3 +77,19 @@ export function useEndVoting() {
     });
   };
 }
+
+export function useDeleteStory() {
+  const mutation = useMutation(api.stories.deleteStory);
+  const { data: session } = useSession();
+
+  return async (storyId: Id<"stories">) => {
+    if (!session?.user?.id) {
+      throw new Error("Must be logged in to delete stories");
+    }
+
+    return await mutation({
+      storyId,
+      userId: session.user.id,
+    });
+  };
+}

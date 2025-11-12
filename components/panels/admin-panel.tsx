@@ -2,6 +2,7 @@ import { Id } from "@/convex/_generated/dataModel";
 
 import {
   useAddStory,
+  useDeleteStory,
   useEndVoting,
   useToggleStoryStatus,
 } from "@/lib/hooks/convex/use-stories";
@@ -20,7 +21,7 @@ import {
 } from "@radix-ui/react-dropdown-menu";
 import { Label } from "@radix-ui/react-label";
 import { useAtomValue } from "jotai";
-import { ArrowLeft, ChevronDown } from "lucide-react";
+import { ArrowLeft, ChevronDown, Trash2 } from "lucide-react";
 import { KeyboardEvent, useMemo, useState } from "react";
 import { Card } from "../card";
 import { IssuesDropdown, Story } from "../inputs/issues-dropdown";
@@ -38,6 +39,7 @@ const StoryItem = ({
   onStartVoting,
   onStopVoting,
   onCompleteStory,
+  onDeleteStory,
 }: {
   story: {
     _id: Id<"stories">;
@@ -51,6 +53,7 @@ const StoryItem = ({
   onStartVoting: (id: string) => void;
   onStopVoting: (id: string) => void;
   onCompleteStory: (id: string, points: number) => void;
+  onDeleteStory: (id: string) => void;
 }) => {
   const votes = useGetStoryVotes(story._id);
   const [points, setPoints] = useState<number | "">("");
@@ -194,6 +197,15 @@ const StoryItem = ({
                 </Button>
               </>
             )}
+
+            {/* Delete button for all story statuses */}
+            <Button
+              variant="secondary"
+              size="icon"
+              onClick={() => onDeleteStory(story._id)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </Card>
@@ -212,6 +224,7 @@ export const AdminPanel = () => {
   const toggleStoryStatus = useToggleStoryStatus();
   const resetVotes = useResetVotes();
   const endVoting = useEndVoting();
+  const deleteStory = useDeleteStory();
 
   const handleAddManualStory = () => {
     setLoading(true);
@@ -321,6 +334,10 @@ export const AdminPanel = () => {
     //     console.error("Error updating JIRA:", error);
     //   }
     // }
+  };
+
+  const handleDeleteStory = async (storyId: string) => {
+    await deleteStory(storyId as Id<"stories">);
   };
 
   // Check if there's any story currently in voting status OR any story in pending status
@@ -434,6 +451,7 @@ export const AdminPanel = () => {
                         onStartVoting={handleStartVoting}
                         onStopVoting={handleStopVoting}
                         onCompleteStory={handleCompleteStory}
+                        onDeleteStory={handleDeleteStory}
                       />
                     );
                   })}
