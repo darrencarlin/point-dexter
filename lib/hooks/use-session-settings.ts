@@ -8,12 +8,12 @@ import { ScoringType } from "../types";
  * Hook to get session settings from Convex (real-time, no polling needed)
  * All participants see the same settings and get updates automatically when admin changes them
  */
-type SessionSettingsResult = {
+interface SessionSettingsResult {
   timedVoting: boolean;
   votingTimeLimit: number;
   scoringType: ScoringType;
   showKickButtons: boolean;
-};
+}
 
 export function useSessionSettings(sessionId: Id<"sessions"> | undefined) {
   const settings = useQuery(

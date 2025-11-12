@@ -2,11 +2,11 @@ import { ScoringType } from "../types";
 
 type ScoringOption = number | "?";
 
-type ScoringConfig = {
+interface ScoringConfig {
   label: string;
   description?: string;
   options: ScoringOption[];
-};
+}
 
 export const SCORING_CONFIGS: Record<ScoringType, ScoringConfig> = {
   fibonacci: {
