@@ -13,6 +13,9 @@ import {
   History,
   Moon,
   Sparkles,
+  BarChart3,
+  UserX,
+  Share2,
 } from "lucide-react";
 
 interface Stats {
@@ -32,55 +35,73 @@ export default function HomePageClient({ stats }: HomePageClientProps) {
       icon: Users,
       title: "Real-Time Collaborative Story Pointing",
       description:
-        "Estimate stories together with your team in real-time — fast, accurate, and transparent.",
+        "Estimate stories together with your team in real-time — fast, accurate, and transparent collaboration.",
     },
     {
       icon: RefreshCw,
-      title: "Sync JIRA Issues or Add Stories Manually",
+      title: "JIRA Integration & Bulk Import",
       description:
-        "Import directly from JIRA or create stories by hand to fit your workflow.",
+        "Import stories from JIRA boards, select multiple issues at once, or create stories manually. Link JIRA issues and view them directly.",
     },
     {
       icon: Gauge,
-      title: "Customizable Point Scales",
+      title: "Six Point Scale Systems",
       description:
-        "Support for Fibonacci, T-shirt sizing, or any custom point system you prefer.",
+        "Choose from Fibonacci, Modified Fibonacci, Powers of 2, Linear Scale, Scale 1-10, or Bucket System — pick the scale that fits your team.",
     },
     {
       icon: Clock,
-      title: "Timed Voting Rounds",
+      title: "Timed Voting with Auto-Stop",
       description:
-        "Keep sessions focused with configurable time limits per estimation round.",
+        "Set time limits for each voting round. The timer automatically stops voting when time runs out, keeping sessions on track.",
+    },
+    {
+      icon: BarChart3,
+      title: "Visual Voting Results & Consensus",
+      description:
+        "See how everyone voted with easy-to-read charts. Automatically identifies when the team agrees or when there's a clear majority.",
     },
     {
       icon: Shield,
-      title: "Role-Based Interfaces",
+      title: "Role-Based Admin Controls",
       description:
-        "Separate, optimized views for admins and participants — clarity for every role.",
+        "Separate views for session leaders and participants. Leaders manage stories, settings, and members with full control.",
     },
     {
       icon: Eye,
       title: "Live Participant Presence",
       description:
-        "See who’s online and actively participating in the session at any time.",
+        "See who's online and actively participating right now. Track who has voted and who's still deciding at a glance.",
+    },
+    {
+      icon: UserX,
+      title: "Member Management",
+      description:
+        "Session leaders can remove participants when needed. Anyone can leave a session voluntarily. Control who can remove members with simple settings.",
+    },
+    {
+      icon: Share2,
+      title: "Easy Session Sharing",
+      description:
+        "Share session links with one click. Copy and send to team members — no complicated setup. Works for everyone, whether they have an account or not.",
     },
     {
       icon: History,
-      title: "Session History & Replay",
+      title: "Session History & Archiving",
       description:
-        "Review past sessions to analyze team consensus and estimation trends.",
+        "Review past sessions with complete details — stories, votes, members, and points. All sessions are saved automatically for future reference.",
     },
     {
       icon: Moon,
       title: "Light & Dark Mode Support",
       description:
-        "Work comfortably in your preferred theme — automatically adapts to your system settings.",
+        "Work comfortably in your preferred theme — automatically matches your device settings or choose your favorite manually.",
     },
     {
       icon: Sparkles,
       title: "Consensus Celebration Effects",
       description:
-        "Celebrate team consensus with a burst of confetti — a fun, visual reward for alignment.",
+        "Celebrate when your team agrees! Get a burst of confetti when everyone votes the same — a fun, visual reward for alignment.",
     },
   ];
 
@@ -156,7 +177,9 @@ export default function HomePageClient({ stats }: HomePageClientProps) {
           transition={{ duration: 0.8 }}
           className="max-w-6xl w-full"
         >
-          <h2 className="text-3xl font-bold text-center mb-8">Key Features</h2>
+          <h2 className="text-3xl font-bold text-center mb-8">
+            Packed with Features
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, i) => {
               const Icon = feature.icon;
