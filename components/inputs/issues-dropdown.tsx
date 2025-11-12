@@ -38,9 +38,10 @@ export type { Story, Board } from "@/lib/state";
 
 interface Props {
   onAddStory?: (issue: Story | null) => void;
+  onAddMultipleStories?: (stories: Story[]) => void;
 }
 
-export const IssuesDropdown = ({ onAddStory }: Props) => {
+export const IssuesDropdown = ({ onAddStory, onAddMultipleStories }: Props) => {
   const [loadingBoards, setLoadingBoards] = React.useState(false);
   const [loadingStories, setLoadingStories] = React.useState(false);
   const [boards, setBoards] = useAtom(jiraBoardsAtom);
@@ -291,9 +292,15 @@ export const IssuesDropdown = ({ onAddStory }: Props) => {
           <Button
             type="button"
             onClick={() => {
-              selectedStories.forEach((story) => {
-                onAddStory?.(story)
-              });
+              if (onAddMultipleStories) {
+                // Prefer the multiple stories handler (handles both single and multiple)
+                onAddMultipleStories(selectedStories);
+              } else if (onAddStory) {
+                // Fallback to original handler
+                selectedStories.forEach((story) => {
+                  onAddStory(story);
+                });
+              }
               // Clear selection after adding
               setSelectedIssuesSet(new Set());
             }}

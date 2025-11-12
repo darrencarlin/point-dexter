@@ -14,15 +14,16 @@ import {
   useSessionId,
 } from "@/lib/hooks/use-session-hooks";
 
-import { jiraSiteUrlAtom } from "@/lib/state";
+import { jiraSiteUrlAtom, storiesTabAtom } from "@/lib/state";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
 import { Label } from "@radix-ui/react-label";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { ArrowLeft, ChevronDown, Trash2 } from "lucide-react";
 import { KeyboardEvent, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { Card } from "../card";
 import { IssuesDropdown, Story } from "../inputs/issues-dropdown";
 import { Button } from "../ui/button";
@@ -225,8 +226,9 @@ export const AdminPanel = () => {
   const resetVotes = useResetVotes();
   const endVoting = useEndVoting();
   const deleteStory = useDeleteStory();
+  const [activeTab, setActiveTab] = useAtom(storiesTabAtom);
 
-  const handleAddManualStory = () => {
+  const handleAddManualStory = async () => {
     setLoading(true);
     setError("");
 
@@ -242,41 +244,71 @@ export const AdminPanel = () => {
       return;
     }
 
-    addStory({ title, sessionId: session?._id })
-      .then(() => setTitle(""))
-      .catch((error) => {
-        console.error("Failed to add story:", error);
-        setError("Failed to add story");
-      })
-      .finally(() => setLoading(false));
+    // Check for duplicate story by title
+    const isDuplicate = sessionStories?.some(
+      (story) => story.title === title
+    );
+
+    if (isDuplicate) {
+      setError("A story with this title already exists");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await addStory({ title, sessionId: session?._id });
+      setTitle("");
+      toast.success("Story Added");
+      setActiveTab("active");
+    } catch (error) {
+      console.error("Failed to add story:", error);
+      setError("Failed to add story");
+      toast.error("Failed to add story");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleAddJiraStory = (story: Story | null) => {
-    setLoading(true);
-    setError("");
-
+  const handleAddJiraStory = async (story: Story | null) => {
     if (!story) {
       setError("No Jira story selected");
-      setLoading(false);
       return;
     }
 
     if (!session?._id) {
       setError("Session not found");
-      setLoading(false);
       return;
     }
 
-    addStory({
-      title: `${story.key}: ${story.title}`,
-      sessionId: session?._id,
-      jiraKey: story.key, // Store the JIRA key
-    })
-      .catch((error) => {
-        console.error("Failed to add Jira story:", error);
-        setError("Failed to add Jira story");
-      })
-      .finally(() => setLoading(false));
+    // Check for duplicate story by jiraKey
+    const isDuplicate = sessionStories?.some(
+      (s) => s.jiraKey === story.key
+    );
+
+    if (isDuplicate) {
+      setError(`Story ${story.key} has already been added`);
+      toast.error(`Story ${story.key} already exists`);
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      await addStory({
+        title: `${story.key}: ${story.title}`,
+        sessionId: session?._id,
+        jiraKey: story.key, // Store the JIRA key
+      });
+      toast.success("Story Added");
+      setActiveTab("active");
+    } catch (error) {
+      console.error("Failed to add Jira story:", error);
+      setError("Failed to add Jira story");
+      toast.error("Failed to add Jira story");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAddStory = (story: Story | null) => {
@@ -284,6 +316,74 @@ export const AdminPanel = () => {
       handleAddManualStory();
     } else {
       handleAddJiraStory(story);
+    }
+  };
+
+  const handleAddMultipleJiraStories = async (stories: Story[]) => {
+    if (!session?._id) {
+      setError("Session not found");
+      return;
+    }
+
+    if (stories.length === 0) {
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    // Filter out duplicates
+    const existingJiraKeys = new Set(
+      sessionStories?.map((s) => s.jiraKey).filter(Boolean) || []
+    );
+    const storiesToAdd = stories.filter(
+      (story) => !existingJiraKeys.has(story.key)
+    );
+    const duplicateCount = stories.length - storiesToAdd.length;
+
+    if (storiesToAdd.length === 0) {
+      if (stories.length === 1) {
+        setError("This story has already been added");
+        toast.error("Story already exists");
+      } else {
+        setError("All selected stories have already been added");
+        toast.error("All stories already exist");
+      }
+      setLoading(false);
+      return;
+    }
+
+    if (duplicateCount > 0) {
+      toast.warning(
+        `${duplicateCount} ${duplicateCount === 1 ? "story" : "stories"} skipped (already exists)`
+      );
+    }
+
+    // Add all stories
+    const sessionId = session._id;
+    const addPromises = storiesToAdd.map((story) =>
+      addStory({
+        title: `${story.key}: ${story.title}`,
+        sessionId: sessionId,
+        jiraKey: story.key,
+      })
+    );
+
+    try {
+      await Promise.all(addPromises);
+      const addedCount = storiesToAdd.length;
+      if (addedCount === 1) {
+        toast.success("Story Added");
+      } else {
+        toast.success(`${addedCount} stories added`);
+      }
+      setActiveTab("active");
+    } catch (error) {
+      console.error("Failed to add stories:", error);
+      setError("Failed to add some stories");
+      toast.error("Failed to add some stories");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -358,7 +458,12 @@ export const AdminPanel = () => {
     <>
       {/* Board/Story Selection Section */}
       <Card className="shrink-0">
-        {!manual && <IssuesDropdown onAddStory={handleAddStory} />}
+        {!manual && (
+          <IssuesDropdown
+            onAddStory={handleAddStory}
+            onAddMultipleStories={handleAddMultipleJiraStories}
+          />
+        )}
         {!manual && (
           <Button
             variant="secondary"
@@ -419,7 +524,8 @@ export const AdminPanel = () => {
       {/* Stories Tabs Section */}
       <Card className="flex flex-col flex-1 min-h-0 shrink-0">
         <Tabs
-          defaultValue="active"
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "active" | "finished")}
           className="flex flex-col flex-1 min-h-0 max-h-[500px] overflow-y-scroll hide-scrollbar"
         >
           <TabsList className="mb-4">

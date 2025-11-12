@@ -32,3 +32,6 @@ export const jiraSiteUrlAtom = atom<string>("");
 
 // Session ID
 export const sessionIdAtom = atom<Id<"sessions">>();
+
+// Active tab for stories (active/finished)
+export const storiesTabAtom = atom<"active" | "finished">("active");
