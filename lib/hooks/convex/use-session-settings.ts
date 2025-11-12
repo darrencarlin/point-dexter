@@ -3,6 +3,7 @@ import { api } from "../../../convex/_generated/api";
 import { useSession } from "../../auth-client";
 import { Id } from "../../../convex/_generated/dataModel";
 import { ScoringType } from "../../types";
+import { getEffectiveUserId } from "../../utils/user-identity";
 
 export function useUpdateSessionSettings() {
   const mutation = useMutation(api.sessionSettings.updateSessionSettings);
@@ -14,18 +15,21 @@ export function useUpdateSessionSettings() {
       timedVoting?: boolean;
       votingTimeLimit?: number;
       scoringType?: ScoringType;
+      showKickButtons?: boolean;
     }
   ) => {
-    if (!session?.user?.id) {
+    const userId = getEffectiveUserId(session);
+    if (!userId) {
       throw new Error("Must be logged in to update session settings");
     }
 
     return await mutation({
       sessionId,
-      userId: session.user.id,
+      userId,
       timedVoting: settings.timedVoting,
       votingTimeLimit: settings.votingTimeLimit,
       scoringType: settings.scoringType,
+      showKickButtons: settings.showKickButtons,
     });
   };
 }

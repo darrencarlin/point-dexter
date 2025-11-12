@@ -12,6 +12,7 @@ type SessionSettingsResult = {
   timedVoting: boolean;
   votingTimeLimit: number;
   scoringType: ScoringType;
+  showKickButtons: boolean;
 };
 
 export function useSessionSettings(sessionId: Id<"sessions"> | undefined) {
@@ -26,6 +27,7 @@ export function useSessionSettings(sessionId: Id<"sessions"> | undefined) {
           timedVoting: settings.timedVoting,
           votingTimeLimit: settings.votingTimeLimit,
           scoringType: normalizeScoringType(settings.scoringType),
+          showKickButtons: settings.showKickButtons ?? true,
         } satisfies SessionSettingsResult)
       : null,
     isLoading: settings === undefined,

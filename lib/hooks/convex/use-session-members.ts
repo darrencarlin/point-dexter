@@ -54,3 +54,17 @@ export function useLeaveSession() {
     });
   };
 }
+
+export function useKickMember() {
+  const { data: session } = useSession();
+  const mutation = useMutation(api.sessionMembers.kickMember);
+
+  return async (sessionId: Id<"sessions">, targetUserId: string) => {
+    const adminUserId = getEffectiveUserId(session);
+    return await mutation({
+      sessionId,
+      adminUserId,
+      targetUserId,
+    });
+  };
+}

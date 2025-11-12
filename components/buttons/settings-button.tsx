@@ -20,6 +20,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSessionSettings } from "@/lib/hooks/use-session-settings";
 import { useGetSession } from "@/lib/hooks/convex/use-sessions";
 import { useSession } from "@/lib/auth-client";
+import { getEffectiveUserId } from "@/lib/utils/user-identity";
 import {
   Select,
   SelectContent,
@@ -52,7 +53,8 @@ export const SettingsButton = () => {
 
   const session = useGetSession(sessionId ?? undefined);
   const sessionSettings = useSessionSettings(sessionId ?? undefined);
-  const isAdmin = session?.createdBy === authSession?.user?.id;
+  const currentUserId = getEffectiveUserId(authSession);
+  const isAdmin = session?.createdBy === currentUserId;
 
   // Sync admin settings to Convex when first opening settings in a session
   useEffect(() => {
@@ -180,6 +182,20 @@ export const SettingsButton = () => {
     }
   };
 
+  const handleShowKickButtonsToggle = async (checked: boolean) => {
+    if (isUpdating || isLoading || !sessionId) return;
+
+    setIsUpdating(true);
+    try {
+      // Only update session settings (this is session-specific, not user default)
+      await updateSessionSettings(sessionId, { showKickButtons: checked });
+    } catch (error) {
+      console.error("Error updating show kick buttons setting:", error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -190,8 +206,23 @@ export const SettingsButton = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-72">
         <DropdownMenuLabel>Settings</DropdownMenuLabel>
-        <DropdownMenuSeparator />
         <div className="px-2 py-1.5 space-y-3">
+
+        <div className="flex items-center justify-between space-x-2">
+            <Label
+              htmlFor="timed-voting"
+              className="text-sm font-normal cursor-pointer flex-1"
+            >
+              Timed Voting
+            </Label>
+            <Switch
+              id="timed-voting"
+              checked={settings?.timedVoting ?? false}
+              onCheckedChange={handleTimedVotingToggle}
+              disabled={isLoading || isUpdating}
+            />
+          </div>
+
           <div className="space-y-1.5">
             <Label
               htmlFor="scoring-type"
@@ -226,20 +257,7 @@ export const SettingsButton = () => {
             </Select>
           </div>
 
-          <div className="flex items-center justify-between space-x-2">
-            <Label
-              htmlFor="timed-voting"
-              className="text-sm font-normal cursor-pointer flex-1"
-            >
-              Timed Voting
-            </Label>
-            <Switch
-              id="timed-voting"
-              checked={settings?.timedVoting ?? false}
-              onCheckedChange={handleTimedVotingToggle}
-              disabled={isLoading || isUpdating}
-            />
-          </div>
+          
           {settings?.timedVoting && (
             <div className="space-y-1.5">
               <Label
@@ -266,6 +284,28 @@ export const SettingsButton = () => {
             </div>
           )}
         </div>
+        {sessionId && isAdmin && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>User Management</DropdownMenuLabel>
+            <div className="px-2 py-1.5">
+              <div className="flex items-center justify-between space-x-2">
+                <Label
+                  htmlFor="show-kick-buttons"
+                  className="text-sm font-normal cursor-pointer flex-1"
+                >
+                  Show Kick Buttons
+                </Label>
+                <Switch
+                  id="show-kick-buttons"
+                  checked={sessionSettings.settings?.showKickButtons ?? true}
+                  onCheckedChange={handleShowKickButtonsToggle}
+                  disabled={isLoading || isUpdating || sessionSettings.isLoading || !sessionId}
+                />
+              </div>
+            </div>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

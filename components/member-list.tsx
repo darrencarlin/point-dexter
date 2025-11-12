@@ -2,17 +2,19 @@ import { useGetStoryVotes } from "@/lib/hooks/convex/use-votes";
 import { Card } from "./card";
 import { Title } from "./title";
 import { useMemo, useState } from "react";
-import { Check, LogOut } from "lucide-react";
+import { Check, LogOut, UserX } from "lucide-react";
 import {
   useGetSessionMembers,
   useGetActiveStory,
   useEndedStory,
   useActiveUsers,
   useSessionId,
+  useIsAdmin,
+  useSessionSettings,
 } from "@/lib/hooks/use-session-hooks";
 import { useSession } from "@/lib/auth-client";
 import { getEffectiveUserId } from "@/lib/utils/user-identity";
-import { useLeaveSession } from "@/lib/hooks/convex/use-session-members";
+import { useLeaveSession, useKickMember } from "@/lib/hooks/convex/use-session-members";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
 import {
@@ -34,11 +36,21 @@ export const MemberList = () => {
   const sessionId = useSessionId();
   const { data: authSession } = useSession();
   const leaveSession = useLeaveSession();
+  const kickMember = useKickMember();
+  const isAdmin = useIsAdmin();
+  const { settings: sessionSettings } = useSessionSettings();
   const router = useRouter();
   const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
+  const [isKickDialogOpen, setIsKickDialogOpen] = useState(false);
+  const [isKicking, setIsKicking] = useState(false);
+  const [memberToKick, setMemberToKick] = useState<{
+    userId: string;
+    name: string;
+  } | null>(null);
 
   const currentUserId = getEffectiveUserId(authSession);
+  const showKickButtons = sessionSettings?.showKickButtons ?? true;
 
   // Get votes for the active story (if voting) or ended story (if showing results)
   const storyToCheck =
@@ -89,6 +101,33 @@ export const MemberList = () => {
     }
   };
 
+  const handleKickMember = async () => {
+    if (!sessionId || !memberToKick) {
+      toast.error("Session ID or member not found");
+      return;
+    }
+
+    setIsKicking(true);
+    try {
+      const result = await kickMember(sessionId, memberToKick.userId);
+      toast.success(`${result.kickedUserName} has been removed from the session`);
+      setIsKickDialogOpen(false);
+      setMemberToKick(null);
+    } catch (error) {
+      console.error("Failed to kick member:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to kick member"
+      );
+    } finally {
+      setIsKicking(false);
+    }
+  };
+
+  const openKickDialog = (member: { userId: string; name: string }) => {
+    setMemberToKick(member);
+    setIsKickDialogOpen(true);
+  };
+
   return (
     <Card>
       <Title
@@ -131,8 +170,8 @@ export const MemberList = () => {
                         </span>
                       )}
                     </div>
-                    {/* Show leave button next to current user's name */}
-                    {member.userId === currentUserId && !member.isAdmin && (
+                    {/* Show leave button next to current user's name, or kick button for admins */}
+                    {member.userId === currentUserId && !member.isAdmin ? (
                       <Dialog
                         open={isLeaveDialogOpen}
                         onOpenChange={setIsLeaveDialogOpen}
@@ -172,7 +211,57 @@ export const MemberList = () => {
                           </DialogFooter>
                         </DialogContent>
                       </Dialog>
-                    )}
+                    ) : isAdmin && !member.isAdmin && showKickButtons ? (
+                      <Dialog
+                        open={isKickDialogOpen && memberToKick?.userId === member.userId}
+                        onOpenChange={(open) => {
+                          if (open) {
+                            openKickDialog({ userId: member.userId, name: member.name });
+                          } else {
+                            setIsKickDialogOpen(false);
+                            setMemberToKick(null);
+                          }
+                        }}
+                      >
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="secondary"
+                            size="icon-sm"
+                            title={`Remove ${member.name} from session`}
+                          >
+                            <UserX className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Remove Member</DialogTitle>
+                            <DialogDescription>
+                              Are you sure you want to remove {member.name} from this session?
+                              They will need to rejoin if they want to participate again.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <DialogFooter>
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                setIsKickDialogOpen(false);
+                                setMemberToKick(null);
+                              }}
+                              disabled={isKicking}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              onClick={handleKickMember}
+                              disabled={isKicking}
+                            >
+                              {isKicking ? "Removing..." : "Remove Member"}
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    ) : null}
                   </div>
                 </div>
                 {!member.isAdmin &&

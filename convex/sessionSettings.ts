@@ -22,6 +22,7 @@ export const getSessionSettings = query({
         timedVoting: false,
         votingTimeLimit: 300,
         scoringType: DEFAULT_SCORING_TYPE,
+        showKickButtons: true,
       };
     }
 
@@ -29,6 +30,7 @@ export const getSessionSettings = query({
       timedVoting: settings.timedVoting,
       votingTimeLimit: settings.votingTimeLimit,
       scoringType: normalizeScoringType(settings.scoringType),
+      showKickButtons: settings.showKickButtons ?? true,
     };
   },
 });
@@ -43,6 +45,7 @@ export const updateSessionSettings = mutation({
     timedVoting: v.optional(v.boolean()),
     votingTimeLimit: v.optional(v.number()),
     scoringType: v.optional(v.string()),
+    showKickButtons: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     // Verify user is admin of the session
@@ -72,6 +75,7 @@ export const updateSessionSettings = mutation({
         timedVoting: args.timedVoting ?? existing.timedVoting,
         votingTimeLimit: args.votingTimeLimit ?? existing.votingTimeLimit,
         scoringType: nextScoringType,
+        showKickButtons: args.showKickButtons !== undefined ? args.showKickButtons : (existing.showKickButtons ?? true),
         updatedAt,
       });
       return existing._id;
@@ -83,6 +87,7 @@ export const updateSessionSettings = mutation({
         timedVoting: args.timedVoting ?? false,
         votingTimeLimit: args.votingTimeLimit ?? 300,
         scoringType: initialScoringType,
+        showKickButtons: args.showKickButtons ?? true,
         updatedAt,
       });
       return id;

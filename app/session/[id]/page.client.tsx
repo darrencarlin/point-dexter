@@ -122,9 +122,17 @@ export default function ClientSessionPage({ id }: Props) {
       const isMember = sessionMembers.some(
         (member) => member.userId === currentUserId
       );
+      
+      // If user was previously joined but is no longer a member, they were kicked
+      if (hasJoined && !isMember) {
+        toast.error("You have been removed from this session");
+        router.push("/");
+        return;
+      }
+      
       setHasJoined(isMember);
     }
-  }, [sessionMembers, authSession]);
+  }, [sessionMembers, authSession, hasJoined, router]);
 
   // Initialize name from local storage
   useEffect(() => {

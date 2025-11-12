@@ -51,6 +51,7 @@ const sessionSettings = defineTable({
   timedVoting: v.boolean(),
   votingTimeLimit: v.number(),
   scoringType: v.optional(v.string()),
+  showKickButtons: v.optional(v.boolean()),
   updatedAt: v.number(),
 })
   .index("by_session", ["sessionId"]);
