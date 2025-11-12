@@ -31,6 +31,7 @@ import { DropdownMenuContent, DropdownMenuItem } from "../ui/dropdown-menu";
 import { Input } from "../ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { VotingResultsChart } from "../voting/voting-results-chart";
+import { BASE_URL } from "@/lib/constants";
 
 // Helper component to handle individual story logic with votes
 const StoryItem = ({
@@ -53,7 +54,7 @@ const StoryItem = ({
   onResetVotes: (id: string) => void;
   onStartVoting: (id: string) => void;
   onStopVoting: (id: string) => void;
-  onCompleteStory: (id: string, points: number) => void;
+  onCompleteStory: (id: string, jiraKey: string, points: number) => void;
   onDeleteStory: (id: string) => void;
 }) => {
   const votes = useGetStoryVotes(story._id);
@@ -189,6 +190,7 @@ const StoryItem = ({
                       points !== "" ? points : (consensusPoints ?? 0);
                     onCompleteStory(
                       story._id,
+                      story.jiraKey ?? "",
                       typeof finalPoints === "number" ? finalPoints : 0
                     );
                   }}
@@ -401,7 +403,7 @@ export const AdminPanel = () => {
     await resetVotes(storyId as Id<"stories">);
   };
 
-  const handleCompleteStory = async (storyId: string, finalPoints: number) => {
+  const handleCompleteStory = async (storyId: string, jiraKey: string, finalPoints: number) => {
     // Find the story to get its jiraKey
     // const story = sessionStories?.find((s) => s._id === storyId);
 
@@ -411,29 +413,29 @@ export const AdminPanel = () => {
     // This is comment out for now, theres a setting in JIRA that is different for each instance
     // which means it may not be applicable to everyone
     // If story has a jiraKey, update JIRA
-    // if (story?.jiraKey) {
-    //   try {
-    //     const response = await fetch(
-    //       `${BASE_URL}/api/jira/stories/point/${story.jiraKey}`,
-    //       {
-    //         method: "PATCH",
-    //         headers: {
-    //           "Content-Type": "application/json",
-    //         },
-    //         body: JSON.stringify({ points: finalPoints }),
-    //       }
-    //     );
+    if (jiraKey) {
+      try {
+        const response = await fetch(
+          `${BASE_URL}/api/jira/stories/point/${jiraKey}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ points: finalPoints }),
+          }
+        );
 
-    //     if (!response.ok) {
-    //       const error = await response.json();
-    //       console.error("Failed to update JIRA:", error);
-    //     } else {
-    //       console.log(`Successfully updated JIRA story ${story.jiraKey}`);
-    //     }
-    //   } catch (error) {
-    //     console.error("Error updating JIRA:", error);
-    //   }
-    // }
+        if (!response.ok) {
+          const error = await response.json();
+          console.error("Failed to update JIRA:", error);
+        } else {
+          console.log(`Successfully updated JIRA story ${jiraKey}`);
+        }
+      } catch (error) {
+        console.error("Error updating JIRA:", error);
+      }
+    }
   };
 
   const handleDeleteStory = async (storyId: string) => {
