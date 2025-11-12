@@ -41,3 +41,16 @@ export function useJoinSession() {
     });
   };
 }
+
+export function useLeaveSession() {
+  const { data: session } = useSession();
+  const mutation = useMutation(api.sessionMembers.leaveSession);
+
+  return async (sessionId: Id<"sessions">) => {
+    const userId = getEffectiveUserId(session);
+    return await mutation({
+      sessionId,
+      userId,
+    });
+  };
+}

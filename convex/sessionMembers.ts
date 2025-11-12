@@ -45,3 +45,46 @@ export const joinSession = mutation({
     return memberId;
   },
 });
+
+export const leaveSession = mutation({
+  args: {
+    sessionId: v.id("sessions"),
+    userId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Find the member record
+    const member = await ctx.db
+      .query("sessionMembers")
+      .withIndex("by_session", (q) => q.eq("sessionId", args.sessionId))
+      .filter((q) => q.eq(q.field("userId"), args.userId))
+      .first();
+
+    if (!member) {
+      throw new Error("User is not a member of this session");
+    }
+
+    // Prevent admin from leaving if they're the session creator
+    // (They should use "End Session" instead)
+    const session = await ctx.db.get(args.sessionId);
+    if (session?.createdBy === args.userId) {
+      throw new Error("Session creator cannot leave. Please end the session instead.");
+    }
+
+    // Delete the member record
+    await ctx.db.delete(member._id);
+
+    // Clean up presence records for this user in this session
+    const presenceRecords = await ctx.db
+      .query("presence")
+      .withIndex("by_user_session", (q) =>
+        q.eq("userId", args.userId).eq("sessionId", args.sessionId)
+      )
+      .collect();
+
+    for (const presence of presenceRecords) {
+      await ctx.db.delete(presence._id);
+    }
+
+    return { success: true };
+  },
+});
